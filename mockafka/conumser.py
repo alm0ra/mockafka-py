@@ -1,3 +1,5 @@
+from mockafka.producer import ClusterMetadata
+
 __all__ = ["FakeConsumer"]
 
 
@@ -27,16 +29,13 @@ class FakeConsumer(object):
     def committed(self, partitions, timeout=None):
         return []
 
-    def consume(self, num_messages=1, *args,
-                **kwargs):
+    def consume(self, num_messages=1, *args, **kwargs):
         return []
 
     def consumer_group_metadata(self):
         pass
 
-    def get_watermark_offsets(self, partition, timeout=None, *args,
-                              **kwargs):
-
+    def get_watermark_offsets(self, partition, timeout=None, *args, **kwargs):
         return (0, 0)
 
     def incremental_assign(self, partitions):
@@ -45,8 +44,7 @@ class FakeConsumer(object):
     def incremental_unassign(self, partitions):
         pass
 
-    def list_topics(self, topic=None, *args,
-                    **kwargs):
+    def list_topics(self, topic=None, *args, **kwargs):
         return ClusterMetadata
 
     def offsets_for_times(self, partitions, timeout=None):
@@ -67,8 +65,7 @@ class FakeConsumer(object):
     def seek(self, partition):
         pass
 
-    def store_offsets(self, message=None, *args,
-                      **kwargs):
+    def store_offsets(self, message=None, *args, **kwargs):
         return None
 
     def subscribe(self, topics, on_assign=None, *args,
