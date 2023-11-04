@@ -1,11 +1,13 @@
 from confluent_kafka.admin import TopicMetadata
+from .store import mock_topics, offset_store
+from confluent_kafka.cimpl import NewTopic
 
 __all__ = ["FakeAdminClientImpl"]
 
 
 class FakeAdminClientImpl:
     """
-    Kafka Admin Client
+    Kafka Fake Admin Client
 
     .. py:function:: Admin(**kwargs)
 
@@ -19,47 +21,97 @@ class FakeAdminClientImpl:
       :rtype: int
     """
 
-    def alter_configs(self, *args, **kwargs): ...
+    def create_partitions(self, partitions: list[NewPartitions]):
+        for partition in partitions:
+            self.create_partition(partition)
 
-    def create_acls(self, *args, **kwargs): ...
+    def create_partition(self, partition: NewPartitions):
+        topic = partition.topic
+        partition_count = partition.new_total_count
 
-    def create_partitions(self, *args, **kwargs):  # real signature unknown; restored from __doc__
-        pass
+        if topic in mock_topics.keys():
+            # Increase number of partitions
+            len_of_current_partition = len(mock_topics[topic].keys())
+            if partition_count > len_of_current_partition:
+                for i in range(len_of_current_partition, partition_count):
+                    mock_topics[topic][i] = []
+                    offset_store[f'{topic}-{i}'] = {
+                        'first_offset': 0,
+                        'next_offset': 0
+                    }
+            elif partipartition_counttion == len_of_current_partition:
+                pass
 
-    def create_topics(self, topics, future=None, validate_only=None, request_timeout=None,
-                      operation_timeout=None):  # real signature unknown; restored from __doc__
-        pass
+            else:
+                raise Exception(f"{topic} Can not Decrease partition topic.")
 
-    def delete_acls(self, acl_binding_filters, future,
-                    request_timeout=None):  # real signature unknown; restored from __doc__
-        pass
+    def create_topics(self, topics: list[NewTopic]):
+        for topic in topics:
+            self.create_topic(topic=topic)
+
+    def create_topic(self, topic: NewTopic):
+        if topic.topic in mock_topics.keys():
+            raise Exception(f'{topic.topic} Topic already exist')
+
+        # create topic
+        mock_topics[topic] = {}
+
+        self.create_partition([NewPartitions(topic.topic, topic.num_partitions)])
 
     def delete_topics(self, topics, future, request_timeout=None,
-                      operation_timeout=None):  # real signature unknown; restored from __doc__
-        pass
+                      operation_timeout=None):
+        for topic in topics:
+            self.delete_topic(topic=topic)
+
+    def delete_topic(self, topic: NewTopic):
+        if topic.topic not in mock_topics.keys():
+            raise Exception("Topic Does not exist")
+        mock_topics.pop(topic.topic)
+        for offset in offset_store:
+            if topic in offset:
+                offset_store.pop(offset)
 
     def describe_acls(self, acl_binding_filter, future,
-                      request_timeout=None):  # real signature unknown; restored from __doc__
+                      request_timeout=None):
+        # This method Does not support in mockafka
         pass
 
     def describe_configs(self, resources, future, request_timeout=None,
-                         broker=None):  # real signature unknown; restored from __doc__
+                         broker=None):
+        # This method Does not support in mockafka
+        pass
+
+    def delete_acls(self, acl_binding_filters, future,
+                    request_timeout=None):
+        # This method Does not support in mockafka
+        pass
+
+    def alter_configs(self, *args, **kwargs):
+        # This method Does not support in mockafka
+        pass
+
+    def create_acls(self, *args, **kwargs):
+        # This method Does not support in mockafka
         pass
 
     def list_groups(self, group=None, *args,
-                    **kwargs):  # real signature unknown; NOTE: unreliably restored from __doc__
+                    **kwargs):
+        # This method Does not support in mockafka
         pass
 
     def list_topics(self, topic=None, *args,
                     **kwargs):  # real signature unknown; NOTE: unreliably restored from __doc__
         return ClusterMetadata(topic)
 
-    def poll(self, timeout=None):  # real signature unknown; restored from __doc__
+    def poll(self, timeout=None):
+        # This method Does not support in mockafka
         pass
 
-    def __init__(self, *args, **kwargs): ...
+    def __init__(self, *args, **kwargs):
+        pass
 
-    def __len__(self, *args, **kwargs): ...
+    def __len__(self, *args, **kwargs):
+        pass
 
 
 class ClusterMetadata(object):
@@ -74,7 +126,9 @@ class ClusterMetadata(object):
         self.cluster_id = 'eAvlnr_4QISNbc5bIwBRVA'
         self.controller_id = 1
         self.brokers = {1: FakeBrokerMetadata()}
-        self.topics = {topic: TopicMetadata(topic)}
+        self.topics = {}
+        if topic in mock_topics.keys():
+            self.topics[topic] = TopicMetadata(topic, len(mock_topics[topic].keys()))
         self.orig_broker_id = -1
         self.orig_broker_name = None
 
@@ -95,7 +149,7 @@ class FakeBrokerMetadata(object):
     def __init__(self):
         self.id = 1
         """Broker id"""
-        self.host = '127.0.0.1'
+        self.host = 'fakebroker'
         """Broker hostname"""
         self.port = 9091
         """Broker port"""
@@ -118,10 +172,10 @@ class TopicMetadata(object):
     # Sphinx issue where it tries to reference the same instance variable
     # on other classes which raises a warning/error.
 
-    def __init__(self, topic_name):
+    def __init__(self, topic_name, partition_num: int = 4):
         self.topic = topic_name
         """Topic name"""
-        self.partitions = range(32)
+        self.partitions = partition_num
         """Map of partitions indexed by partition id. Value is a PartitionMetadata object."""
         self.error = None
         """Topic error, or None. Value is a KafkaError object."""
