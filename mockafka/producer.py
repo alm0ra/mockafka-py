@@ -1,84 +1,58 @@
+from mockafka.cluster_metadata import ClusterMetadata
+from mockafka.kafka_store import KafkaStore
+from mockafka.message import Message
+
 __all__ = ["FakeProducer"]
 
 
 class FakeProducer(object):
-    """
-    Asynchronous Fake Kafka Producer
+    def __init__(self, config):
+        self.kafka = KafkaStore()
 
-    .. py:function:: Producer(config)
+    def produce(self, topic, value=None, *args, **kwargs):
+        # create a message and call produce kafka
+        message = Message(value=value, *args, **kwargs)
+        self.kafka.produce(message=message, topic=topic, partition=kwargs['partition'])
 
-      :param dict config: Configuration properties. At a minimum ``bootstrap.servers`` **should** be set
-
-      Create a new Producer instance using the provided configuration dict.
-
-
-    .. py:function:: __len__(self)
-
-      Producer implements __len__ that can be used as len(producer) to obtain number of messages waiting.
-      :returns: Number of messages and Kafka protocol requests waiting to be delivered to broker.
-      :rtype: int
-    """
+    def list_topics(self, topic=None, *args, **kwargs):
+        return ClusterMetadata(topic)
 
     def abort_transaction(self, timeout=None):
+        # This method Does not support in mockafka
         pass
 
     def begin_transaction(self):
+        # This method Does not support in mockafka
         pass
 
     def commit_transaction(self, timeout=None):
+        # This method Does not support in mockafka
         pass
 
     def flush(self, timeout=None):
+        # This method Does not support in mockafka
         return 0
 
     def init_transactions(self, timeout=None):
+        # This method Does not support in mockafka
         pass
 
-    def list_topics(self, topic=None, *args,
-                    **kwargs):
-        return ClusterMetadata(topic)
-
     def poll(self, timeout=None):
+        # This method Does not support in mockafka
         return 0
 
-    def produce(self, topic, value=None, *args, **kwargs):
-        return None
-
     def purge(self, in_queue=True, *args, **kwargs):
+        # This method Does not support in mockafka
         pass
 
     def send_offsets_to_transaction(self, positions, group_metadata,
                                     timeout=None):
-        pass
-
-    def __init__(self, config):
+        # This method Does not support in mockafka
         pass
 
     def __len__(self, *args, **kwargs):
+        # This method Does not support in mockafka
         pass
-
-
-class ClusterMetadata(object):
-    """
-    Provides information about the Kafka cluster, brokers, and topics.
-    Returned by list_topics().
-
-    This class is typically not user instantiated.
-    """
-
-    def __init__(self, topic):
-        self.cluster_id = None
-        self.controller_id = -1
-        self.brokers = {}
-        self.topics = {'name': topic}
-        self.orig_broker_id = -1
-        self.orig_broker_name = None
-
-    def __repr__(self):
-        return "ClusterMetadata({})".format(self.cluster_id)
-
-    def __str__(self):
-        return str(self.cluster_id)
 
 
 class TopicPartition(object):
