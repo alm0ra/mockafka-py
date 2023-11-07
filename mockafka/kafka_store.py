@@ -76,6 +76,9 @@ class KafkaStore:
             raise KafkaException('can not decrease partition of topic')
 
     def remove_topic(self, topic: str):
+        if not self.is_topic_exist(topic=topic):
+            return
+
         mock_topics.pop(topic)
         for offset_key in offset_store.keys():
             if topic in offset_key:
@@ -103,7 +106,7 @@ class KafkaStore:
         if mock_topics[topic].get(partition, None) is None:
             raise KafkaException(f'can not produce on partition {partition} of {topic}, partition does not exist')
 
-        if not partition:
+        if partition is None:
             raise KafkaException('you must assigne partition when you want to produce message')
 
         # add message to topic
