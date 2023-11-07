@@ -1,6 +1,7 @@
 from time import sleep
 
-from mockafka import ClusterMetadata, Message
+from mockafka.cluster_metadata import ClusterMetadata
+from mockafka.message import Message
 from mockafka.kafka_store import KafkaStore, KafkaException
 
 __all__ = ["FakeConsumer"]

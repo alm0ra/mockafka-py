@@ -1,6 +1,6 @@
 from confluent_kafka.cimpl import NewTopic, NewPartitions
 
-from mockafka import ClusterMetadata
+from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.kafka_store import KafkaStore
 
 __all__ = ["FakeAdminClientImpl"]
