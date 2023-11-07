@@ -1,7 +1,5 @@
 from unittest import TestCase
 
-import pytest
-
 from mockafka.kafka_store import KafkaStore, KafkaException, Message
 
 
@@ -25,7 +23,6 @@ class TestKafkaStore(TestCase):
         self.kafka = KafkaStore(clean=True)
 
     def _create_topic_partition(self):
-        self.kafka.create_topic(topic=self.TEST_TOPIC)
         self.kafka.create_partition(topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION)
 
     def test_is_topic_exist(self):
@@ -76,15 +73,6 @@ class TestKafkaStore(TestCase):
 
         self.assertFalse(self.kafka.is_topic_exist(topic=self.TEST_TOPIC))
 
-    def test_set_first_offset(self):
-        pass
-
-    def test__add_next_offset(self):
-        pass
-
-    def test_get_offset_store_key(self):
-        pass
-
     def test_produce(self):
         self._create_topic_partition()
 
@@ -123,12 +111,6 @@ class TestKafkaStore(TestCase):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
 
         self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), 10)
-
-    def test_get_partition_first_offset(self):
-        pass
-
-    def test_get_partition_next_offset(self):
-        pass
 
     def test_topic_list(self):
         # test empty topic
@@ -194,5 +176,75 @@ class TestKafkaStore(TestCase):
             self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 10
         )
 
+    def test_fresh(self):
+        self._create_topic_partition()
+
+        for i in range(self.DEFAULT_PARTITION):
+            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=i)
+
+        # before clearing
+        self.assertEqual(
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 16
+        )
+
+        self.kafka.fresh()
+
+        # after clearing
+        self.assertFalse(self.kafka.is_topic_exist(topic=self.TEST_TOPIC))
+
+    def test_set_first_offset(self):
+        self._create_topic_partition()
+
+        self.assertEqual(
+            self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 0
+        )
+
+        for i in range(self.DEFAULT_PARTITION):
+            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+
+        self.assertEqual(
+            self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 16
+        )
+
+        self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=1)
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 1
+        )
+
+        self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=10)
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+        )
+
+        self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=100)
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+        )
+
+        self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=8)
+        self.assertEqual(
+            self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 16
+        )
+
     def test_reset_offset(self):
-        pass
+        self._create_topic_partition()
+
+        for i in range(16):
+            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+
+        self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=10)
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+        )
+
+        # reset offset to latest
+        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy='latest')
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 16
+        )
+
+        # reset offset to earliest
+        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy='earliest')
+        self.assertEqual(
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 0
+        )

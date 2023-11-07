@@ -22,11 +22,6 @@ mock_topics: dict[str, dict[int, list[Message]]] = {}
 
 offset_store: dict[str, dict[str, int]] = {}
 
-NEW_OFFSET = {
-    'first_offset': 0,
-    'next_offset': 0
-}
-
 
 class KafkaStore:
     """
@@ -70,7 +65,10 @@ class KafkaStore:
         if partitions >= len_of_current_partition:
             for i in range(len_of_current_partition, partitions):
                 mock_topics[topic][i] = []
-                offset_store[self.get_offset_store_key(topic, i)] = NEW_OFFSET
+                offset_store[self.get_offset_store_key(topic, i)] = {
+                    self.FIRST_OFFSET: 0,
+                    self.NEXT_OFFSET: 0
+                }
 
         else:
             raise KafkaException('can not decrease partition of topic')
