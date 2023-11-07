@@ -35,6 +35,11 @@ class KafkaStore:
     FIRST_OFFSET = 'first_offset'
     NEXT_OFFSET = 'next_offset'
 
+    def __init__(self, clean: bool = False):
+        if clean:
+            mock_topics.clear()
+            offset_store.clear()
+
     @staticmethod
     def is_topic_exist(topic: str) -> bool:
         return topic in mock_topics.keys()
@@ -52,7 +57,7 @@ class KafkaStore:
 
     @staticmethod
     def create_topic(topic: str):
-        if mock_topics.get(topic, None) is None:
+        if mock_topics.get(topic, None) is not None:
             raise KafkaException(f'{topic} exist is fake kafka')
 
         mock_topics[topic] = {}
@@ -153,3 +158,8 @@ class KafkaStore:
 
             elif strategy == 'earliest':
                 offset_store[key][self.FIRST_OFFSET] = 0
+
+    @staticmethod
+    def fresh():
+        mock_topics.clear()
+        offset_store.clear()
