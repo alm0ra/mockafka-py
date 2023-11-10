@@ -22,8 +22,8 @@ class FakeAdminClientImpl:
       :rtype: int
     """
 
-    def __init__(self, *args, **kwargs):
-        self.kafka = KafkaStore()
+    def __init__(self, clean: bool = True, *args, **kwargs):
+        self.kafka = KafkaStore(clean=clean)
 
     def create_partitions(self, partitions: list[NewPartitions]):
         for partition in partitions:
