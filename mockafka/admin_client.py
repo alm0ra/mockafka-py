@@ -40,7 +40,7 @@ class FakeAdminClientImpl:
         self.kafka.create_topic(topic.topic)
         self.create_partitions([NewPartitions(topic.topic, topic.num_partitions)])
 
-    def delete_topics(self, topics, future, request_timeout=None,
+    def delete_topics(self, topics, future=None, request_timeout=None,
                       operation_timeout=None):
         for topic in topics:
             self.delete_topic(topic=topic)
