@@ -66,3 +66,30 @@ class TestFakeAdminClient(TestCase):
             len(cluster_metadata.topics['test3']), 16
         )
 
+    def test_describe_acls(self):
+        # This method Does not support in mockafka
+        self.admin.describe_acls(acl_binding_filter=None, future=None)
+
+    def test_describe_configs(self):
+        # This method Does not support in mockafka
+        self.admin.describe_configs(resources=None, future=None)
+
+    def test_delete_acls(self):
+        # This method Does not support in mockafka
+        self.admin.delete_acls(acl_binding_filters=None, future=None)
+
+    def test_alter_configs(self):
+        # This method Does not support in mockafka
+        self.admin.alter_configs()
+
+    def test_create_acls(self):
+        # This method Does not support in mockafka
+        self.admin.create_acls()
+
+    def test_list_groups(self):
+        # This method Does not support in mockafka
+        self.admin.list_topics(topic='test')
+
+    def test_poll(self):
+        # This method Does not support in mockafka
+        self.admin.poll()
