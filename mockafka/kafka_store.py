@@ -17,6 +17,7 @@ offset_store = {
 """
 from confluent_kafka import KafkaException
 from .message import Message
+from copy import deepcopy
 
 mock_topics: dict[str, dict[int, list[Message]]] = {}
 
@@ -78,7 +79,9 @@ class KafkaStore:
             return
 
         mock_topics.pop(topic)
-        for offset_key in offset_store.keys():
+
+        offset_store_keys = deepcopy(list(offset_store.keys()))
+        for offset_key in offset_store_keys:
             if topic in offset_key:
                 offset_store.pop(offset_key)
 
