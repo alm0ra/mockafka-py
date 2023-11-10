@@ -1,8 +1,10 @@
 from unittest import TestCase
 
+import pytest
+
 from mockafka.admin_client import FakeAdminClientImpl
 from mockafka.conumser import FakeConsumer
-from mockafka.kafka_store import KafkaStore
+from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
 
 
@@ -13,8 +15,12 @@ class TestFakeConsumer(TestCase):
         self.consumer = FakeConsumer()
         self.admin = FakeAdminClientImpl()
 
+    @pytest.fixture(autouse=True)
+    def topic(self):
+        self.test_topic = 'test_topic'
+
     def test_consume(self):
-        pass
+        self.test_poll()
 
     def test_close(self):
         pass
@@ -29,14 +35,38 @@ class TestFakeConsumer(TestCase):
         pass
 
     def test_subscribe(self):
-        pass
+        test_topic_2 = 'test_topic_2'
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+        self.kafka.create_partition(topic=test_topic_2, partitions=10)
+        topics = [self.test_topic, test_topic_2]
+        self.consumer.subscribe(topics=topics)
+
+        self.assertEqual(
+            self.consumer.subscribed_topic, topics
+        )
+
+    def test_subscribe_topic_not_exist(self):
+        topics = [self.test_topic]
+        with pytest.raises(KafkaException):
+            self.consumer.subscribe(topics=topics)
 
     def test_unsubscribe(self):
-        pass
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+
+        topics = [self.test_topic]
+        self.consumer.subscribe(topics=topics)
+
+        self.assertEqual(
+            self.consumer.subscribed_topic, topics
+        )
+        self.consumer.unsubscribe(topics=topics)
+        self.assertEqual(
+            self.consumer.subscribed_topic, []
+        )
 
     def test_assign(self):
         # This method Does not support in mockafka
-        pass
+        self.consumer.assign(partitions=None)
 
     def test_unassign(self):
         # This method Does not support in mockafka
