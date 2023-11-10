@@ -19,11 +19,11 @@ class ClusterMetadata(object):
         self.topics = {}
         if topic:
             if self.kafka.is_topic_exist(topic=topic):
-                self.topics[topic] = TopicMetadata(topic, len(self.kafka.partition_list(topic=topic)))
+                self.topics[topic] = TopicMetadata(topic, self.kafka.partition_list(topic=topic))
 
         else:
             for topic in self.kafka.topic_list():
-                self.topics[topic] = TopicMetadata(topic, len(self.kafka.partition_list(topic=topic)))
+                self.topics[topic] = TopicMetadata(topic, self.kafka.partition_list(topic=topic))
 
         self.orig_broker_id = -1
         self.orig_broker_name = None
