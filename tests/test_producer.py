@@ -6,7 +6,7 @@ from mockafka import Message
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
-
+from confluent_kafka import Message
 
 @pytest.fixture(autouse=True)
 def test_topic():
@@ -70,9 +70,9 @@ class TestFakeProducer(TestCase):
             headers={}, key=self.key, value=self.value, topic=self.topic, partition=0,
         )
         message: Message = self.kafka.get_messages_in_partition(topic=self.topic, partition=0)[0]
-        self.assertEqual(message._key, self.key)
-        self.assertEqual(message._value, self.value)
-        self.assertEqual(message._topic, self.topic)
+        self.assertEqual(message.key(), self.key)
+        self.assertEqual(message.value(payload=None), self.value)
+        self.assertEqual(message.topic(), self.topic)
 
     def test_list_topics(self):
         cluster_metadata = self.producer.list_topics()
