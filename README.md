@@ -15,7 +15,7 @@
 fake version of confluent-kafka-python 
 
 # Features
-- Programmatically build MongoDB aggregation pipelines.
+- compatible with confluent-kafka
 - Produce, Consume, AdminClient operations with ease.
 
 # TODO
