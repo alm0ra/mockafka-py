@@ -5,46 +5,46 @@ from confluent_kafka import KafkaError
 
 class Message:
     def __init__(self, *args, **kwargs):
-        self.headers: Optional[dict] = kwargs.get('headers', None)
-        self.key: Optional[str] = kwargs.get('key', None)
-        self.value: Optional[str] = kwargs.get('value', None)
-        self.topic: Optional[str] = kwargs.get('topic', None)
-        self.offset: Optional[int] = kwargs.get('offset', None)
-        self.error: Optional[KafkaError] = kwargs.get('error', None)
-        self.latency: Optional[float] = kwargs.get('latency', None)
-        self.leader_epoch: Optional[int] = kwargs.get('leader_epoch', None)
-        self.partition: Optional[int] = kwargs.get('partition', None)
-        self.timestamp: int = kwargs.get('timestamp', None)
+        self._headers: Optional[dict] = kwargs.get('headers', None)
+        self._key: Optional[str] = kwargs.get('key', None)
+        self._value: Optional[str] = kwargs.get('value', None)
+        self._topic: Optional[str] = kwargs.get('topic', None)
+        self._offset: Optional[int] = kwargs.get('offset', None)
+        self._error: Optional[KafkaError] = kwargs.get('error', None)
+        self._latency: Optional[float] = kwargs.get('latency', None)
+        self._leader_epoch: Optional[int] = kwargs.get('leader_epoch', None)
+        self._partition: Optional[int] = kwargs.get('partition', None)
+        self._timestamp: int = kwargs.get('timestamp', None)
 
     def offset(self, *args, **kwargs):
-        return self.offset
+        return self._offset
 
     def latency(self, *args, **kwargs):
-        return self.latency
+        return self._latency
 
     def leader_epoch(self, *args, **kwargs):
-        return self.leader_epoch
+        return self._leader_epoch
 
     def headers(self, *args, **kwargs):
-        return self.headers
+        return self._headers
 
     def key(self, *args, **kwargs):
-        return self.key
+        return self._key
 
     def value(self, *args, **kwargs):
-        return self.value
+        return self._value
 
     def timestamp(self, *args, **kwargs):
-        return self.timestamp
+        return self._timestamp
 
     def topic(self, *args, **kwargs):
-        return self.topic
+        return self._topic
 
     def value(self, payload):
-        return self.value
+        return self._value
 
     def error(self):
-        return self.error
+        return self._error
 
     def set_headers(self, *args, **kwargs):  # real signature unknown
         pass
