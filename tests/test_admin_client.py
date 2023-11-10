@@ -88,7 +88,7 @@ class TestFakeAdminClient(TestCase):
 
     def test_list_groups(self):
         # This method Does not support in mockafka
-        self.admin.list_topics(topic='test')
+        self.admin.list_groups()
 
     def test_poll(self):
         # This method Does not support in mockafka
