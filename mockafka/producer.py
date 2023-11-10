@@ -6,12 +6,12 @@ __all__ = ["FakeProducer"]
 
 
 class FakeProducer(object):
-    def __init__(self, config):
+    def __init__(self, config: dict = None):
         self.kafka = KafkaStore()
 
     def produce(self, topic, value=None, *args, **kwargs):
         # create a message and call produce kafka
-        message = Message(value=value, *args, **kwargs)
+        message = Message(value=value, topic=topic, *args, **kwargs)
         self.kafka.produce(message=message, topic=topic, partition=kwargs['partition'])
 
     def list_topics(self, topic=None, *args, **kwargs):
