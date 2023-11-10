@@ -73,6 +73,9 @@ class TestFakeProducer(TestCase):
         self.assertEqual(message.key(), self.key)
         self.assertEqual(message.value(payload=None), self.value)
         self.assertEqual(message.topic(), self.topic)
+        self.assertEqual(message.headers(), {})
+        self.assertEqual(message.error(), None)
+        self.assertEqual(message.latency(), None)
 
     def test_list_topics(self):
         cluster_metadata = self.producer.list_topics()
