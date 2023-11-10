@@ -8,20 +8,6 @@ from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
 from confluent_kafka import Message
 
-@pytest.fixture(autouse=True)
-def test_topic():
-    return 'test_topic'
-
-
-@pytest.fixture(autouse=True)
-def test_key():
-    return 'test_key'
-
-
-@pytest.fixture(autouse=True)
-def test_value():
-    return 'test_value'
-
 
 class TestFakeProducer(TestCase):
     def setUp(self) -> None:
