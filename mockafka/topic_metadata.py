@@ -17,12 +17,6 @@ class TopicMetadata(object):
         self.error = None
         """Topic error, or None. Value is a KafkaError object."""
 
-    def __repr__(self):
-        if self.error is not None:
-            return "TopicMetadata({}, {} partitions, {})".format(self.topic, len(self.partitions), self.error)
-        else:
-            return "TopicMetadata({}, {} partitions)".format(self.topic, len(self.partitions))
-
     def __str__(self):
         return self.topic
 
