@@ -59,6 +59,12 @@ class TestFakeProducer(TestCase):
                 headers={}, key=self.key, value=self.value, topic=self.topic, partition=17,
             )
 
+    def test_produce_fail_for_none_partition(self):
+        with pytest.raises(KafkaException):
+            self.producer.produce(
+                headers={}, key=self.key, value=self.value, topic=self.topic, partition=None,
+            )
+
     def test_produce_once(self):
         self.producer.produce(
             headers={}, key=self.key, value=self.value, topic=self.topic, partition=0,
