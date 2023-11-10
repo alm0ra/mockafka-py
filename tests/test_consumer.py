@@ -19,8 +19,15 @@ class TestFakeConsumer(TestCase):
     def topic(self):
         self.test_topic = 'test_topic'
 
+    def create_topic(self):
+        self.kafka.create_partition(topic=self.test_topic, partitions=16)
+
+    def produce_message(self):
+        self.producer.produce(topic=self.test_topic, partition=0, key='test', value='test')
+        self.producer.produce(topic=self.test_topic, partition=0, key='test1', value='test1')
+
     def test_consume(self):
-        self.test_poll()
+        self.test_poll_with_commit()
 
     def test_close(self):
         # check consumer store is empty
@@ -35,14 +42,34 @@ class TestFakeConsumer(TestCase):
         self.assertEqual(self.consumer.consumer_store, {})
         self.assertIsNone(self.consumer.consume())
 
-    def test_commit(self):
-        pass
+    def test_poll_without_commit(self):
+        self.create_topic()
+        self.produce_message()
+        self.consumer.subscribe(topics=[self.test_topic])
 
-    def test_list_topics(self):
-        pass
+        message = self.consumer.poll()
+        self.assertEqual(message.value(payload=None), 'test')
+        message = self.consumer.poll()
+        self.assertEqual(message.value(payload=None), 'test')
 
-    def test_poll(self):
-        pass
+        self.assertIsNone(self.consumer.poll())
+        self.assertIsNone(self.consumer.poll())
+
+    def test_poll_with_commit(self):
+        self.create_topic()
+        self.produce_message()
+        self.consumer.subscribe(topics=[self.test_topic])
+
+        message = self.consumer.poll()
+        self.consumer.commit()
+        self.assertEqual(message.value(payload=None), 'test')
+
+        message = self.consumer.poll()
+        self.consumer.commit()
+        self.assertEqual(message.value(payload=None), 'test1')
+
+        self.assertIsNone(self.consumer.poll())
+        self.assertIsNone(self.consumer.poll())
 
     def test_subscribe(self):
         test_topic_2 = 'test_topic_2'

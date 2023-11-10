@@ -90,7 +90,7 @@ class KafkaStore:
         first_offset = self.get_partition_first_offset(topic=topic, partition=partition)
         next_offset = self.get_partition_next_offset(topic=topic, partition=partition)
 
-        if first_offset < value < next_offset:
+        if first_offset < value <= next_offset:
             offset_store[offset_store_key][self.FIRST_OFFSET] = value
 
     def _add_next_offset(self, topic: str, partition: int):
