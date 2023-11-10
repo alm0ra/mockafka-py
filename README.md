@@ -55,12 +55,28 @@ for i in range(0, 10):
 consumer = FakeConsumer()
 consumer.subscribe(topics=['test'])
 
+# consume messages
+
 while True:
     message = consumer.poll()
-
     print(message)
     consumer.commit()
 
     if message is None:
         break
+
+"""
+out put
+<mockafka.message.Message object at 0x7fe84b4c3310>
+<mockafka.message.Message object at 0x7fe84b4c3370>
+<mockafka.message.Message object at 0x7fe84b4c33a0>
+<mockafka.message.Message object at 0x7fe84b4c33d0>
+<mockafka.message.Message object at 0x7fe84b4c3430>
+<mockafka.message.Message object at 0x7fe84b4c32e0>
+<mockafka.message.Message object at 0x7fe84b4c31f0>
+<mockafka.message.Message object at 0x7fe84b4c32b0>
+<mockafka.message.Message object at 0x7fe84b4c3400>
+<mockafka.message.Message object at 0x7fe84b4c3340>
+None
+"""
 ```
