@@ -49,8 +49,3 @@ class FakeProducer(object):
                                     timeout=None):
         # This method Does not support in mockafka
         pass
-
-    def __len__(self, *args, **kwargs):
-        # This method Does not support in mockafka
-        pass
-
