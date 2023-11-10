@@ -68,7 +68,7 @@ class TestKafkaStore(TestCase):
         self.kafka.remove_topic(topic=self.TEST_TOPIC)
 
         # create topic
-        self.kafka.create_topic(topic=self.TEST_TOPIC)
+        self._create_topic_partition()
         self.kafka.remove_topic(topic=self.TEST_TOPIC)
 
         self.assertFalse(self.kafka.is_topic_exist(topic=self.TEST_TOPIC))
