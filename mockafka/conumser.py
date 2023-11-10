@@ -18,6 +18,7 @@ class FakeConsumer(object):
 
     def close(self, *args, **kwargs):
         self.consumer_store = {}
+        self.subscribed_topic = []
 
     def commit(self, message: Message = None, *args, **kwargs):
         if message:

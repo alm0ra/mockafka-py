@@ -23,7 +23,17 @@ class TestFakeConsumer(TestCase):
         self.test_poll()
 
     def test_close(self):
-        pass
+        # check consumer store is empty
+        self.assertEqual(self.consumer.consumer_store, {})
+
+        # change consumer store and check it's changed
+        self.consumer.consumer_store = {'key', 'value'}
+        self.assertNotEqual(self.consumer.consumer_store, {})
+
+        # close consumer and check consumer store and consume return none
+        self.consumer.close()
+        self.assertEqual(self.consumer.consumer_store, {})
+        self.assertIsNone(self.consumer.consume())
 
     def test_commit(self):
         pass
