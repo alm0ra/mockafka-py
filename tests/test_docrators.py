@@ -20,7 +20,7 @@ sample_for_bulk_produce = [
 ]
 
 
-class Test1(TestCase):
+class TestDecorators(TestCase):
     def setUp(self) -> None:
         self.admin = FakeAdminClientImpl(clean=True)
         self.admin.create_topics([NewTopic(topic='test', num_partitions=16)])
@@ -71,7 +71,7 @@ class Test1(TestCase):
         message = self.consumer.poll()
         self.assertEqual(message.value(payload=None), 'test_value')
         self.assertEqual(message.key(), 'test_key')
-        
+
         message = self.consumer.poll()
         self.assertEqual(message.value(payload=None), 'test_value1')
         self.assertEqual(message.key(), 'test_key1')
