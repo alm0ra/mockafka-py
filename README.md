@@ -30,6 +30,67 @@ pip install mockafka-py
 
 # Usage
 
+## Using decorators in pytest
+
+### @setup_kafka decorator 
+this decorator use for preparing mockafka and create topics in easier way
+`topics` receive a list of topic to create
+`clean` give you a clean kafka or clean all data in kafka
+
+usage: 
+```python
+from mockafka import setup_kafka
+
+@setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
+def test_produce_with_kafka_setup_decorator():
+    # topics are already created
+    pass
+```
+
+### @produce decorator 
+this decorator use for produce event in mockafka in easier way when you want to write test
+it receive this params
+
+`topic` the topic you want to produce 
+`value` the value of message you want to produce
+`key` the key of message you want to produce
+`headers` the headers of message you want to produce
+`partition` the partition of topic you want to produce 
+
+usage: 
+```python
+from mockafka import produce
+
+@produce(topic='test_topic', partition=5, key='test_', value='test_value1')
+def test_produce_with_kafka_setup_decorator():
+    # message already produced
+    pass
+```
+
+### @bulk_produce decorator 
+this decorator use for produce bulk event in mockafka in easier way when you want to write test
+it receive this params
+```
+sample_for_bulk_produce = [
+    {
+        "key": "test_key",
+        "value": "test_value",
+        "topic": "test",
+        "partition": 0,
+    }
+]
+```
+
+usage: 
+```python
+from mockafka import bulk_produce
+
+@bulk_produce(list_of_messages=sample_for_bulk_produce)
+def test_bulk_produce_decorator():
+    pass
+```
+
+## Using classes like confluent-kafka
 ```python
 from mockafka import FakeProducer, FakeConsumer, FakeAdminClientImpl
 from mockafka.admin_client import NewTopic
