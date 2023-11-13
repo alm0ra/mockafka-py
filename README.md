@@ -1,7 +1,7 @@
 
 ![Alt text](banner.png)
 <p align="center">
-    <em>Mockafka-py is a python library for mocking kafka in memory</em>
+    <em>Mockafka-py is a Python library designed for in-memory mocking of Kafka.</em>
 </p>
 
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/alm0ra/mockafka-py/python-app.yml)
@@ -11,18 +11,17 @@
 
 
 
-# Mockafka 
-fake version of confluent-kafka-python 
+# Mockafka: Fake Version of confluent-kafka-python
 
 # Features
-- compatible with confluent-kafka
-- Produce, Consume, AdminClient operations with ease.
+- Compatible with confluent-kafka
+- Supports Produce, Consume, and AdminClient operations with ease.
 
 # TODO
 
 # Getting Start
 
-Installing using pip
+### Installing via pip
 
 ```bash
 pip install mockafka-py
@@ -33,9 +32,10 @@ pip install mockafka-py
 ## Using decorators in pytest
 
 ### `@setup_kafka` decorator 
-this decorator use for preparing mockafka and create topics in easier way
-`topics` receive a list of topic to create
-`clean` give you a clean kafka or clean all data in kafka
+This decorator is used to prepare Mockafka and create topics more conveniently. The parameters are:
+
+- `topics` : A list of topics to create.
+- `clean` : Option to have a clean Kafka or clean all data in Kafka.
 
 usage: 
 ```python
@@ -48,28 +48,26 @@ def test_produce_with_kafka_setup_decorator():
 ```
 
 ### `@produce` decorator 
-this decorator use for produce event in mockafka in easier way when you want to write test
-it receive this params
+This decorator is used for producing events in Mockafka more easily for testing. Parameters include:
 
-`topic` the topic you want to produce 
-`value` the value of message you want to produce
-`key` the key of message you want to produce
-`headers` the headers of message you want to produce
-`partition` the partition of topic you want to produce 
+`topic` The topic to produce the message.
+`value` The value of the message.
+`key`  The key of the message.
+`headers` The headers of the message.
+`partition` The partition of the topic.
 
-usage: 
+Example:
 ```python
 from mockafka import produce
 
 @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
 def test_produce_with_kafka_setup_decorator():
-    # message already produced
+    # Message is already produced.
     pass
 ```
 
 ### `@bulk_produce` decorator 
-this decorator use for produce bulk event in mockafka in easier way when you want to write test
-it receive this params
+This decorator is used for bulk-producing events in Mockafka more easily for testing. Parameters include a list of messages.
 ```
 sample_for_bulk_produce = [
     {
@@ -96,13 +94,13 @@ from mockafka import FakeProducer, FakeConsumer, FakeAdminClientImpl
 from mockafka.admin_client import NewTopic
 from random import randint
 
-# create topic
+# Create topic
 admin = FakeAdminClientImpl()
 admin.create_topics([
     NewTopic(topic='test', num_partitions=5)
 ])
 
-# produce message
+# Produce messages
 producer = FakeProducer()
 for i in range(0, 10):
     producer.produce(
@@ -112,12 +110,11 @@ for i in range(0, 10):
         partition=randint(0, 4)
     )
 
-# subscribe consumer
+# Subscribe consumer
 consumer = FakeConsumer()
 consumer.subscribe(topics=['test'])
 
-# consume messages
-
+# Consume messages
 while True:
     message = consumer.poll()
     print(message)
@@ -125,9 +122,11 @@ while True:
 
     if message is None:
         break
+```
 
+Output:
+```
 """
-out put
 <mockafka.message.Message object at 0x7fe84b4c3310>
 <mockafka.message.Message object at 0x7fe84b4c3370>
 <mockafka.message.Message object at 0x7fe84b4c33a0>
