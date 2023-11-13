@@ -144,6 +144,9 @@ The `KafkaStore` class represents an in-memory simulation of a Kafka store. It i
 ### Example Usage
 
 ```python
+from mockafka.kafka_store import KafkaStore
+from mockafka.message import Message
+
 # Create an instance of KafkaStore
 kafka_store = KafkaStore()
 
@@ -158,3 +161,4 @@ kafka_store.produce(message, 'sample_topic', 1)
 # Get a message from a specific topic, partition, and offset
 retrieved_message = kafka_store.get_message('sample_topic', 1, 0)
 
+```

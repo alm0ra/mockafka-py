@@ -163,6 +163,8 @@ The `FakeConsumer` class is a mock implementation of the Confluent Kafka Consume
 ### Example Usage
 
 ```python
+from mockafka import FakeConsumer
+
 # Create an instance of FakeConsumer
 fake_consumer = FakeConsumer()
 
