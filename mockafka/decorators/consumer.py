@@ -12,8 +12,11 @@ def consume(topics: list[str], auto_commit: bool = True):
             fake_consumer.subscribe(topics=topics)
 
             # not complete yet
-            # while True:
-            #     message = fake_consumer.poll()
+            while True:
+                message = fake_consumer.poll()
+                if message is None:
+                    break
+                func(message=message, *args, **kwargs)
 
             result = func(*args, **kwargs)
             return result

@@ -1,7 +1,7 @@
-from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka
+from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka, Message
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.producer import FakeProducer
-
+from mockafka.decorators.consumer import consume
 from unittest import TestCase
 
 sample_for_bulk_produce = [
@@ -91,3 +91,14 @@ class TestDecorators(TestCase):
         message = self.consumer.poll()
         self.assertEqual(message.value(payload=None), 'test_value1')
         self.assertEqual(message.key(), 'test_')
+
+    @setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
+    @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
+    @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
+    @consume(topics=['test_topic'])
+    def test_consumer_decorator(self, message: Message = None):
+        if message is None:
+            return
+
+        self.assertEqual(message.key(), 'test_')
+        self.assertEqual(message._partition, 5)
