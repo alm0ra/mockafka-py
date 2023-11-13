@@ -1,4 +1,4 @@
-from mockafka import FakeConsumer, produce, bulk_produce
+from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.producer import FakeProducer
 
@@ -81,3 +81,13 @@ class TestDecorators(TestCase):
 
         # check there is no message in mock kafka
         self.assertIsNone(self.consumer.poll())
+
+    @setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
+    @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
+    def test_produce_with_kafka_setup_decorator(self):
+        # subscribe to topic and get message
+        self.consumer.subscribe(topics=['test_topic'])
+
+        message = self.consumer.poll()
+        self.assertEqual(message.value(payload=None), 'test_value1')
+        self.assertEqual(message.key(), 'test_')
