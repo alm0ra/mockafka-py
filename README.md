@@ -50,11 +50,11 @@ def test_produce_with_kafka_setup_decorator():
 ### `@produce` decorator 
 This decorator is used for producing events in Mockafka more easily for testing. Parameters include:
 
-`topic` The topic to produce the message.
-`value` The value of the message.
-`key`  The key of the message.
-`headers` The headers of the message.
-`partition` The partition of the topic.
+- `topic` The topic to produce the message.
+- `value` The value of the message.
+- `key`  The key of the message.
+- `headers` The headers of the message.
+- `partition` The partition of the topic.
 
 Example:
 ```python
