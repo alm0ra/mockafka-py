@@ -2,12 +2,12 @@ from functools import wraps
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 
 
-def setup_kafka(topics: [dict[str, str]]):
+def setup_kafka(topics: [dict[str, str]], clean: bool = False):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Extract parameters from the decorator_args
-            fake_admin = FakeAdminClientImpl()
+            fake_admin = FakeAdminClientImpl(clean=clean)
 
             for item in topics:
                 topic = item.get('topic', None)
@@ -20,4 +20,3 @@ def setup_kafka(topics: [dict[str, str]]):
         return wrapper
 
     return decorator
-
