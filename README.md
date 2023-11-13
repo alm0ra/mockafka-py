@@ -32,7 +32,7 @@ pip install mockafka-py
 
 ## Using decorators in pytest
 
-### @setup_kafka decorator 
+### `@setup_kafka` decorator 
 this decorator use for preparing mockafka and create topics in easier way
 `topics` receive a list of topic to create
 `clean` give you a clean kafka or clean all data in kafka
@@ -47,7 +47,7 @@ def test_produce_with_kafka_setup_decorator():
     pass
 ```
 
-### @produce decorator 
+### `@produce` decorator 
 this decorator use for produce event in mockafka in easier way when you want to write test
 it receive this params
 
@@ -67,7 +67,7 @@ def test_produce_with_kafka_setup_decorator():
     pass
 ```
 
-### @bulk_produce decorator 
+### `@bulk_produce` decorator 
 this decorator use for produce bulk event in mockafka in easier way when you want to write test
 it receive this params
 ```
