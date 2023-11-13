@@ -2,7 +2,7 @@ from .admin_client import FakeAdminClientImpl
 from .producer import FakeProducer
 from .conumser import FakeConsumer
 from .message import Message
-from .decorators import produce, bulk_produce, setup_kafka
+from .decorators import produce, bulk_produce, setup_kafka, consume
 
 __all__ = [
     "FakeProducer",
@@ -11,5 +11,6 @@ __all__ = [
     "Message",
     "produce",
     "bulk_produce",
-    "setup_kafka"
+    "setup_kafka",
+    "consume"
 ]
