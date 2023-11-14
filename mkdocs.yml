@@ -87,8 +87,10 @@ theme:
     - content.tooltips
     # - header.autohide
     - navigation.expand
+    - navigation.path
     - navigation.footer
     - navigation.indexes
+    - navigation.sections
     # - navigation.instant
     # - navigation.prune
     - navigation.sections
@@ -98,7 +100,7 @@ theme:
     - search.share
     - search.suggest
     - toc.follow
-    # - toc.integrate
+    - toc.integrate
   highlightjs: true
   hljs_languages:
     - yaml
