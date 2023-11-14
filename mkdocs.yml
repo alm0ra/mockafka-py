@@ -1,10 +1,10 @@
 ---
-site_name: mockafka
+site_name: mockafka-py
 site_author: Ali Moradi
 site_description: >-
   Documentation for MocKafka python library
 # Repository
-repo_name: xibalbas/mockafka
+repo_name: xibalbas/mockafka-py
 repo_url: https://github.com/xibalbas/mockafka-py
 
 # Copyright
