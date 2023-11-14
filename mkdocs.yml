@@ -56,22 +56,10 @@ markdown_extensions:
       toc_depth: 2
 
 nav:
-  - Home: index.md
-  - Redis stack: redis-stack.md
-  - Redis commands:
-      - Redis commands: redis-commands/Redis.md
-      - RedisJSON commands: redis-commands/RedisJson.md
-      - Search commands: redis-commands/RedisSearch.md
-      - Graph commands: redis-commands/RedisGraph.md
-      - Time Series commands: redis-commands/RedisTimeSeries.md
-      - Probabilistic commands: redis-commands/RedisBloom.md
-  - Guides:
-      - Implementing support for a command: guides/implement-command.md
-      - Write a new test case: guides/test-case.md
-  - About:
-      - Release Notes: about/changelog.md
-      - Contributing: about/contributing.md
-      - License: about/license.md
+  - Home: docs/index.md
+  - decorators: docs/decorators.md
+  - fake admin client: docs/fake_admin_client.md
+  - fake consumer: docs/fake_consumer.md
 
 theme:
   name: material
