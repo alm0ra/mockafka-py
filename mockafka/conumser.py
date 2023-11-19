@@ -122,7 +122,8 @@ class FakeConsumer(object):
         - Message or None: Consumed message or None if no message is available.
         """
         if timeout:
-            sleep(timeout)
+            pass
+            # sleep(timeout)
 
         for topic in self.subscribed_topic:
             for partition in self.kafka.partition_list(topic=topic):
