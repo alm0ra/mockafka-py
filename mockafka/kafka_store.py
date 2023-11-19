@@ -23,8 +23,20 @@ mock_topics: dict[str, dict[int, list[Message]]] = {}
 
 offset_store: dict[str, dict[str, int]] = {}
 
+__all__ = ["KafkaStore"]
 
-class KafkaStore:
+
+class SingletonMeta(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances or 'clean' in kwargs.keys():
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class KafkaStore(metaclass=SingletonMeta):
     """
     In memory kafka store
     """
