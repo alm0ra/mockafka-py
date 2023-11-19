@@ -40,9 +40,6 @@ class Message:
     def topic(self, *args, **kwargs):
         return self._topic
 
-    def value(self, payload):
-        return self._value
-
     def error(self):
         return self._error
 
