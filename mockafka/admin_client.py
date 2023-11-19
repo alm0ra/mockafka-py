@@ -31,7 +31,7 @@ class FakeAdminClientImpl:
     - __len__(*args, **kwargs): Get the length of the Kafka store (not implemented).
     """
 
-    def __init__(self, clean: bool = True, *args, **kwargs):
+    def __init__(self, clean: bool = False, *args, **kwargs):
         """
         Initialize the FakeAdminClientImpl.
 
