@@ -4,6 +4,7 @@
     <em>Mockafka-py is a Python library designed for in-memory mocking of Kafka.</em>
 </p>
 
+![PyPI - Downloads](https://img.shields.io/pypi/dm/mockafka-py)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/alm0ra/mockafka-py/python-app.yml)
 ![GitHub](https://img.shields.io/github/license/alm0ra/mockafka-py)
 ![Codecov](https://img.shields.io/codecov/c/github/alm0ra/mockafka-py)
