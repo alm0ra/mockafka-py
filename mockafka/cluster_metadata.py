@@ -16,7 +16,7 @@ class ClusterMetadata(object):
         self.cluster_id = 'eAvlnr_4QISNbc5bIwBRVA'
         self.controller_id = 1
         self.brokers = {1: BrokerMetadata()}
-        self.topics = {}
+        self.topics = CustomDict()
         if topic:
             if self.kafka.is_topic_exist(topic=topic):
                 self.topics[topic] = TopicMetadata(topic, self.kafka.partition_list(topic=topic))
@@ -33,3 +33,12 @@ class ClusterMetadata(object):
 
     def __str__(self):
         return str(self.cluster_id)
+
+
+class CustomDict(dict):
+    def __getitem__(self, key):
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            return
+
