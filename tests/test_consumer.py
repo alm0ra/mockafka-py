@@ -84,8 +84,7 @@ class TestFakeConsumer(TestCase):
 
     def test_subscribe_topic_not_exist(self):
         topics = [self.test_topic]
-        with pytest.raises(KafkaException):
-            self.consumer.subscribe(topics=topics)
+        self.consumer.subscribe(topics=topics)
 
     def test_unsubscribe(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=10)

@@ -172,7 +172,7 @@ class FakeConsumer(object):
         """
         for topic in topics:
             if not self.kafka.is_topic_exist(topic):
-                raise KafkaException(f'{topic} Does not exist in kafka.')
+                continue
 
             if topic not in self.subscribed_topic:
                 self.subscribed_topic.append(topic)
