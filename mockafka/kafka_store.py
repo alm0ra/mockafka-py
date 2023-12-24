@@ -113,6 +113,9 @@ class KafkaStore(metaclass=SingletonMeta):
         return f'{topic}*{partition}'
 
     def produce(self, message: Message, topic: str, partition: int):
+        if not topic:
+            return
+
         if not self.is_topic_exist(topic=topic):
             self.create_partition(topic=topic, partitions=partition)
 
