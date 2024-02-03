@@ -123,7 +123,7 @@ class KafkaStore(metaclass=SingletonMeta):
             raise KafkaException(f'can not produce on partition {partition} of {topic}, partition does not exist')
 
         if partition is None:
-            raise KafkaException('you must assigne partition when you want to produce message')
+            raise KafkaException('you must assign partition when you want to produce message')
 
         # add message to topic
         mock_topics[topic][partition].append(message)
