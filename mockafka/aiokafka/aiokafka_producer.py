@@ -16,35 +16,8 @@ class FakeAIOKafkaProducer:
     async def start(self):
         pass
 
-    async def flush(self):
-        pass
-
-    async def stop(self):
-        pass
-
     async def send(self, *args, **kwargs):
         create_task(self._produce(**kwargs))
 
     async def send_and_wait(self, *args, **kwargs):
         await self.send()
-
-    async def create_batch(self):
-        pass
-
-    async def send_batch(self):
-        pass
-
-    async def begin_transaction(self):
-        pass
-
-    async def commit_transaction(self):
-        pass
-
-    async def abort_transaction(self):
-        pass
-
-    def transaction(self):
-        pass
-
-    async def send_offsets_to_transaction(self, offsets, group_id):
-        pass

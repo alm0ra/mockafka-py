@@ -20,12 +20,6 @@ class FakeAIOKafkaConsumer:
         self.consumer_store = {}
         self.subscribed_topic: Set = set()
 
-    def assign(self):
-        pass
-
-    def assignment(self):
-        pass
-
     async def stop(self):
         self.consumer_store = {}
         self.subscribed_topic: Set = set()
@@ -38,17 +32,8 @@ class FakeAIOKafkaConsumer:
 
         self.consumer_store = {}
 
-    async def committed(self):
-        pass
-
     async def topics(self):
         return self.subscribed_topic
-
-    def partitions_for_topic(self, topic):
-        pass
-
-    async def position(self):
-        pass
 
     def subscribe(self, topics: Set[str]):
         for topic in topics:
