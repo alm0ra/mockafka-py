@@ -1,8 +1,11 @@
-from aiokafka.admin import NewTopic
-from mockafka import Message
-from mockafka.decorators import aconsume, aproduce, asetup_kafka
-from mockafka.aiokafka import FakeAIOKafkaAdmin, FakeAIOKafkaConsumer, FakeAIOKafkaProducer
 from unittest import TestCase
+
+import pytest
+from aiokafka.admin import NewTopic
+
+from mockafka import Message
+from mockafka.aiokafka import FakeAIOKafkaAdmin, FakeAIOKafkaConsumer, FakeAIOKafkaProducer
+from mockafka.decorators import aconsume, aproduce, asetup_kafka
 
 sample_for_bulk_produce = [
     {
@@ -20,6 +23,7 @@ sample_for_bulk_produce = [
 ]
 
 
+@pytest.mark.asyncio
 class TestDecorators(TestCase):
     def setUp(self) -> None:
         self.admin = FakeAIOKafkaAdmin(clean=True)
