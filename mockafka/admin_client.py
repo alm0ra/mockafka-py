@@ -5,6 +5,7 @@ from mockafka.kafka_store import KafkaStore
 
 __all__ = ["FakeAdminClientImpl"]
 
+
 class FakeAdminClientImpl:
     """
     Mock implementation of the Confluent Kafka AdminClient for testing purposes.
@@ -13,22 +14,20 @@ class FakeAdminClientImpl:
     - kafka (KafkaStore): The in-memory storage for simulating Kafka behavior.
     - clean (bool): Flag indicating whether to start with a clean slate.
 
-    Methods:
-    - create_partitions(partitions: List[NewPartitions]): Create partitions in the in-memory Kafka store.
-    - create_partition(partition: NewPartitions): Create a single partition in the in-memory Kafka store.
-    - create_topics(topics: List[NewTopic]): Create topics in the in-memory Kafka store.
-    - create_topic(topic: NewTopic): Create a single topic in the in-memory Kafka store.
-    - delete_topics(topics, future=None, request_timeout=None, operation_timeout=None): Delete topics from the in-memory Kafka store.
-    - delete_topic(topic: NewTopic): Delete a single topic from the in-memory Kafka store.
-    - describe_acls(acl_binding_filter, future, request_timeout=None): Describe ACLs (unsupported in mockafka).
-    - describe_configs(resources, future, request_timeout=None, broker=None): Describe configurations (unsupported in mockafka).
-    - delete_acls(acl_binding_filters, future, request_timeout=None): Delete ACLs (unsupported in mockafka).
-    - alter_configs(*args, **kwargs): Alter configurations (unsupported in mockafka).
-    - create_acls(*args, **kwargs): Create ACLs (unsupported in mockafka).
-    - list_groups(group=None, *args, **kwargs): List consumer groups (unsupported in mockafka).
-    - list_topics(topic=None, *args, **kwargs): List topics (returns ClusterMetadata).
-    - poll(timeout=None): Poll for events (unsupported in mockafka).
-    - __len__(*args, **kwargs): Get the length of the Kafka store (not implemented).
+    Methods: - create_partitions(partitions: List[NewPartitions]): Create partitions in the in-memory Kafka store. -
+    create_partition(partition: NewPartitions): Create a single partition in the in-memory Kafka store. -
+    create_topics(topics: List[NewTopic]): Create topics in the in-memory Kafka store. - create_topic(topic:
+    NewTopic): Create a single topic in the in-memory Kafka store. - delete_topics(topics, future=None,
+    request_timeout=None, operation_timeout=None): Delete topics from the in-memory Kafka store. - delete_topic(
+    topic: NewTopic): Delete a single topic from the in-memory Kafka store. - describe_acls(acl_binding_filter,
+    future, request_timeout=None): Describe ACLs (unsupported in mockafka). - describe_configs(resources, future,
+    request_timeout=None, broker=None): Describe configurations (unsupported in mockafka). - delete_acls(
+    acl_binding_filters, future, request_timeout=None): Delete ACLs (unsupported in mockafka). - alter_configs(*args,
+    **kwargs): Alter configurations (unsupported in mockafka). - create_acls(*args, **kwargs): Create ACLs (
+    unsupported in mockafka). - list_groups(group=None, *args, **kwargs): List consumer groups (unsupported in
+    mockafka). - list_topics(topic=None, *args, **kwargs): List topics (returns ClusterMetadata). - poll(
+    timeout=None): Poll for events (unsupported in mockafka). - __len__(*args, **kwargs): Get the length of the Kafka
+    store (not implemented).
     """
 
     def __init__(self, clean: bool = False, *args, **kwargs):

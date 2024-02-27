@@ -10,9 +10,13 @@ This decorator is designed for setting up Mockafka with specified topics using a
 
 #### Example Usage:
 ```python
+from mockafka import setup_kafka
+
 @setup_kafka(topics=[{'topic': 'test_topic', 'partition': 5}], clean=True)
+
 def test_function():
     # Your test logic here
+    pass
 ```
 
 ### `@produce` Decorator
@@ -28,9 +32,12 @@ This decorator simulates message production using a `FakeProducer`. It allows yo
 
 #### Example Usage:
 ```python
+from mockafka import produce
+
 @produce(topic='test_topic', value='test_value', key='test_key', headers=None, partition=0)
 def test_function():
     # Your test logic here
+    pass
 ```
 
 ### `@consume` Decorator
@@ -43,9 +50,12 @@ This decorator simulates message consumption using a `FakeConsumer`. It allows y
 
 #### Example Usage:
 ```python
+from mockafka import consume
+
 @consume(topics=['test_topic'], auto_commit=False)
 def test_function(message):
     # Your test logic for processing the consumed message here
+    pass
 ```
 
 ### `@bulk_produce` Decorator
@@ -57,9 +67,13 @@ This decorator is for bulk-producing messages using a `FakeProducer`. It allows 
 
 #### Example Usage:
 ```python
+from mockafka import bulk_produce
+
+
 @bulk_produce(list_of_messages=[{'topic': 'test_topic', 'value': 'test_value1'}, {...}])
 def test_function():
     # Your test logic here
+    pass
 ```
 
 Feel free to use these decorators in your test functions to set up, produce, consume, and bulk-produce messages in a Mockafka environment.
@@ -140,7 +154,7 @@ def test_produce_with_kafka_setup_decorator():
 
 #### Test Case: `test_consumer_decorator`
 ```python
-from mockafka import setup_kafka, produce, consume
+from mockafka import setup_kafka, produce, consume, Message
 
 @setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
 @produce(topic='test_topic', partition=5, key='test_', value='test_value1')

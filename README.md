@@ -48,7 +48,7 @@ def test_produce_and_consume_decorator(message):
     """
     This test showcases the usage of both @produce and @consume decorators in a single test case.
     It produces a message to the 'test' topic and then consumes it to perform further logic.
-    # Notice you may got message None
+    # Notice you may get message None
     """
     # Your test logic for processing the consumed message here
     
@@ -83,7 +83,7 @@ from mockafka import bulk_produce, consume
 def test_bulk_produce_and_consume_decorator(message):
     """
     This test showcases the usage of both @bulk_produce and @consume decorators in a single test case.
-    It bulk produces messages to the 'test' topic and then consumes them to perform further logic.
+    It does bulk produces messages to the 'test' topic and then consumes them to perform further logic.
     """
     # Your test logic for processing the consumed message here
     pass
