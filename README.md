@@ -206,3 +206,25 @@ async def test_produce_and_consume_with_decorator(message=None):
     assert message.key() == 'test_key'
     assert message.value() == 'test_value'
 ```
+
+### Example 2: Using `@aproduce` and `@asetup_kafka` Decorators
+
+#### Test Case: `test_produce_with_decorator`
+
+```python
+import pytest
+from mockafka import aproduce, asetup_kafka
+from mockafka.aiokafka import FakeAIOKafkaConsumer
+
+@pytest.mark.asyncio
+@asetup_kafka(topics=[{'topic': 'test_topic', 'partition': 16}], clean=True)
+@aproduce(topic='test_topic', value='test_value', key='test_key', partition=0)
+async def test_produce_with_decorator():
+    consumer = FakeAIOKafkaConsumer()
+    await consumer.start()
+    consumer.subscribe(['test_topic'])
+    message = await consumer.getone()
+
+    assert message.key() == 'test_key'
+    assert message.value() == 'test_value'
+```
