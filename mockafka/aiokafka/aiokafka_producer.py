@@ -3,6 +3,25 @@ from mockafka.message import Message
 
 
 class FakeAIOKafkaProducer:
+    """
+    FakeAIOKafkaProducer is a mock implementation of aiokafka's AIOKafkaProducer.
+
+    It allows mocking a kafka producer for testing purposes.
+
+    Parameters:
+    - args, kwargs: Passed to superclass init, not used here.
+
+    Attributes:
+    - kafka: KafkaStore instance for underlying storage.
+
+    Methods:
+    - _produce(): Create a Message and produce to KafkaStore.
+      Takes topic, value, and optional partition.
+    - start(): No-op.
+    - send(): Call _produce() with kwargs.
+    - send_and_wait(): Call send().
+    """
+
     def __init__(self, *args, **kwargs):
         self.kafka = KafkaStore()
 

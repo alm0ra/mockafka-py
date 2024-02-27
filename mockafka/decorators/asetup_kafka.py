@@ -7,19 +7,26 @@ from mockafka.aiokafka import FakeAIOKafkaAdmin
 
 def asetup_kafka(topics: [dict[str, str]], clean: bool = False):
     """
-    A decorator for setting up Mockafka with specified topics using a FakeAdminClient.
+    asetup_kafka is a decorator for setting up mock Kafka topics using a FakeAIOKafkaAdminClient.
 
-    Parameters:
-    - topics (list[dict[str, str]]): A list of dictionaries containing topic details.
-        Each dictionary should have the keys 'topic' and 'partition'.
-    - clean (bool): Option to have a clean Kafka (remove existing topics) or not.
+    It takes the following parameters:
 
-    Example Usage:
-    ```python
-    @setup_kafka(topics=[{'topic': 'test_topic', 'partition': 5}], clean=True)
-    def test_function():
-        # Your test logic here
-    ```
+    - topics (list[dict]): List of topic configs, each containing:
+        - topic (str): Topic name
+        - partition (int): Partition count
+    - clean (bool): Whether to clean existing topics first. Default False.
+
+    The decorator creates a FakeAIOKafkaAdminClient instance and uses it to create
+    the specified topics.
+
+    This allows you to setup mock Kafka topics and partitions at test setup.
+
+    Example usage:
+
+    @asetup_kafka(topics=[{'topic': 'test', 'partitions': 1}])
+    async def test_function():
+      # test logic
+
     """
 
     def decorator(func):

@@ -5,18 +5,26 @@ from mockafka.aiokafka import FakeAIOKafkaConsumer
 
 def aconsume(topics: list[str], auto_commit: bool = True):
     """
-    A decorator for simulating message consumption using a FakeConsumer.
+    aconsume is a decorator for simulating async message consumption using a FakeAIOKafkaConsumer.
 
     Parameters:
-    - topics (list[str]): A list of topics to subscribe to.
-    - auto_commit (bool): Whether to automatically commit offsets after consuming messages.
+    - topics (list[str]): List of topic names to subscribe to.
+    - auto_commit (bool): Whether to automatically commit offsets after consuming messages. Default True.
 
-    Example Usage:
-    ```python
-    @consume(topics=['test_topic'], auto_commit=False)
-    def test_function(message):
-        # Your test logic for processing the consumed message here
-    ```
+    The decorator subscribes a FakeAIOKafkaConsumer to the specified topics and consumes messages in a loop.
+
+    For each message, it calls the decorated function, passing the message as a keyword argument.
+
+    After consuming all available messages, it calls the decorated function again without the message arg.
+
+    This allows you to test message consumption and processing logic using the fake consumer.
+
+    Example usage:
+
+    @aconsume(topics=['test'], auto_commit=False)
+    async def process_message(message):
+      # message processing logic
+
     """
 
     def decorator(func):

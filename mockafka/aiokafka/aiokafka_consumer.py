@@ -2,14 +2,34 @@ from mockafka.kafka_store import KafkaStore
 
 
 class FakeAIOKafkaConsumer:
-    def __init__(self, *args, **kwargs):
-        """
-        Initialize the FakeConsumer.
+    """
+    FakeAIOKafkaConsumer is a mock implementation of aiokafka's AIOKafkaConsumer.
 
-        Parameters:
-        - args: Additional arguments (unused).
-        - kwargs: Additional keyword arguments (unused).
-        """
+    It allows mocking a kafka consumer for testing purposes.
+
+    Parameters:
+    - args, kwargs: Passed to superclass init, not used here.
+
+    Attributes:
+    - kafka: KafkaStore instance for underlying storage.
+    - consumer_store (dict): Tracks consumption progress per topic/partition.
+    - subscribed_topic (list): List of subscribed topic names.
+
+    Methods:
+    - start(): Reset internal state.
+    - stop(): Reset internal state.
+    - commit(): Commit offsets to KafkaStore by updating first_offset.
+    - topics(): Get subscribed topics.
+    - subscribe(): Subscribe to topics by name.
+    - subscription(): Get subscribed topics.
+    - unsubscribe(): Reset subscribed topics.
+    - _get_key(): Generate consumer_store lookup key from topic/partition.
+    - getone(): Get next available message from subscribed topics.
+      Updates consumer_store as messages are consumed.
+    - getmany(): Currently just calls getone().
+    """
+
+    def __init__(self, *args, **kwargs):
         self.kafka = KafkaStore()
         self.consumer_store = {}
         self.subscribed_topic: list = []

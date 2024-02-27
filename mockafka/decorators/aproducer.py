@@ -5,21 +5,29 @@ from mockafka.aiokafka import FakeAIOKafkaProducer
 
 def aproduce(**decorator_args):
     """
-    A decorator for simulating message production using a FakeProducer.
+    aproduce is a decorator for simulating message production using a FakeAIOKafkaProducer.
 
-    Parameters:
-    - topic (str): The topic to produce the message.
-    - value (str): The value of the message.
-    - key (str): The key of the message.
-    - headers (str): The headers of the message.
-    - partition (str): The partition of the topic.
+    It extracts the following parameters from the decorator args:
 
-    Example Usage:
-    ```python
-    @produce(topic='test_topic', value='test_value', key='test_key', headers=None, partition=0)
-    def test_function():
-        # Your test logic here
-    ```
+    - topic (str): Topic to produce to
+    - value (str): Message value
+    - key (str): Message key
+    - headers (dict): Message headers
+    - partition (int): Topic partition to produce to
+
+    The decorator creates a FakeAIOKafkaProducer instance and calls send()
+    to produce a message with the provided parameters.
+
+    It then calls the decorated function.
+
+    This allows you to test message production logic using the fake producer.
+
+    Example usage:
+
+    @aproduce(topic='test', value='foo')
+    async def produce_message():
+      # test logic here
+
     """
 
     def decorator(func):

@@ -6,6 +6,29 @@ from mockafka.kafka_store import KafkaStore
 
 
 class FakeAIOKafkaAdmin:
+    """
+    FakeAIOKafkaAdmin is a mock implementation of aiokafka's AIOKafkaAdminClient.
+
+    Parameters:
+    - clean (bool): Whether to clean/reset the underlying KafkaStore on init. Default False.
+
+    Methods:
+    - close(): Close the admin client.
+    - start(): Start the admin client.
+    - _create_topic(): Create a topic in the underlying KafkaStore.
+      Takes the NewTopic object containing name and num_partitions.
+    - _remove_topic(): Delete a topic from the underlying KafkaStore by name.
+    - create_topics(): Create multiple topics from a list of NewTopic objects.
+      Calls _create_topic() for each one.
+    - delete_topics(): Delete multiple topics by name from a list of strings.
+      Calls _remove_topic() for each one.
+    - _create_partition(): Add partitions to a topic in KafkaStore.
+      Takes the topic name and number of partitions to add.
+    - create_partitions(): Add partitions to multiple topics from a dict mapping
+      topic name to NewPartitions object containing total_count.
+      Calls _create_partition() for each topic.
+    """
+
     def __init__(self, clean: bool = False, *args, **kwargs):
         self.kafka = KafkaStore(clean=clean)
 
