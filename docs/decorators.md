@@ -153,4 +153,3 @@ def test_consumer_decorator(message: Message = None):
     pass
 ```
 
-Feel free to adapt these examples to your specific test cases and scenarios. The provided decorators aim to simplify the setup and execution of tests in a Mockafka environment.
