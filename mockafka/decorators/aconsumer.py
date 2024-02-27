@@ -1,5 +1,7 @@
 from functools import wraps
+
 from mockafka.aiokafka import FakeAIOKafkaConsumer
+
 
 def aconsume(topics: list[str], auto_commit: bool = True):
     """
@@ -16,6 +18,7 @@ def aconsume(topics: list[str], auto_commit: bool = True):
         # Your test logic for processing the consumed message here
     ```
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):

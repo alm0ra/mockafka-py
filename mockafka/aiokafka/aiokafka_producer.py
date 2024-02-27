@@ -1,5 +1,3 @@
-from asyncio import create_task
-
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
 

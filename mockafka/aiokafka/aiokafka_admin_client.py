@@ -1,5 +1,5 @@
 from typing import Dict
-from asyncio import create_task
+
 from aiokafka.admin import NewTopic, NewPartitions
 
 from mockafka.kafka_store import KafkaStore

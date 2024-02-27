@@ -1,5 +1,3 @@
-from typing import Set
-
 from mockafka.kafka_store import KafkaStore
 
 

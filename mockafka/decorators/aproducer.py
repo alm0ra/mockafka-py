@@ -1,4 +1,5 @@
 from functools import wraps
+
 from mockafka.aiokafka import FakeAIOKafkaProducer
 
 
