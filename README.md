@@ -13,10 +13,11 @@
 
 
 
-# Mockafka: Fake Version of confluent-kafka-python
+# Mockafka: Fake Version for confluent-kafka-python & aiokafka
 
 # Features
 - Compatible with confluent-kafka
+- Compatible with aiokafka
 - Supports Produce, Consume, and AdminClient operations with ease.
 
 # TODO
@@ -31,7 +32,7 @@ pip install mockafka-py
 
 # Usage
 
-## Multi-Decorator Examples
+## Multi-Decorator Examples for `confluent-kafka-python`
 
 In the following examples, we showcase the usage of multiple decorators to simulate different scenarios in a Mockafka environment. These scenarios include producing, consuming, and setting up Kafka topics using the provided decorators.
 
@@ -171,3 +172,5 @@ Output:
 None
 """
 ```
+
+## Multi-Decorator Examples for `aiokafka`
