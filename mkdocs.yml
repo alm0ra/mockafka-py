@@ -57,9 +57,13 @@ markdown_extensions:
 nav:
   - Home: index.md
   - decorators: decorators.md
+  - fake async decorators: async-decorators.md
   - fake admin client: fake-admin-client.md
   - fake consumer: fake-consumer.md
   - fake producer: fake-produce.md
+  - fake aiokafka consumer: async-fake-aiokafka-consumer.md
+  - fake aiokafka producer: async-fake-aiokafka-produce.md
+  - fake aiokafka admin client: async-fake-aiokafka-admin-client.md
   - kafka store: kafka-store.md
 
 theme:
