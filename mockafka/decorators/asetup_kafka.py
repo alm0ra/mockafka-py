@@ -33,7 +33,7 @@ def asetup_kafka(topics: [dict[str, str]], clean: bool = False):
                 topic = item.get('topic', None)
                 partition = item.get('partition', None)
                 await fake_admin.create_topics(
-                    topics=[NewTopic(name=topic, num_partitions=partition, replication_factor=1)])
+                    new_topics=[NewTopic(name=topic, num_partitions=partition, replication_factor=1)])
 
             # Call the original function
             result = await func(*args, **kwargs)

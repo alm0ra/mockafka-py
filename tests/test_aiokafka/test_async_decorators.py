@@ -1,4 +1,5 @@
-from unittest import TestCase
+import asyncio
+from unittest import IsolatedAsyncioTestCase
 
 import pytest
 from aiokafka.admin import NewTopic
@@ -24,18 +25,21 @@ sample_for_bulk_produce = [
 
 
 @pytest.mark.asyncio
-class TestDecorators(TestCase):
+class TestDecorators(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         self.admin = FakeAIOKafkaAdmin(clean=True)
-        self.admin.create_topics([NewTopic(name='test', num_partitions=16, replication_factor=1)])
+        asyncio.run(self._create_fake_topics())
         self.consumer = FakeAIOKafkaConsumer()
         self.producer = FakeAIOKafkaProducer()
         self.fake_producer = FakeAIOKafkaProducer()
 
+    async def _create_fake_topics(self):
+        await self.admin.create_topics([NewTopic(name='test', num_partitions=16, replication_factor=1)])
+
     @aproduce(topic='test', key='test_key', value='test_value', partition=4)
     async def test_produce_decorator(self):
         # subscribe to topic and get message
-        await self.consumer.subscribe(topics=['test'])
+        self.consumer.subscribe(topics=['test'])
         message = await self.consumer.getone()
 
         self.assertEqual(message.value(payload=None), 'test_value')
@@ -51,8 +55,8 @@ class TestDecorators(TestCase):
     @aproduce(topic='test', key='test_key1', value='test_value1', partition=0)
     async def test_produce_twice(self):
         # subscribe to topic and get message
-        await self.consumer.subscribe(topics=['test'])
-        message = await self.consumer.poll()
+        self.consumer.subscribe(topics=['test'])
+        message = await self.consumer.getone()
 
         self.assertEqual(message.value(payload=None), 'test_value1')
         self.assertEqual(message.key(), 'test_key1')
@@ -71,9 +75,9 @@ class TestDecorators(TestCase):
     @aproduce(topic='test_topic', partition=5, key='test_', value='test_value1')
     async def test_produce_with_kafka_setup_decorator(self):
         # subscribe to topic and get message
-        await self.consumer.subscribe(topics=['test_topic'])
+        self.consumer.subscribe(topics=['test_topic'])
 
-        message = await self.consumer.poll()
+        message = await self.consumer.getone()
         self.assertEqual(message.value(payload=None), 'test_value1')
         self.assertEqual(message.key(), 'test_')
 

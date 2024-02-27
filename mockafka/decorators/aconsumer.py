@@ -21,7 +21,7 @@ def aconsume(topics: list[str], auto_commit: bool = True):
         async def wrapper(*args, **kwargs):
             # Create a FakeConsumer instance and subscribe to specified topics
             fake_consumer = FakeAIOKafkaConsumer()
-            await fake_consumer.subscribe(topics=topics)
+            fake_consumer.subscribe(topics=topics)
 
             # Simulate message consumption
             while True:
