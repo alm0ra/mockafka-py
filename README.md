@@ -1,4 +1,3 @@
-
 ![Alt text](banner.png)
 <p align="center">
     <em>Mockafka-py is a Python library designed for in-memory mocking of Kafka.</em>
@@ -11,11 +10,10 @@
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/alm0ra/mockafka-py)
 ![GitHub repo size](https://img.shields.io/github/repo-size/alm0ra/mockafka-py)
 
-
-
 # Mockafka: Fake Version for confluent-kafka-python & aiokafka
 
 # Features
+
 - Compatible with confluent-kafka
 - Compatible with aiokafka
 - Supports Produce, Consume, and AdminClient operations with ease.
@@ -34,13 +32,16 @@ pip install mockafka-py
 
 ## Multi-Decorator Examples for `confluent-kafka-python`
 
-In the following examples, we showcase the usage of multiple decorators to simulate different scenarios in a Mockafka environment. These scenarios include producing, consuming, and setting up Kafka topics using the provided decorators.
+In the following examples, we showcase the usage of multiple decorators to simulate different scenarios in a Mockafka
+environment. These scenarios include producing, consuming, and setting up Kafka topics using the provided decorators.
 
 ### Example 1: Using `@produce` and `@consume` Decorators
 
 #### Test Case: `test_produce_decorator`
+
 ```python
 from mockafka import produce, consume
+
 
 @produce(topic='test', key='test_key', value='test_value', partition=4)
 @consume(topics=['test'])
@@ -51,10 +52,10 @@ def test_produce_and_consume_decorator(message):
     # Notice you may get message None
     """
     # Your test logic for processing the consumed message here
-    
+
     if not message:
-        return 
-    
+        return
+
     pass
 
 ```
@@ -62,8 +63,10 @@ def test_produce_and_consume_decorator(message):
 ### Example 2: Using Multiple `@produce` Decorators
 
 #### Test Case: `test_produce_twice`
+
 ```python
 from mockafka import produce
+
 
 @produce(topic='test', key='test_key', value='test_value', partition=4)
 @produce(topic='test', key='test_key1', value='test_value1', partition=0)
@@ -75,8 +78,10 @@ def test_produce_twice():
 ### Example 3: Using `@bulk_produce` and `@consume` Decorators
 
 #### Test Case: `test_bulk_produce_decorator`
+
 ```python
 from mockafka import bulk_produce, consume
+
 
 @bulk_produce(list_of_messages=sample_for_bulk_produce)
 @consume(topics=['test'])
@@ -93,8 +98,10 @@ def test_bulk_produce_and_consume_decorator(message):
 ### Example 4: Using `@setup_kafka` and `@produce` Decorators
 
 #### Test Case: `test_produce_with_kafka_setup_decorator`
+
 ```python
 from mockafka import setup_kafka, produce
+
 
 @setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
 @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
@@ -106,8 +113,10 @@ def test_produce_with_kafka_setup_decorator():
 ### Example 5: Using `@setup_kafka`, Multiple `@produce`, and `@consume` Decorators
 
 #### Test Case: `test_consumer_decorator`
+
 ```python
 from mockafka import setup_kafka, produce, consume
+
 
 @setup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
 @produce(topic='test_topic', partition=5, key='test_', value='test_value1')
@@ -121,6 +130,7 @@ def test_consumer_decorator(message: Message = None):
 ```
 
 ## Using classes like confluent-kafka
+
 ```python
 from mockafka import FakeProducer, FakeConsumer, FakeAdminClientImpl
 from mockafka.admin_client import NewTopic
@@ -157,6 +167,7 @@ while True:
 ```
 
 Output:
+
 ```
 """
 <mockafka.message.Message object at 0x7fe84b4c3310>
@@ -174,3 +185,24 @@ None
 ```
 
 ## Multi-Decorator Examples for `aiokafka`
+
+### Example 1: Using `@aproduce` and `@aconsume` and `@asetup_kafka` Decorators
+
+#### Test Case: `test_produce_and_consume_with_decorator`
+
+```python
+import pytest
+from mockafka import aproduce, aconsume, asetup_kafka
+
+
+@pytest.mark.asyncio
+@asetup_kafka(topics=[{'topic': 'test_topic', 'partition': 16}], clean=True)
+@aproduce(topic='test_topic', value='test_value', key='test_key', partition=0)
+@aconsume(topics=['test_topic'])
+async def test_produce_and_consume_with_decorator(message=None):
+    if not message:
+        return
+
+    assert message.key() == 'test_key'
+    assert message.value() == 'test_value'
+```
