@@ -13,10 +13,11 @@
 
 
 
-# Mockafka: Fake Version of confluent-kafka-python
+# Mockafka: Fake Version for confluent-kafka-python & aiokafka
 
 # Features
 - Compatible with confluent-kafka
+- Compatible with aiokafka
 - Supports Produce, Consume, and AdminClient operations with ease.
 
 # TODO
@@ -31,7 +32,7 @@ pip install mockafka-py
 
 # Usage
 
-## Multi-Decorator Examples
+## Multi-Decorator Examples for `confluent-kafka-python`
 
 In the following examples, we showcase the usage of multiple decorators to simulate different scenarios in a Mockafka environment. These scenarios include producing, consuming, and setting up Kafka topics using the provided decorators.
 
@@ -47,7 +48,7 @@ def test_produce_and_consume_decorator(message):
     """
     This test showcases the usage of both @produce and @consume decorators in a single test case.
     It produces a message to the 'test' topic and then consumes it to perform further logic.
-    # Notice you may got message None
+    # Notice you may get message None
     """
     # Your test logic for processing the consumed message here
     
@@ -82,7 +83,7 @@ from mockafka import bulk_produce, consume
 def test_bulk_produce_and_consume_decorator(message):
     """
     This test showcases the usage of both @bulk_produce and @consume decorators in a single test case.
-    It bulk produces messages to the 'test' topic and then consumes them to perform further logic.
+    It does bulk produces messages to the 'test' topic and then consumes them to perform further logic.
     """
     # Your test logic for processing the consumed message here
     pass
@@ -171,3 +172,5 @@ Output:
 None
 """
 ```
+
+## Multi-Decorator Examples for `aiokafka`
