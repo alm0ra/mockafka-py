@@ -14,15 +14,15 @@ class FakeAIOKafkaConsumer:
         """
         self.kafka = KafkaStore()
         self.consumer_store = {}
-        self.subscribed_topic: Set = set()
+        self.subscribed_topic: list = []
 
     async def start(self):
         self.consumer_store = {}
-        self.subscribed_topic: Set = set()
+        self.subscribed_topic: list = []
 
     async def stop(self):
         self.consumer_store = {}
-        self.subscribed_topic: Set = set()
+        self.subscribed_topic: list = []
 
     async def commit(self):
         for item in self.consumer_store:
@@ -35,7 +35,7 @@ class FakeAIOKafkaConsumer:
     async def topics(self):
         return self.subscribed_topic
 
-    def subscribe(self, topics: Set[str]):
+    def subscribe(self, topics: list[str]):
         for topic in topics:
             if not self.kafka.is_topic_exist(topic):
                 continue
@@ -43,7 +43,7 @@ class FakeAIOKafkaConsumer:
             if topic not in self.subscribed_topic:
                 self.subscribed_topic.append(topic)
 
-    def subscribtion(self) -> Set[str]:
+    def subscribtion(self) -> list[str]:
         return self.subscribed_topic
 
     def unsubscribe(self):

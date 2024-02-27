@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import IsolatedAsyncioTestCase
 
 import pytest
 from aiokafka.admin import NewTopic
@@ -10,14 +10,14 @@ from mockafka.kafka_store import KafkaStore, KafkaException
 
 
 @pytest.mark.asyncio
-class TestFakeProducer(TestCase):
+class TestFakeProducer(IsolatedAsyncioTestCase):
     def setUp(self) -> None:
         self.kafka = KafkaStore(clean=True)
         self.producer = FakeAIOKafkaProducer()
         self.admin_client = FakeAIOKafkaAdmin()
 
-        # create topic with partitions
-        self.admin_client.create_topics(new_topics=[
+    async def _create_mock_topic(self):
+        await self.admin_client.create_topics(new_topics=[
             NewTopic(name='test1', num_partitions=4, replication_factor=1),
             NewTopic(name='test2', num_partitions=8, replication_factor=1),
         ])
@@ -53,6 +53,7 @@ class TestFakeProducer(TestCase):
             )
 
     async def test_produce_once(self):
+        await self._create_mock_topic()
         await self.producer.send(
             headers={}, key=self.key, value=self.value, topic=self.topic, partition=0,
         )

@@ -17,7 +17,7 @@ class FakeAIOKafkaProducer:
         pass
 
     async def send(self, *args, **kwargs):
-        create_task(self._produce(**kwargs))
+        await self._produce(**kwargs)
 
     async def send_and_wait(self, *args, **kwargs):
         await self.send()
