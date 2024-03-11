@@ -120,6 +120,8 @@ class KafkaStore(metaclass=SingletonMeta):
             raise KafkaException('you must assign partition when you want to produce message')
 
         if not self.is_topic_exist(topic=topic):
+            if partition == 0:
+                partition = 1
             self.create_partition(topic=topic, partitions=partition)
 
         if mock_topics[topic].get(partition, None) is None:
