@@ -37,4 +37,4 @@ class FakeAIOKafkaProducer:
         await self._produce(**kwargs)
 
     async def send_and_wait(self, *args, **kwargs):
-        await self.send()
+        await self.send(**kwargs)
