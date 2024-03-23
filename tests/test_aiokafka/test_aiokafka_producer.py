@@ -20,6 +20,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         await self.admin_client.create_topics(new_topics=[
             NewTopic(name='test1', num_partitions=4, replication_factor=1),
             NewTopic(name='test2', num_partitions=8, replication_factor=1),
+            NewTopic(name='topic_test', num_partitions=8, replication_factor=1),
         ])
 
     @pytest.fixture(autouse=True)
@@ -64,3 +65,10 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.assertEqual(message.headers(), {})
         self.assertEqual(message.error(), None)
         self.assertEqual(message.latency(), None)
+
+    async def test_send_and_wait(self):
+        await self._create_mock_topic()
+        await self.producer.send_and_wait("topic_test", "sdfjhasdfhjsa", key="datakey")
+        message: Message = self.kafka.get_messages_in_partition(topic="topic_test", partition=0)[0]
+        self.assertEqual(message.key(), "datakey")
+        self.assertEqual(message.topic(), "topic_test")

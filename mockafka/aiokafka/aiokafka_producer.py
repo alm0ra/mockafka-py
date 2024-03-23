@@ -22,19 +22,47 @@ class FakeAIOKafkaProducer:
     - send_and_wait(): Call send().
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self.kafka = KafkaStore()
 
-    async def _produce(self, topic, value=None, *args, **kwargs):
+    async def _produce(self, topic, value=None, *args, **kwargs) -> None:
         # create a message and call produce kafka
         message = Message(value=value, topic=topic, *args, **kwargs)
         self.kafka.produce(message=message, topic=topic, partition=kwargs['partition'])
 
-    async def start(self):
+    async def start(self) -> None:
         pass
 
-    async def send(self, *args, **kwargs):
-        await self._produce(**kwargs)
+    async def send(self,
+                   topic,
+                   value=None,
+                   key=None,
+                   partition=0,
+                   timestamp_ms=None,
+                   headers=None,
+                   ) -> None:
+        await self._produce(
+            topic=topic,
+            value=value,
+            key=key,
+            partition=partition,
+            headers=headers,
+            timestamp_ms=timestamp_ms,
+        )
 
-    async def send_and_wait(self, *args, **kwargs):
-        await self.send(**kwargs)
+    async def send_and_wait(self,
+                            topic,
+                            value=None,
+                            key=None,
+                            partition=0,
+                            timestamp_ms=None,
+                            headers=None,
+                            ) -> None:
+        await self._produce(
+            topic=topic,
+            value=value,
+            key=key,
+            partition=partition,
+            headers=headers,
+            timestamp_ms=timestamp_ms,
+        )
