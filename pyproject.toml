@@ -14,12 +14,12 @@ packages = [{ include = "mockafka" }]
 python = ">=3.8,<4.0"
 confluent-kafka = ">= 1.9.2"
 aiokafka = "^0.10.0"
-pytest-cov = "^4.1.0"
+pytest-cov = ">=4.1,<6.0"
 pytest-asyncio = "^0.23.5"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.2,<9.0"
-pytest-cov = "^4.0.0"
+pytest-cov = ">=4,<6"
 mypy = "^1.5.1"
 pre-commit = "^3.4.0"
 tox = "^4.11.1"
