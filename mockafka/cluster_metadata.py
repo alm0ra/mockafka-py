@@ -13,7 +13,7 @@ class ClusterMetadata(object):
 
     def __init__(self, topic: str = None):
         self.kafka = KafkaStore()
-        self.cluster_id = 'eAvlnr_4QISNbc5bIwBRVA'
+        self.cluster_id = 'test'
         self.controller_id = 1
         self.brokers = {1: BrokerMetadata()}
         self.topics = CustomDict()
