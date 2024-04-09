@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from parameterized import parameterized
+
 from mockafka.kafka_store import KafkaStore, KafkaException, Message
 
 
@@ -105,12 +107,13 @@ class TestKafkaStore(TestCase):
             self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=1), self.DEFAULT_MESSAGE
         )
 
-    def test_get_messages_in_partition(self):
+    @parameterized.expand(range(10, 20))
+    def test_get_messages_in_partition(self, count):
         self._create_topic_partition()
-        for i in range(10):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
 
-        self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), 10)
+        self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), count)
 
     def test_topic_list(self):
         # test empty topic

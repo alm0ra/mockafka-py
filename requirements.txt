@@ -1,4 +1,6 @@
 confluent-kafka[json]>=1.9.2
 pytest>=7.4.2,<8.2.0
-aiokafka
+aiokafka~=0.10.0
 pytest-cov
+
+parameterized~=0.9.0
