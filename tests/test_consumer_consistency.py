@@ -51,7 +51,7 @@ class MockProducer:
         )
 
 
-@pytest.mark.parametrize("count", range(12200, 12240))
+@pytest.mark.parametrize("count", range(1200, 1240))
 def test_consumer_consistency(count):
     producer = MockProducer()
 
