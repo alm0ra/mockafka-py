@@ -8,6 +8,7 @@ from mockafka import FakeConsumer
 from mockafka import FakeProducer, FakeAdminClientImpl
 from mockafka.admin_client import NewTopic
 
+
 KAFKA_TOPIC_AUDITS = "test_1"
 KAFKA_TOPIC_RAW_DOCS = "test_2"
 
@@ -66,3 +67,8 @@ def test_consumer_consistency(count):
     messages = consumer.consume(topics=[KAFKA_TOPIC_AUDITS, KAFKA_TOPIC_RAW_DOCS], msg_cnt=int(count))
 
     assert len(messages) == count
+
+    values_list = [item["u"] for item in messages]
+    assert len(messages) == len(set(values_list))
+
+
