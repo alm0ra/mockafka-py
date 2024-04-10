@@ -26,6 +26,9 @@ class MockConsumer:
             if message is not None:
                 messages.append(message.value())
                 cnt = cnt + 1
+
+            # NOTICE : commit a specific message is not implemented yet and ot commit all message in consumer
+            # offset store
             self._consumer.commit(message)
         return messages
 
@@ -66,8 +69,10 @@ def test_consumer_consistency(count):
     consumer = MockConsumer()
     messages = consumer.consume(topics=[KAFKA_TOPIC_AUDITS, KAFKA_TOPIC_RAW_DOCS], msg_cnt=int(count))
 
+    # asserting that all messages that we produced are consumed
     assert len(messages) == count
 
+    # asserting that all values of messages are unique as we produced before ,  we do not consume a message twice
     values_list = [item["u"] for item in messages]
     assert len(messages) == len(set(values_list))
 
