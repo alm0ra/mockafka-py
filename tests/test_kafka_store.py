@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from parameterized import parameterized
+
 from mockafka.kafka_store import KafkaStore, KafkaException, Message
 
 
@@ -105,18 +107,20 @@ class TestKafkaStore(TestCase):
             self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=1), self.DEFAULT_MESSAGE
         )
 
-    def test_get_messages_in_partition(self):
+    @parameterized.expand(range(10, 20))
+    def test_get_messages_in_partition(self, count):
         self._create_topic_partition()
-        for i in range(10):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
 
-        self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), 10)
+        self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), count)
 
-    def test_topic_list(self):
+    @parameterized.expand(range(10, 20))
+    def test_topic_list(self, count):
         # test empty topic
         self.assertEqual(self.kafka.topic_list(), [])
 
-        topics_to_add = [self.TEST_TOPIC, self.TEST_TOPIC + '01', self.TEST_TOPIC + '02']
+        topics_to_add = [self.TEST_TOPIC + str(i) for i in range(count)]
         for topic in topics_to_add:
             self.kafka.create_topic(topic=topic)
 
@@ -130,25 +134,27 @@ class TestKafkaStore(TestCase):
         self.kafka.create_partition(topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION + 16)
         self.assertEqual(self.kafka.partition_list(topic=self.TEST_TOPIC), list(range(0, self.DEFAULT_PARTITION + 16)))
 
-    def test_number_of_message_in_topic(self):
+    @parameterized.expand(range(10, 20))
+    def test_number_of_message_in_topic(self, count):
         self._create_topic_partition()
-        for i in range(10):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=10)
 
         self.assertEqual(
-            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 30
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 3 * count
         )
 
-    def test_clear_topic_messages(self):
+    @parameterized.expand(range(10, 20))
+    def test_clear_topic_messages(self, count):
         self._create_topic_partition()
-        for i in range(10):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
 
         # before clearing
         self.assertEqual(
-            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 10
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), count
         )
 
         self.kafka.clear_topic_messages(topic=self.TEST_TOPIC)
@@ -158,33 +164,35 @@ class TestKafkaStore(TestCase):
             self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 0
         )
 
-    def test_clear_partition_messages(self):
+    @parameterized.expand(range(10, 20))
+    def test_clear_partition_messages(self, count):
         self._create_topic_partition()
-        for i in range(10):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
 
         # before clearing
         self.assertEqual(
-            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 20
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), count * 2
         )
 
         self.kafka.clear_partition_messages(topic=self.TEST_TOPIC, partition=0)
 
         # after clearing
         self.assertEqual(
-            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 10
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), count
         )
 
-    def test_fresh(self):
+    @parameterized.expand(range(8, 15))
+    def test_fresh(self, count):
         self._create_topic_partition()
 
-        for i in range(self.DEFAULT_PARTITION):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=i)
 
         # before clearing
         self.assertEqual(
-            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 16
+            self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), count
         )
 
         self.kafka.fresh()
@@ -226,10 +234,11 @@ class TestKafkaStore(TestCase):
             self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 16
         )
 
-    def test_reset_offset(self):
+    @parameterized.expand(range(11, 20))
+    def test_reset_offset(self, count):
         self._create_topic_partition()
 
-        for i in range(16):
+        for i in range(count):
             self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
 
         self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=10)
@@ -240,7 +249,7 @@ class TestKafkaStore(TestCase):
         # reset offset to latest
         self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy='latest')
         self.assertEqual(
-            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 16
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), count
         )
 
         # reset offset to earliest

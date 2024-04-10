@@ -1,4 +1,4 @@
-from time import sleep
+import warnings
 
 from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.message import Message
@@ -84,14 +84,15 @@ class FakeConsumer(object):
         - kwargs: Additional keyword arguments (unused).
         """
         if message:
-            pass  # Commit offsets by changing offset of the topic (not implemented yet)
-        else:
-            for item in self.consumer_store:
-                topic, partition = item.split('*')
-                if self.kafka.get_partition_first_offset(topic, partition) <= self.consumer_store[item]:
-                    self.kafka.set_first_offset(topic=topic, partition=partition, value=self.consumer_store[item])
+            warnings.warn("commit a specific message is not yet implemented in mockafka and it act like commit a "
+                          "consumer entire messages ")
 
-            self.consumer_store = {}
+        for item in self.consumer_store:
+            topic, partition = item.split('*')
+            if self.kafka.get_partition_first_offset(topic, partition) <= self.consumer_store[item]:
+                self.kafka.set_first_offset(topic=topic, partition=partition, value=self.consumer_store[item])
+
+        self.consumer_store = {}
 
     def list_topics(self, topic=None, *args, **kwargs):
         """
