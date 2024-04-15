@@ -15,10 +15,9 @@
 # Features
 
 - Compatible with confluent-kafka
-- Compatible with aiokafka
+- Compatible with aiokafka (async support)
 - Supports Produce, Consume, and AdminClient operations with ease.
 
-# TODO
 
 # Getting Start
 
@@ -183,7 +182,7 @@ Output:
 None
 """
 ```
-
+# Async support
 ## Multi-Decorator Examples for `aiokafka`
 
 ### Example 1: Using `@aproduce` and `@aconsume` and `@asetup_kafka` Decorators
