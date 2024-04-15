@@ -23,11 +23,15 @@
 
 # Getting Start
 
-### Installing via pip
+### Installing via pip or poetry
 
 ```bash
 pip install mockafka-py
+
+# or using poetry
+poetry add mockafka-py
 ```
+
 
 # Usage
 
