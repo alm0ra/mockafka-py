@@ -44,7 +44,7 @@ class TestFakeConsumer(TestCase):
         # close consumer and check consumer store and consume return none
         self.consumer.close()
         self.assertEqual(self.consumer.consumer_store, {})
-        self.assertIsNone(self.consumer.consume())
+        self.assertEqual(self.consumer.consume(), [])
 
     def test_poll_without_commit(self):
         self.create_topic()

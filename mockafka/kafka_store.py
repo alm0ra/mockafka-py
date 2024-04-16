@@ -15,6 +15,7 @@ offset_store = {
     }
 }
 """
+
 from confluent_kafka import KafkaException
 from .message import Message
 from copy import deepcopy
