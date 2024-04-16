@@ -1,6 +1,7 @@
 from functools import wraps
 from mockafka import FakeConsumer
 
+
 def consume(topics: list[str], auto_commit: bool = True):
     """
     A decorator for simulating message consumption using a FakeConsumer.
@@ -16,6 +17,7 @@ def consume(topics: list[str], auto_commit: bool = True):
         # Your test logic for processing the consumed message here
     ```
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

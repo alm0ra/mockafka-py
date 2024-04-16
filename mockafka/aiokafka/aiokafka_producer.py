@@ -28,19 +28,20 @@ class FakeAIOKafkaProducer:
     async def _produce(self, topic, value=None, *args, **kwargs) -> None:
         # create a message and call produce kafka
         message = Message(value=value, topic=topic, *args, **kwargs)
-        self.kafka.produce(message=message, topic=topic, partition=kwargs['partition'])
+        self.kafka.produce(message=message, topic=topic, partition=kwargs["partition"])
 
     async def start(self) -> None:
         pass
 
-    async def send(self,
-                   topic,
-                   value=None,
-                   key=None,
-                   partition=0,
-                   timestamp_ms=None,
-                   headers=None,
-                   ) -> None:
+    async def send(
+        self,
+        topic,
+        value=None,
+        key=None,
+        partition=0,
+        timestamp_ms=None,
+        headers=None,
+    ) -> None:
         await self._produce(
             topic=topic,
             value=value,
@@ -50,14 +51,15 @@ class FakeAIOKafkaProducer:
             timestamp_ms=timestamp_ms,
         )
 
-    async def send_and_wait(self,
-                            topic,
-                            value=None,
-                            key=None,
-                            partition=0,
-                            timestamp_ms=None,
-                            headers=None,
-                            ) -> None:
+    async def send_and_wait(
+        self,
+        topic,
+        value=None,
+        key=None,
+        partition=0,
+        timestamp_ms=None,
+        headers=None,
+    ) -> None:
         await self._produce(
             topic=topic,
             value=value,

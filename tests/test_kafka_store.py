@@ -6,11 +6,11 @@ from mockafka.kafka_store import KafkaStore, KafkaException, Message
 
 
 class TestKafkaStore(TestCase):
-    TEST_TOPIC = 'test_topic'
+    TEST_TOPIC = "test_topic"
     DEFAULT_PARTITION = 16
     DEFAULT_MESSAGE = Message(
         headers=None,
-        key='test_key',
+        key="test_key",
         value='{"test_value": "ok"}',
         topic=TEST_TOPIC,
         offset=None,
@@ -25,7 +25,9 @@ class TestKafkaStore(TestCase):
         self.kafka = KafkaStore(clean=True)
 
     def _create_topic_partition(self):
-        self.kafka.create_partition(topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION)
+        self.kafka.create_partition(
+            topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION
+        )
 
     def test_is_topic_exist(self):
         # check topic not exist
@@ -41,17 +43,36 @@ class TestKafkaStore(TestCase):
         self._create_topic_partition()
 
         # test partition exist
-        self.assertTrue(self.kafka.is_partition_exist_on_topic(topic=self.TEST_TOPIC, partition_num=11))
-        self.assertTrue(self.kafka.is_partition_exist_on_topic(topic=self.TEST_TOPIC, partition_num=0))
-        self.assertTrue(self.kafka.is_partition_exist_on_topic(topic=self.TEST_TOPIC, partition_num=15))
+        self.assertTrue(
+            self.kafka.is_partition_exist_on_topic(
+                topic=self.TEST_TOPIC, partition_num=11
+            )
+        )
+        self.assertTrue(
+            self.kafka.is_partition_exist_on_topic(
+                topic=self.TEST_TOPIC, partition_num=0
+            )
+        )
+        self.assertTrue(
+            self.kafka.is_partition_exist_on_topic(
+                topic=self.TEST_TOPIC, partition_num=15
+            )
+        )
 
         # test partition not exist
-        self.assertFalse(self.kafka.is_partition_exist_on_topic(topic=self.TEST_TOPIC, partition_num=16))
+        self.assertFalse(
+            self.kafka.is_partition_exist_on_topic(
+                topic=self.TEST_TOPIC, partition_num=16
+            )
+        )
 
     def test_get_number_of_partition(self):
         self._create_topic_partition()
 
-        self.assertEqual(self.kafka.get_number_of_partition(topic=self.TEST_TOPIC), self.DEFAULT_PARTITION)
+        self.assertEqual(
+            self.kafka.get_number_of_partition(topic=self.TEST_TOPIC),
+            self.DEFAULT_PARTITION,
+        )
 
     def test_create_topic(self):
         self.kafka.create_topic(topic=self.TEST_TOPIC)
@@ -83,37 +104,56 @@ class TestKafkaStore(TestCase):
         )
 
         # test produce on partition 0
-        self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+        self.kafka.produce(
+            message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
+        )
 
         self.assertEqual(
-            self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=0), [self.DEFAULT_MESSAGE]
+            self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=0),
+            [self.DEFAULT_MESSAGE],
         )
 
         # test produce on partition 1
-        self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
+        self.kafka.produce(
+            message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+        )
         self.assertEqual(
-            self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1), [self.DEFAULT_MESSAGE]
+            self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1),
+            [self.DEFAULT_MESSAGE],
         )
 
     def test_get_message(self):
         self._create_topic_partition()
 
-        self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
-        self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
-        self.assertEqual(
-            self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=0), self.DEFAULT_MESSAGE
+        self.kafka.produce(
+            message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+        )
+        self.kafka.produce(
+            message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
         )
         self.assertEqual(
-            self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=1), self.DEFAULT_MESSAGE
+            self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=0),
+            self.DEFAULT_MESSAGE,
+        )
+        self.assertEqual(
+            self.kafka.get_message(topic=self.TEST_TOPIC, partition=1, offset=1),
+            self.DEFAULT_MESSAGE,
         )
 
     @parameterized.expand(range(10, 20))
     def test_get_messages_in_partition(self, count):
         self._create_topic_partition()
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+            )
 
-        self.assertEqual(len(self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)), count)
+        self.assertEqual(
+            len(
+                self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1)
+            ),
+            count,
+        )
 
     @parameterized.expand(range(10, 20))
     def test_topic_list(self, count):
@@ -129,18 +169,32 @@ class TestKafkaStore(TestCase):
     def test_partition_list(self):
         self._create_topic_partition()
 
-        self.assertEqual(self.kafka.partition_list(topic=self.TEST_TOPIC), list(range(0, self.DEFAULT_PARTITION)))
+        self.assertEqual(
+            self.kafka.partition_list(topic=self.TEST_TOPIC),
+            list(range(0, self.DEFAULT_PARTITION)),
+        )
 
-        self.kafka.create_partition(topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION + 16)
-        self.assertEqual(self.kafka.partition_list(topic=self.TEST_TOPIC), list(range(0, self.DEFAULT_PARTITION + 16)))
+        self.kafka.create_partition(
+            topic=self.TEST_TOPIC, partitions=self.DEFAULT_PARTITION + 16
+        )
+        self.assertEqual(
+            self.kafka.partition_list(topic=self.TEST_TOPIC),
+            list(range(0, self.DEFAULT_PARTITION + 16)),
+        )
 
     @parameterized.expand(range(10, 20))
     def test_number_of_message_in_topic(self, count):
         self._create_topic_partition()
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=10)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+            )
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
+            )
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=10
+            )
 
         self.assertEqual(
             self.kafka.number_of_message_in_topic(topic=self.TEST_TOPIC), 3 * count
@@ -150,7 +204,9 @@ class TestKafkaStore(TestCase):
     def test_clear_topic_messages(self, count):
         self._create_topic_partition()
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+            )
 
         # before clearing
         self.assertEqual(
@@ -168,8 +224,12 @@ class TestKafkaStore(TestCase):
     def test_clear_partition_messages(self, count):
         self._create_topic_partition()
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1)
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
+            )
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
+            )
 
         # before clearing
         self.assertEqual(
@@ -188,7 +248,9 @@ class TestKafkaStore(TestCase):
         self._create_topic_partition()
 
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=i)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=i
+            )
 
         # before clearing
         self.assertEqual(
@@ -208,7 +270,9 @@ class TestKafkaStore(TestCase):
         )
 
         for i in range(self.DEFAULT_PARTITION):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
+            )
 
         self.assertEqual(
             self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 16
@@ -221,12 +285,14 @@ class TestKafkaStore(TestCase):
 
         self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=10)
         self.assertEqual(
-            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0),
+            10,
         )
 
         self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=100)
         self.assertEqual(
-            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0),
+            10,
         )
 
         self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=8)
@@ -239,21 +305,25 @@ class TestKafkaStore(TestCase):
         self._create_topic_partition()
 
         for i in range(count):
-            self.kafka.produce(message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0)
+            self.kafka.produce(
+                message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
+            )
 
         self.kafka.set_first_offset(topic=self.TEST_TOPIC, partition=0, value=10)
         self.assertEqual(
-            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 10
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0),
+            10,
         )
 
         # reset offset to latest
-        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy='latest')
+        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy="latest")
         self.assertEqual(
-            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), count
+            self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0),
+            count,
         )
 
         # reset offset to earliest
-        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy='earliest')
+        self.kafka.reset_offset(topic=self.TEST_TOPIC, strategy="earliest")
         self.assertEqual(
             self.kafka.get_partition_first_offset(topic=self.TEST_TOPIC, partition=0), 0
         )

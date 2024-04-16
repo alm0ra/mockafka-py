@@ -13,17 +13,21 @@ class ClusterMetadata(object):
 
     def __init__(self, topic: str = None):
         self.kafka = KafkaStore()
-        self.cluster_id = 'test'
+        self.cluster_id = "test"
         self.controller_id = 1
         self.brokers = {1: BrokerMetadata()}
         self.topics = CustomDict()
         if topic:
             if self.kafka.is_topic_exist(topic=topic):
-                self.topics[topic] = TopicMetadata(topic, self.kafka.partition_list(topic=topic))
+                self.topics[topic] = TopicMetadata(
+                    topic, self.kafka.partition_list(topic=topic)
+                )
 
         else:
             for topic in self.kafka.topic_list():
-                self.topics[topic] = TopicMetadata(topic, self.kafka.partition_list(topic=topic))
+                self.topics[topic] = TopicMetadata(
+                    topic, self.kafka.partition_list(topic=topic)
+                )
 
         self.orig_broker_id = -1
         self.orig_broker_name = None
@@ -41,4 +45,3 @@ class CustomDict(dict):
             return super().__getitem__(key)
         except KeyError:
             return
-

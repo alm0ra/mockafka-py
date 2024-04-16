@@ -16,46 +16,66 @@ class TestFakeProducer(TestCase):
         self.admin_client = FakeAdminClientImpl()
 
         # create topic with partitions
-        self.admin_client.create_topics(topics=[
-            NewTopic(topic='test1', num_partitions=4),
-            NewTopic(topic='test2', num_partitions=8),
-        ])
+        self.admin_client.create_topics(
+            topics=[
+                NewTopic(topic="test1", num_partitions=4),
+                NewTopic(topic="test2", num_partitions=8),
+            ]
+        )
 
     @pytest.fixture(autouse=True)
     def topic(self):
-        self.topic = 'test1'
+        self.topic = "test1"
 
     @pytest.fixture(autouse=True)
     def key(self):
-        self.key = 'test_key'
+        self.key = "test_key"
 
     @pytest.fixture(autouse=True)
     def value(self):
-        self.value = 'test_value'
+        self.value = "test_value"
 
     def test_produce_failed_topic_not_exist(self):
         with pytest.raises(KafkaException):
             self.producer.produce(
-                headers={}, key=self.key, value=self.value, topic='alaki', partition=0,
+                headers={},
+                key=self.key,
+                value=self.value,
+                topic="alaki",
+                partition=0,
             )
 
     def test_produce_on_partition_not_exist(self):
         with pytest.raises(KafkaException):
             self.producer.produce(
-                headers={}, key=self.key, value=self.value, topic=self.topic, partition=17,
+                headers={},
+                key=self.key,
+                value=self.value,
+                topic=self.topic,
+                partition=17,
             )
 
     def test_produce_fail_for_none_partition(self):
         with pytest.raises(KafkaException):
             self.producer.produce(
-                headers={}, key=self.key, value=self.value, topic=self.topic, partition=None,
+                headers={},
+                key=self.key,
+                value=self.value,
+                topic=self.topic,
+                partition=None,
             )
 
     def test_produce_once(self):
         self.producer.produce(
-            headers={}, key=self.key, value=self.value, topic=self.topic, partition=0,
+            headers={},
+            key=self.key,
+            value=self.value,
+            topic=self.topic,
+            partition=0,
         )
-        message: Message = self.kafka.get_messages_in_partition(topic=self.topic, partition=0)[0]
+        message: Message = self.kafka.get_messages_in_partition(
+            topic=self.topic, partition=0
+        )[0]
         self.assertEqual(message.key(), self.key)
         self.assertEqual(message.value(payload=None), self.value)
         self.assertEqual(message.topic(), self.topic)
@@ -66,12 +86,8 @@ class TestFakeProducer(TestCase):
     def test_list_topics(self):
         cluster_metadata = self.producer.list_topics()
         self.assertEqual(len(cluster_metadata.topics.keys()), 2)
-        self.assertEqual(
-            len(cluster_metadata.topics['test1']), 4
-        )
-        self.assertEqual(
-            len(cluster_metadata.topics['test2']), 8
-        )
+        self.assertEqual(len(cluster_metadata.topics["test1"]), 4)
+        self.assertEqual(len(cluster_metadata.topics["test2"]), 8)
 
     def test_abort_transaction(self):
         # This method Does not support in mockafka

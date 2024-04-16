@@ -27,9 +27,11 @@ def setup_kafka(topics: [dict[str, str]], clean: bool = False):
 
             # Create specified topics using the FakeAdminClient
             for item in topics:
-                topic = item.get('topic', None)
-                partition = item.get('partition', None)
-                fake_admin.create_topics(topics=[NewTopic(topic=topic, num_partitions=partition)])
+                topic = item.get("topic", None)
+                partition = item.get("partition", None)
+                fake_admin.create_topics(
+                    topics=[NewTopic(topic=topic, num_partitions=partition)]
+                )
 
             # Call the original function
             result = func(*args, **kwargs)
