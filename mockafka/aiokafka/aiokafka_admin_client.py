@@ -40,7 +40,9 @@ class FakeAIOKafkaAdmin:
 
     async def _create_topic(self, topic: NewTopic) -> None:
         self.kafka.create_topic(topic.name)
-        await self._create_partition(topic=topic.name, partition_count=topic.num_partitions)
+        await self._create_partition(
+            topic=topic.name, partition_count=topic.num_partitions
+        )
 
     async def _remove_topic(self, topic: str):
         self.kafka.remove_topic(topic=topic)
@@ -56,6 +58,10 @@ class FakeAIOKafkaAdmin:
     async def _create_partition(self, topic: str, partition_count: int):
         self.kafka.create_partition(topic=topic, partitions=partition_count)
 
-    async def create_partitions(self, topic_partitions: Dict[str, NewPartitions], *args, **kwargs):
+    async def create_partitions(
+        self, topic_partitions: Dict[str, NewPartitions], *args, **kwargs
+    ):
         for topic, partition in topic_partitions.items():
-            await self._create_partition(topic=topic, partition_count=partition.total_count)
+            await self._create_partition(
+                topic=topic, partition_count=partition.total_count
+            )

@@ -56,7 +56,9 @@ class FakeAdminClientImpl:
         Parameters:
         - partition (NewPartitions): The partition object to be created.
         """
-        self.kafka.create_partition(topic=partition.topic, partitions=partition.new_total_count)
+        self.kafka.create_partition(
+            topic=partition.topic, partitions=partition.new_total_count
+        )
 
     def create_topics(self, topics: list[NewTopic]):
         """
@@ -78,7 +80,9 @@ class FakeAdminClientImpl:
         self.kafka.create_topic(topic.topic)
         self.create_partitions([NewPartitions(topic.topic, topic.num_partitions)])
 
-    def delete_topics(self, topics, future=None, request_timeout=None, operation_timeout=None):
+    def delete_topics(
+        self, topics, future=None, request_timeout=None, operation_timeout=None
+    ):
         """
         Delete topics from the in-memory Kafka store.
 

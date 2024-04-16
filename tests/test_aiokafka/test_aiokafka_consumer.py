@@ -2,7 +2,11 @@ from unittest import IsolatedAsyncioTestCase
 
 import pytest
 
-from mockafka.aiokafka import FakeAIOKafkaConsumer, FakeAIOKafkaAdmin, FakeAIOKafkaProducer
+from mockafka.aiokafka import (
+    FakeAIOKafkaConsumer,
+    FakeAIOKafkaAdmin,
+    FakeAIOKafkaProducer,
+)
 from mockafka.kafka_store import KafkaStore
 
 
@@ -13,18 +17,22 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.producer = FakeAIOKafkaProducer()
         self.consumer = FakeAIOKafkaConsumer()
         self.admin = FakeAIOKafkaAdmin()
-        self.test_topic = 'test_topic'
+        self.test_topic = "test_topic"
 
     @pytest.fixture(autouse=True)
     def topic(self):
-        self.test_topic = 'test_topic'
+        self.test_topic = "test_topic"
 
     def create_topic(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=16)
 
     async def produce_message(self):
-        await self.producer.send(topic=self.test_topic, partition=0, key='test', value='test')
-        await self.producer.send(topic=self.test_topic, partition=0, key='test1', value='test1')
+        await self.producer.send(
+            topic=self.test_topic, partition=0, key="test", value="test"
+        )
+        await self.producer.send(
+            topic=self.test_topic, partition=0, key="test1", value="test1"
+        )
 
     async def test_consume(self):
         await self.test_poll_with_commit()
@@ -35,7 +43,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(self.consumer.consumer_store, {})
 
         # change consumer store and check it's changed
-        self.consumer.consumer_store = {'key', 'value'}
+        self.consumer.consumer_store = {"key", "value"}
         self.assertNotEqual(self.consumer.consumer_store, {})
 
         # close consumer and check consumer store and consume return none
@@ -49,9 +57,9 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.consumer.subscribe(topics=[self.test_topic])
 
         message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
         message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
@@ -63,25 +71,23 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         message = await self.consumer.getone()
         await self.consumer.commit()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
 
         message = await self.consumer.getone()
         await self.consumer.commit()
-        self.assertEqual(message.value(payload=None), 'test1')
+        self.assertEqual(message.value(payload=None), "test1")
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
 
     async def test_subscribe(self):
-        test_topic_2 = 'test_topic_2'
+        test_topic_2 = "test_topic_2"
         self.kafka.create_partition(topic=self.test_topic, partitions=10)
         self.kafka.create_partition(topic=test_topic_2, partitions=10)
         topics = [self.test_topic, test_topic_2]
         self.consumer.subscribe(topics=topics)
 
-        self.assertEqual(
-            self.consumer.subscribed_topic, topics
-        )
+        self.assertEqual(self.consumer.subscribed_topic, topics)
 
     async def test_subscribe_topic_not_exist(self):
         topics = [self.test_topic]
@@ -93,10 +99,6 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         topics = [self.test_topic]
         self.consumer.subscribe(topics=topics)
 
-        self.assertEqual(
-            self.consumer.subscribed_topic, topics
-        )
+        self.assertEqual(self.consumer.subscribed_topic, topics)
         self.consumer.unsubscribe()
-        self.assertEqual(
-            self.consumer.subscribed_topic, []
-        )
+        self.assertEqual(self.consumer.subscribed_topic, [])

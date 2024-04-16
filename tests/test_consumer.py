@@ -4,7 +4,7 @@ import pytest
 
 from mockafka.admin_client import FakeAdminClientImpl
 from mockafka.conumser import FakeConsumer
-from mockafka.kafka_store import KafkaStore, KafkaException
+from mockafka.kafka_store import KafkaStore
 from mockafka.producer import FakeProducer
 
 
@@ -17,14 +17,18 @@ class TestFakeConsumer(TestCase):
 
     @pytest.fixture(autouse=True)
     def topic(self):
-        self.test_topic = 'test_topic'
+        self.test_topic = "test_topic"
 
     def create_topic(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=16)
 
     def produce_message(self):
-        self.producer.produce(topic=self.test_topic, partition=0, key='test', value='test')
-        self.producer.produce(topic=self.test_topic, partition=0, key='test1', value='test1')
+        self.producer.produce(
+            topic=self.test_topic, partition=0, key="test", value="test"
+        )
+        self.producer.produce(
+            topic=self.test_topic, partition=0, key="test1", value="test1"
+        )
 
     def test_consume(self):
         self.test_poll_with_commit()
@@ -34,7 +38,7 @@ class TestFakeConsumer(TestCase):
         self.assertEqual(self.consumer.consumer_store, {})
 
         # change consumer store and check it's changed
-        self.consumer.consumer_store = {'key', 'value'}
+        self.consumer.consumer_store = {"key", "value"}
         self.assertNotEqual(self.consumer.consumer_store, {})
 
         # close consumer and check consumer store and consume return none
@@ -48,9 +52,9 @@ class TestFakeConsumer(TestCase):
         self.consumer.subscribe(topics=[self.test_topic])
 
         message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
         message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
 
         self.assertIsNone(self.consumer.poll())
         self.assertIsNone(self.consumer.poll())
@@ -62,25 +66,23 @@ class TestFakeConsumer(TestCase):
 
         message = self.consumer.poll()
         self.consumer.commit()
-        self.assertEqual(message.value(payload=None), 'test')
+        self.assertEqual(message.value(payload=None), "test")
 
         message = self.consumer.poll()
         self.consumer.commit()
-        self.assertEqual(message.value(payload=None), 'test1')
+        self.assertEqual(message.value(payload=None), "test1")
 
         self.assertIsNone(self.consumer.poll())
         self.assertIsNone(self.consumer.poll())
 
     def test_subscribe(self):
-        test_topic_2 = 'test_topic_2'
+        test_topic_2 = "test_topic_2"
         self.kafka.create_partition(topic=self.test_topic, partitions=10)
         self.kafka.create_partition(topic=test_topic_2, partitions=10)
         topics = [self.test_topic, test_topic_2]
         self.consumer.subscribe(topics=topics)
 
-        self.assertEqual(
-            self.consumer.subscribed_topic, topics
-        )
+        self.assertEqual(self.consumer.subscribed_topic, topics)
 
     def test_subscribe_topic_not_exist(self):
         topics = [self.test_topic]
@@ -92,13 +94,9 @@ class TestFakeConsumer(TestCase):
         topics = [self.test_topic]
         self.consumer.subscribe(topics=topics)
 
-        self.assertEqual(
-            self.consumer.subscribed_topic, topics
-        )
+        self.assertEqual(self.consumer.subscribed_topic, topics)
         self.consumer.unsubscribe(topics=topics)
-        self.assertEqual(
-            self.consumer.subscribed_topic, []
-        )
+        self.assertEqual(self.consumer.subscribed_topic, [])
 
     def test_assign(self):
         # This method Does not support in mockafka

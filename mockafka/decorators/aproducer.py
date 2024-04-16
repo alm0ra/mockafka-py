@@ -34,20 +34,16 @@ def aproduce(**decorator_args):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # Extract parameters from the decorator_args
-            topic = decorator_args.get('topic', None)
-            value = decorator_args.get('value', None)
-            key = decorator_args.get('key', None)
-            headers = decorator_args.get('headers', None)
-            partition = decorator_args.get('partition', None)
+            topic = decorator_args.get("topic", None)
+            value = decorator_args.get("value", None)
+            key = decorator_args.get("key", None)
+            headers = decorator_args.get("headers", None)
+            partition = decorator_args.get("partition", None)
 
             # Create a FakeProducer instance and produce the message
             fake_producer = FakeAIOKafkaProducer()
             await fake_producer.send(
-                topic=topic,
-                partition=partition,
-                value=value,
-                key=key,
-                headers=headers
+                topic=topic, partition=partition, value=value, key=key, headers=headers
             )
 
             # Call the original function

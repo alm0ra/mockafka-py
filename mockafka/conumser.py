@@ -84,13 +84,20 @@ class FakeConsumer(object):
         - kwargs: Additional keyword arguments (unused).
         """
         if message:
-            warnings.warn("commit a specific message is not yet implemented in mockafka and it act like commit a "
-                          "consumer entire messages ")
+            warnings.warn(
+                "commit a specific message is not yet implemented in mockafka and it act like commit a "
+                "consumer entire messages "
+            )
 
         for item in self.consumer_store:
-            topic, partition = item.split('*')
-            if self.kafka.get_partition_first_offset(topic, partition) <= self.consumer_store[item]:
-                self.kafka.set_first_offset(topic=topic, partition=partition, value=self.consumer_store[item])
+            topic, partition = item.split("*")
+            if (
+                self.kafka.get_partition_first_offset(topic, partition)
+                <= self.consumer_store[item]
+            ):
+                self.kafka.set_first_offset(
+                    topic=topic, partition=partition, value=self.consumer_store[item]
+                )
 
         self.consumer_store = {}
 
@@ -124,9 +131,15 @@ class FakeConsumer(object):
 
         for topic in self.subscribed_topic:
             for partition in self.kafka.partition_list(topic=topic):
-                first_offset = self.kafka.get_partition_first_offset(topic=topic, partition=partition)
-                next_offset = self.kafka.get_partition_next_offset(topic=topic, partition=partition)
-                consumer_amount = self.consumer_store.get(self._get_key(topic, partition))
+                first_offset = self.kafka.get_partition_first_offset(
+                    topic=topic, partition=partition
+                )
+                next_offset = self.kafka.get_partition_next_offset(
+                    topic=topic, partition=partition
+                )
+                consumer_amount = self.consumer_store.get(
+                    self._get_key(topic, partition)
+                )
                 if first_offset == next_offset:
                     continue
 
@@ -136,9 +149,13 @@ class FakeConsumer(object):
                 if consumer_amount is not None:
                     self.consumer_store[self._get_key(topic, partition)] += 1
                 else:
-                    self.consumer_store[self._get_key(topic, partition)] = first_offset + 1
+                    self.consumer_store[self._get_key(topic, partition)] = (
+                        first_offset + 1
+                    )
 
-                return self.kafka.get_message(topic=topic, partition=partition, offset=first_offset)
+                return self.kafka.get_message(
+                    topic=topic, partition=partition, offset=first_offset
+                )
 
         return None
 
@@ -153,7 +170,7 @@ class FakeConsumer(object):
         Returns:
         - str: Unique key for the topic-partition pair.
         """
-        return f'{topic}*{partition}'
+        return f"{topic}*{partition}"
 
     def subscribe(self, topics, on_assign=None, *args, **kwargs):
         """
@@ -186,7 +203,7 @@ class FakeConsumer(object):
         Raises:
         - ValueError: If no 'topics' keyword argument is provided.
         """
-        topics = kwargs.get('topics', [])
+        topics = kwargs.get("topics", [])
         for topic in topics:
             if topic in self.subscribed_topic:
                 self.subscribed_topic.remove(topic)

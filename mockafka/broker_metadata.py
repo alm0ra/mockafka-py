@@ -8,7 +8,7 @@ class BrokerMetadata(object):
     def __init__(self):
         self.id = 1
         """Broker id"""
-        self.host = 'fakebroker'
+        self.host = "fakebroker"
         """Broker hostname"""
         self.port = 9091
         """Broker port"""

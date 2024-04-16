@@ -34,12 +34,12 @@ def bulk_produce(list_of_messages: list[dict[str, str]]):
 
             # Extract parameters from each message dictionary and produce messages
             for item in list_of_messages:
-                value = item.get('value', None)
-                key = item.get('key', None)
-                topic = item.get('topic', None)
-                partition = item.get('partition', None)
-                timestamp = item.get('timestamp', None)
-                headers = item.get('headers', None)
+                value = item.get("value", None)
+                key = item.get("key", None)
+                topic = item.get("topic", None)
+                partition = item.get("partition", None)
+                timestamp = item.get("timestamp", None)
+                headers = item.get("headers", None)
 
                 # Produce the message using the FakeProducer
                 fake_producer.produce(
@@ -48,7 +48,7 @@ def bulk_produce(list_of_messages: list[dict[str, str]]):
                     value=value,
                     key=key,
                     timestamp=timestamp,
-                    headers=headers
+                    headers=headers,
                 )
 
             # Call the original function

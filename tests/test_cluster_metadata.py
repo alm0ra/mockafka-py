@@ -5,12 +5,12 @@ from mockafka.cluster_metadata import ClusterMetadata
 
 def test_cluster_metadata():
     # topic does not exist
-    metadata = ClusterMetadata(topic='test')
-    assert metadata.cluster_id == 'test'
+    metadata = ClusterMetadata(topic="test")
+    assert metadata.cluster_id == "test"
 
     # topic exists
-    FakeAdminClientImpl().create_topic(topic=NewTopic(topic='test1', num_partitions=1))
-    ClusterMetadata(topic='test')
+    FakeAdminClientImpl().create_topic(topic=NewTopic(topic="test1", num_partitions=1))
+    ClusterMetadata(topic="test")
 
 
 def test_broker_metadata():
