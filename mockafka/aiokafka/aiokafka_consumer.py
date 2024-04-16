@@ -1,3 +1,6 @@
+import random
+from copy import deepcopy
+
 from mockafka.kafka_store import KafkaStore
 
 
@@ -76,8 +79,14 @@ class FakeAIOKafkaConsumer:
         return f"{topic}*{partition}"
 
     async def getone(self):
-        for topic in self.subscribed_topic:
-            for partition in self.kafka.partition_list(topic=topic):
+        topics_to_consume = deepcopy(self.subscribed_topic)
+        random.shuffle(topics_to_consume)
+
+        for topic in topics_to_consume:
+            partition_to_consume = deepcopy(self.kafka.partition_list(topic=topic))
+            random.shuffle(topics_to_consume)
+
+            for partition in partition_to_consume:
                 first_offset = self.kafka.get_partition_first_offset(
                     topic=topic, partition=partition
                 )

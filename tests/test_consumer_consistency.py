@@ -27,8 +27,6 @@ class MockConsumer:
                 messages.append(message.value())
                 cnt = cnt + 1
 
-            # NOTICE : commit a specific message is not implemented yet and ot commit all message in consumer
-            # offset store
             self._consumer.commit(message)
         return messages
 
