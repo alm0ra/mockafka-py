@@ -1,8 +1,9 @@
-import warnings
+import random
+from copy import deepcopy
 
 from mockafka.cluster_metadata import ClusterMetadata
+from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
-from mockafka.kafka_store import KafkaStore, KafkaException
 
 __all__ = ["FakeConsumer"]
 
@@ -49,7 +50,7 @@ class FakeConsumer(object):
         self.consumer_store = {}
         self.subscribed_topic: list = []
 
-    def consume(self, num_messages=1, *args, **kwargs):
+    def consume(self, num_messages=1, *args, **kwargs) -> list[Message]:
         """
         Consume messages from subscribed topics.
 
@@ -61,7 +62,13 @@ class FakeConsumer(object):
         Returns:
         - Message or None: Consumed message or None if no message is available.
         """
-        return self.poll()
+        consumed_messages = []
+        for count in range(num_messages):
+            message = self.poll()
+            if message:
+                consumed_messages.append(self.poll())
+
+        return consumed_messages
 
     def close(self, *args, **kwargs):
         """
@@ -84,22 +91,32 @@ class FakeConsumer(object):
         - kwargs: Additional keyword arguments (unused).
         """
         if message:
-            warnings.warn(
-                "commit a specific message is not yet implemented in mockafka and it act like commit a "
-                "consumer entire messages "
-            )
-
-        for item in self.consumer_store:
-            topic, partition = item.split("*")
+            topic = message.topic()
+            partition = message.partition()
+            key = self._get_key(topic=topic, partition=partition)
             if (
                 self.kafka.get_partition_first_offset(topic, partition)
-                <= self.consumer_store[item]
+                <= self.consumer_store[key]
             ):
                 self.kafka.set_first_offset(
-                    topic=topic, partition=partition, value=self.consumer_store[item]
+                    topic=topic, partition=partition, value=self.consumer_store[key]
                 )
+            del self.consumer_store[key]
 
-        self.consumer_store = {}
+        else:
+            for item in self.consumer_store:
+                topic, partition = item.split("*")
+                if (
+                    self.kafka.get_partition_first_offset(topic, partition)
+                    <= self.consumer_store[item]
+                ):
+                    self.kafka.set_first_offset(
+                        topic=topic,
+                        partition=partition,
+                        value=self.consumer_store[item],
+                    )
+
+            self.consumer_store = {}
 
     def list_topics(self, topic=None, *args, **kwargs):
         """
@@ -128,9 +145,12 @@ class FakeConsumer(object):
         if timeout:
             pass
             # sleep(timeout)
-
-        for topic in self.subscribed_topic:
-            for partition in self.kafka.partition_list(topic=topic):
+        topics_to_consume = deepcopy(self.subscribed_topic)
+        random.shuffle(topics_to_consume)
+        for topic in topics_to_consume:
+            partition_to_consume = deepcopy(self.kafka.partition_list(topic=topic))
+            random.shuffle(topics_to_consume)
+            for partition in partition_to_consume:
                 first_offset = self.kafka.get_partition_first_offset(
                     topic=topic, partition=partition
                 )

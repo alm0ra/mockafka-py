@@ -40,6 +40,9 @@ class Message:
     def topic(self, *args, **kwargs):
         return self._topic
 
+    def partition(self, *args, **kwargs):
+        return self._partition
+
     def error(self):
         return self._error
 
