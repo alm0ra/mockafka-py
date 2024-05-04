@@ -44,4 +44,4 @@ class CustomDict(dict):
         try:
             return super().__getitem__(key)
         except KeyError:
-            return
+            raise KeyError(f"Key '{key}' not found in CustomDict")
