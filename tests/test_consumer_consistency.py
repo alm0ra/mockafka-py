@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import uuid
 from random import randint, choice
 from typing import Any

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from confluent_kafka.cimpl import NewTopic, NewPartitions
 
 from mockafka.cluster_metadata import ClusterMetadata

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mockafka import FakeProducer, FakeConsumer, FakeAdminClientImpl
 from mockafka.admin_client import NewTopic
 from random import randint
