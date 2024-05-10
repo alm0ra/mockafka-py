@@ -46,3 +46,4 @@ class CustomDict(dict):
             return super().__getitem__(key)
         except KeyError:
             logging.warning(f"Key '{key}' not found in CustomDict")
+            return
