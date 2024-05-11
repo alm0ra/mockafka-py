@@ -1,3 +1,4 @@
+import logging
 from mockafka.broker_metadata import BrokerMetadata
 from mockafka.kafka_store import KafkaStore
 from mockafka.topic_metadata import TopicMetadata
@@ -44,4 +45,5 @@ class CustomDict(dict):
         try:
             return super().__getitem__(key)
         except KeyError:
+            logging.warning(f"Key '{key}' not found in CustomDict")
             return
