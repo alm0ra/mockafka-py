@@ -18,6 +18,7 @@ class FakeAIOKafkaProducer:
     - _produce(): Create a Message and produce to KafkaStore.
       Takes topic, value, and optional partition.
     - start(): No-op.
+    - stop(): No-op.
     - send(): Call _produce() with kwargs.
     - send_and_wait(): Call send().
     """
@@ -31,6 +32,9 @@ class FakeAIOKafkaProducer:
         self.kafka.produce(message=message, topic=topic, partition=kwargs["partition"])
 
     async def start(self) -> None:
+        pass
+
+    async def stop(self) -> None:
         pass
 
     async def send(
