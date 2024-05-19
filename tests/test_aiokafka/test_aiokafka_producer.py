@@ -90,7 +90,13 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
     async def test_send_and_wait(self):
         await self._create_mock_topic()
-        await self.producer.send_and_wait("topic_test", "sdfjhasdfhjsa", key="datakey")
+
+        await self.producer.start()
+        try:
+            await self.producer.send_and_wait("topic_test", "sdfjhasdfhjsa", key="datakey")
+        finally:
+            await self.producer.stop()
+
         message: Message = self.kafka.get_messages_in_partition(
             topic="topic_test", partition=0
         )[0]

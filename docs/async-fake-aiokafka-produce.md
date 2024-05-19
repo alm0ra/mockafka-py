@@ -27,6 +27,9 @@ The `FakeAIOKafkaProducer` class is a mock implementation of aiokafka's AIOKafka
 #### `start(self)`
 - **Description:** No-operation.
 
+#### `stop(self)`
+- **Description:** No-operation.
+
 #### `send(self, *args, **kwargs)`
 - **Description:** Calls `_produce()` with keyword arguments.
 - **Parameters:**
@@ -48,4 +51,4 @@ fake_producer = FakeAIOKafkaProducer()
 
 # Produce a message
 await fake_producer.send(topic='sample_topic', value='Hello, Kafka!', partition=0)
-``` 
+```
