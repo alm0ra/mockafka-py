@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 from mockafka.broker_metadata import BrokerMetadata
 from mockafka.kafka_store import KafkaStore

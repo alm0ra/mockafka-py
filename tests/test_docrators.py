@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka, Message
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.producer import FakeProducer

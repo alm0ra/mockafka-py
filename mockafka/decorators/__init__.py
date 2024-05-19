@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .aconsumer import aconsume
 from .aproducer import aproduce
 from .asetup_kafka import asetup_kafka

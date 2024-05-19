@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest import TestCase
 from mockafka.admin_client import FakeAdminClientImpl, NewPartitions, NewTopic
 from mockafka.kafka_store import KafkaStore

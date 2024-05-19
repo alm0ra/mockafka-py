@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class TopicMetadata(object):
     """
     Provides information about a Kafka topic.

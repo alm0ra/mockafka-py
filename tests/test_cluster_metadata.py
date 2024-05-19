@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.broker_metadata import BrokerMetadata
 from mockafka.cluster_metadata import ClusterMetadata

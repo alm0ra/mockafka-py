@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
