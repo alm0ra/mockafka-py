@@ -1,5 +1,5 @@
 confluent-kafka[json]>=1.9.2
-pytest>=7.4.2,<8.2.0
+pytest>=7.4.2,<8.3.0
 aiokafka~=0.10.0
 pytest-cov
 pytest-asyncio
