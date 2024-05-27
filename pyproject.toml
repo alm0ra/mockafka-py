@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mockafka-py"
-version = "0.1.56"
+version = "0.1.57"
 authors = ["alm0ra <ali.mrd318@gmail.com>"]
 repository = "https://github.com/alm0ra/mockafka-py"
 documentation = "https://github.com/alm0ra/mockafka-py/docs"
