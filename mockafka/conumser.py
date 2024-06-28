@@ -68,7 +68,7 @@ class FakeConsumer(object):
         for count in range(num_messages):
             message = self.poll()
             if message:
-                consumed_messages.append(self.poll())
+                consumed_messages.append(message)
 
         return consumed_messages
 
