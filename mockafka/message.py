@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from confluent_kafka import KafkaError
+from confluent_kafka import KafkaError  # type: ignore[import-untyped]
 
 
 class Message:
