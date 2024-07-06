@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from parameterized import parameterized
+from parameterized import parameterized  # type: ignore[import-untyped]
 
 from mockafka.kafka_store import KafkaStore, KafkaException, Message
 
