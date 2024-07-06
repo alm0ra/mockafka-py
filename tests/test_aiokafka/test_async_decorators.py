@@ -64,14 +64,22 @@ class TestDecorators(IsolatedAsyncioTestCase):
     async def test_produce_twice(self):
         # subscribe to topic and get message
         self.consumer.subscribe(topics=["test"])
-        message = await self.consumer.getone()
 
-        self.assertEqual(message.value(payload=None), "test_value1")
-        self.assertEqual(message.key(), "test_key1")
-
-        message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), "test_value")
-        self.assertEqual(message.key(), "test_key")
+        # Order unknown as partition order is not predictable
+        messages = [
+            (x.key(), x.value(payload=None))
+            for x in (
+                await self.consumer.getone(),
+                await self.consumer.getone(),
+            )
+        ]
+        self.assertCountEqual(
+            [
+                ("test_key", "test_value"),
+                ("test_key1", "test_value1"),
+            ],
+            messages,
+        )
 
         # commit message and check
         await self.consumer.commit()
