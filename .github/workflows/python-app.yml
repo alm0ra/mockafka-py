@@ -45,6 +45,10 @@ jobs:
           # exit-zero treats all errors as warnings.
           poetry run flake8 . --count --exit-zero --statistics
 
+      - name: Typecheck with mypy
+        run: |
+          poetry run mypy mockafka tests || true
+
       - name: Test with pytest
         run: |
           poetry run pytest --cov=./ --cov-report=xml
