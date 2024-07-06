@@ -91,6 +91,17 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         self.assertEqual(self.consumer.subscribed_topic, topics)
 
+    async def test_subscribe_pattern(self):
+        test_topic_2 = "test_topic_2"
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+        self.kafka.create_partition(topic=test_topic_2, partitions=10)
+        self.kafka.create_partition(topic="other_topic", partitions=10)
+
+        self.consumer.subscribe(pattern=r"^test_.*")
+
+        topics = [self.test_topic, test_topic_2]
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
     async def test_subscribe_topic_not_exist(self):
         topics = [self.test_topic]
         self.consumer.subscribe(topics=topics)

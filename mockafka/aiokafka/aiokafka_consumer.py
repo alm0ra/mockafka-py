@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import random
+import re
+import warnings
 from copy import deepcopy
 from typing import Any
+
+from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
 
 from mockafka.kafka_store import KafkaStore
 
@@ -64,7 +68,35 @@ class FakeAIOKafkaConsumer:
     async def topics(self):
         return self.subscribed_topic
 
-    def subscribe(self, topics: list[str]):
+    def subscribe(
+        self,
+        topics: list[str] | set[str] | tuple[str, ...] = (),
+        pattern: str | None = None,
+        listener: ConsumerRebalanceListener | None = None,
+    ) -> None:
+        if topics and pattern:
+            raise ValueError(
+                "Only one of `topics` and `pattern` may be provided (not both).",
+            )
+        if not topics and not pattern:
+            raise ValueError(
+                "Must provide one of `topics` and `pattern`.",
+            )
+
+        if listener:
+            warnings.warn(
+                "`listener` is not implemented.",
+                stacklevel=2,
+            )
+
+        if pattern:
+            assert not topics
+            warnings.warn(
+                "`pattern` only support topics which exist at the time of subscription.",
+                stacklevel=2,
+            )
+            topics = [x for x in self.kafka.topic_list() if re.match(pattern, x)]
+
         for topic in topics:
             if not self.kafka.is_topic_exist(topic):
                 continue
