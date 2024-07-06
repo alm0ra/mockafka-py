@@ -61,7 +61,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         message = await self.consumer.getone()
         self.assertEqual(message.value(payload=None), "test")
         message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value(payload=None), "test1")
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())

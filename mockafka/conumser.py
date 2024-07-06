@@ -159,24 +159,23 @@ class FakeConsumer(object):
                 next_offset = self.kafka.get_partition_next_offset(
                     topic=topic, partition=partition
                 )
-                consumer_amount = self.consumer_store.get(
-                    self._get_key(topic, partition)
-                )
                 if first_offset == next_offset:
+                    # Topic is empty
                     continue
 
+                topic_key = self._get_key(topic, partition)
+
+                consumer_amount = self.consumer_store.setdefault(
+                    topic_key, first_offset
+                )
                 if consumer_amount == next_offset:
+                    # Topic is exhausted
                     continue
 
-                if consumer_amount is not None:
-                    self.consumer_store[self._get_key(topic, partition)] += 1
-                else:
-                    self.consumer_store[self._get_key(topic, partition)] = (
-                        first_offset + 1
-                    )
+                self.consumer_store[topic_key] += 1
 
                 return self.kafka.get_message(
-                    topic=topic, partition=partition, offset=first_offset
+                    topic=topic, partition=partition, offset=consumer_amount
                 )
 
         return None

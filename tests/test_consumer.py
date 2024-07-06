@@ -76,7 +76,7 @@ class TestFakeConsumer(TestCase):
         message = self.consumer.poll()
         self.assertEqual(message.value(payload=None), "test")
         message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value(payload=None), "test1")
 
         self.assertIsNone(self.consumer.poll())
         self.assertIsNone(self.consumer.poll())
