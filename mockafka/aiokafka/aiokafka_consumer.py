@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import collections
+import itertools
 import random
 import re
 import warnings
+from collections.abc import Iterable, Iterator
 from typing import Any
 
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
@@ -37,7 +40,8 @@ class FakeAIOKafkaConsumer:
     - _get_key(): Generate consumer_store lookup key from topic/partition.
     - getone(): Get next available message from subscribed topics.
       Updates consumer_store as messages are consumed.
-    - getmany(): Currently just calls getone().
+    - getmany(): Get next available messages from subscribed topics.
+      Updates consumer_store as messages are consumed.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -114,7 +118,34 @@ class FakeAIOKafkaConsumer:
     def _get_key(self, topic, partition) -> str:
         return f"{topic}*{partition}"
 
-    async def getone(self, *partitions: TopicPartition) -> Message:
+    def _fetch_one(self, topic: str, partition: int) -> Message | None:
+        first_offset = self.kafka.get_partition_first_offset(
+            topic=topic, partition=partition
+        )
+        next_offset = self.kafka.get_partition_next_offset(
+            topic=topic, partition=partition
+        )
+        if first_offset == next_offset:
+            # Topic partition is empty
+            return None
+
+        topic_key = self._get_key(topic, partition)
+
+        consumer_amount = self.consumer_store.setdefault(topic_key, first_offset)
+        if consumer_amount == next_offset:
+            # Topic partition is exhausted
+            return None
+
+        self.consumer_store[topic_key] += 1
+
+        return self.kafka.get_message(
+            topic=topic, partition=partition, offset=consumer_amount
+        )
+
+    def _fetch(
+        self,
+        partitions: Iterable[TopicPartition],
+    ) -> Iterator[tuple[TopicPartition, Message]]:
         if partitions:
             partitions_to_consume = list(partitions)
         else:
@@ -126,32 +157,33 @@ class FakeAIOKafkaConsumer:
 
         random.shuffle(partitions_to_consume)
 
-        for topic, partition in partitions_to_consume:
-            first_offset = self.kafka.get_partition_first_offset(
-                topic=topic, partition=partition
-            )
-            next_offset = self.kafka.get_partition_next_offset(
-                topic=topic, partition=partition
-            )
-            if first_offset == next_offset:
-                # Topic partition is empty
-                continue
+        for tp in partitions_to_consume:
+            while True:
+                message = self._fetch_one(tp.topic, tp.partition)
+                if message is None:
+                    # Partition has no available messages; move to next
+                    break
 
-            topic_key = self._get_key(topic, partition)
+                yield tp, message
 
-            consumer_amount = self.consumer_store.setdefault(topic_key, first_offset)
-            if consumer_amount == next_offset:
-                # Topic partition is exhausted
-                continue
-
-            self.consumer_store[topic_key] += 1
-
-            return self.kafka.get_message(
-                topic=topic, partition=partition, offset=consumer_amount
-            )
+    async def getone(self, *partitions: TopicPartition) -> Message | None:
+        for _, message in self._fetch(partitions):
+            return message
 
         return None
 
-    async def getmany(self):
-        # FIXME: must impelement
-        return await self.getone()
+    async def getmany(
+        self,
+        *partitions: TopicPartition,
+        timeout_ms: int = 0,
+        max_records: int | None = None,
+    ) -> dict[TopicPartition, list[Message]]:
+        messages = self._fetch(partitions)
+        if max_records is not None:
+            messages = itertools.islice(messages, max_records)
+
+        result = collections.defaultdict(list)
+        for tp, message in messages:
+            result[tp].append(message)
+
+        return dict(result)
