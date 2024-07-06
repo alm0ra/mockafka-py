@@ -24,16 +24,8 @@ class TestFakeProducer(TestCase):
             ]
         )
 
-    @pytest.fixture(autouse=True)
-    def topic(self):
         self.topic = "test1"
-
-    @pytest.fixture(autouse=True)
-    def key(self):
         self.key = "test_key"
-
-    @pytest.fixture(autouse=True)
-    def value(self):
         self.value = "test_value"
 
     def test_produce_failed_topic_not_exist(self):
