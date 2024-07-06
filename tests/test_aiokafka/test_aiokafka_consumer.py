@@ -256,6 +256,57 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         topics = [self.test_topic]
         self.consumer.subscribe(topics=topics)
 
+    async def test_lifecycle(self):
+        test_topic_2 = "test_topic_2"
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+        self.kafka.create_partition(topic=test_topic_2, partitions=10)
+
+        topics = [self.test_topic, test_topic_2]
+        self.consumer.subscribe(topics=topics)
+
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
+        await self.consumer.start()
+
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
+        await self.produce_message()
+
+        messages = {
+            tp: self.summarise(msgs)
+            for tp, msgs in (await self.consumer.getmany()).items()
+        }
+        self.assertEqual(
+            {
+                TopicPartition(self.test_topic, partition=0): [
+                    ("test", "test"),
+                    ("test1", "test1"),
+                ],
+            },
+            messages,
+        )
+
+        await self.consumer.stop()
+
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
+        await self.consumer.start()
+        # TODO: work out what the expected behaviour is here -- should we start
+        # from a zero offset, or should that also persist?
+        messages = {
+            tp: self.summarise(msgs)
+            for tp, msgs in (await self.consumer.getmany()).items()
+        }
+        self.assertEqual(
+            {
+                TopicPartition(self.test_topic, partition=0): [
+                    ("test", "test"),
+                    ("test1", "test1"),
+                ],
+            },
+            messages,
+        )
+
     async def test_unsubscribe(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=10)
 

@@ -44,18 +44,16 @@ class FakeAIOKafkaConsumer:
       Updates consumer_store as messages are consumed.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *topics: str, **kwargs: Any) -> None:
         self.kafka = KafkaStore()
         self.consumer_store: dict[str, int] = {}
-        self.subscribed_topic: list = []
+        self.subscribed_topic = [x for x in topics if self.kafka.is_topic_exist(x)]
 
     async def start(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic = []
 
     async def stop(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic = []
 
     async def commit(self):
         for item in self.consumer_store:
