@@ -7,7 +7,7 @@ import pytest
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
-from confluent_kafka import Message
+from confluent_kafka import Message  # type: ignore[import-untyped]
 
 
 class TestFakeProducer(TestCase):
@@ -24,16 +24,8 @@ class TestFakeProducer(TestCase):
             ]
         )
 
-    @pytest.fixture(autouse=True)
-    def topic(self):
         self.topic = "test1"
-
-    @pytest.fixture(autouse=True)
-    def key(self):
         self.key = "test_key"
-
-    @pytest.fixture(autouse=True)
-    def value(self):
         self.value = "test_value"
 
     def test_produce_failed_topic_not_exist(self):
@@ -66,7 +58,7 @@ class TestFakeProducer(TestCase):
                 partition=None,
             )
 
-    def test_produce_once(self):
+    def test_produce_once(self) -> None:
         self.producer.produce(
             headers={},
             key=self.key,

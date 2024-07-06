@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from functools import wraps
+
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
+from mockafka.decorators.typing import TopicConfig
 
 
-def setup_kafka(topics: [dict[str, str]], clean: bool = False):
+def setup_kafka(topics: list[TopicConfig], clean: bool = False):
     """
     A decorator for setting up Mockafka with specified topics using a FakeAdminClient.
 
     Parameters:
-    - topics (list[dict[str, str]]): A list of dictionaries containing topic details.
+    - topics (list[dict]): A list of dictionaries containing topic details.
         Each dictionary should have the keys 'topic' and 'partition'.
     - clean (bool): Option to have a clean Kafka (remove existing topics) or not.
 

@@ -18,7 +18,7 @@ offset_store = {
 
 from __future__ import annotations
 
-from confluent_kafka import KafkaException
+from confluent_kafka import KafkaException  # type: ignore[import-untyped]
 from .message import Message
 from copy import deepcopy
 
@@ -30,7 +30,7 @@ __all__ = ["KafkaStore"]
 
 
 class SingletonMeta(type):
-    _instances = {}
+    _instances: dict[type[SingletonMeta], SingletonMeta] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances or "clean" in kwargs.keys():

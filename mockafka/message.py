@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Any
 
-from confluent_kafka import KafkaError
+from confluent_kafka import KafkaError  # type: ignore[import-untyped]
 
 
 class Message:
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._headers: Optional[dict] = kwargs.get("headers", None)
         self._key: Optional[str] = kwargs.get("key", None)
         self._value: Optional[str] = kwargs.get("value", None)

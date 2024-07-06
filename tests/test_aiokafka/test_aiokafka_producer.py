@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.admin import NewTopic
+from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
 
 from mockafka import Message
 from mockafka.aiokafka.aiokafka_admin_client import FakeAIOKafkaAdmin
@@ -18,6 +18,10 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.producer = FakeAIOKafkaProducer()
         self.admin_client = FakeAIOKafkaAdmin()
 
+        self.topic = "test1"
+        self.key = "test_key"
+        self.value = "test_value"
+
     async def _create_mock_topic(self):
         await self.admin_client.create_topics(
             new_topics=[
@@ -26,18 +30,6 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
                 NewTopic(name="topic_test", num_partitions=8, replication_factor=1),
             ]
         )
-
-    @pytest.fixture(autouse=True)
-    def topic(self):
-        self.topic = "test1"
-
-    @pytest.fixture(autouse=True)
-    def key(self):
-        self.key = "test_key"
-
-    @pytest.fixture(autouse=True)
-    def value(self):
-        self.value = "test_value"
 
     async def test_produce_failed_topic_not_exist(self):
         with pytest.raises(KafkaException):
@@ -69,7 +61,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
                 partition=None,
             )
 
-    async def test_produce_once(self):
+    async def test_produce_once(self) -> None:
         await self._create_mock_topic()
         await self.producer.send(
             headers={},
@@ -88,7 +80,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.assertEqual(message.error(), None)
         self.assertEqual(message.latency(), None)
 
-    async def test_send_and_wait(self):
+    async def test_send_and_wait(self) -> None:
         await self._create_mock_topic()
 
         await self.producer.start()

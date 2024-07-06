@@ -8,7 +8,7 @@ __all__ = ["FakeProducer"]
 
 
 class FakeProducer(object):
-    def __init__(self, config: dict = None):
+    def __init__(self, config: dict | None = None):
         self.kafka = KafkaStore()
 
     def produce(self, topic, value=None, *args, **kwargs):
