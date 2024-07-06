@@ -58,7 +58,7 @@ class TestFakeProducer(TestCase):
                 partition=None,
             )
 
-    def test_produce_once(self):
+    def test_produce_once(self) -> None:
         self.producer.produce(
             headers={},
             key=self.key,

@@ -99,7 +99,7 @@ class TestDecorators(TestCase):
     @produce(topic="test_topic", partition=5, key="test_", value="test_value1")
     @produce(topic="test_topic", partition=5, key="test_", value="test_value1")
     @consume(topics=["test_topic"])
-    def test_consumer_decorator(self, message: Message = None):
+    def test_consumer_decorator(self, message: Message | None = None):
         if message is None:
             return
 

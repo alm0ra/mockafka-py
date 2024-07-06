@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from copy import deepcopy
+from typing import Any
 
 from mockafka.kafka_store import KafkaStore
 
@@ -34,18 +35,18 @@ class FakeAIOKafkaConsumer:
     - getmany(): Currently just calls getone().
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.kafka = KafkaStore()
-        self.consumer_store = {}
+        self.consumer_store: dict[str, int] = {}
         self.subscribed_topic: list = []
 
-    async def start(self):
+    async def start(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic: list = []
+        self.subscribed_topic = []
 
-    async def stop(self):
+    async def stop(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic: list = []
+        self.subscribed_topic = []
 
     async def commit(self):
         for item in self.consumer_store:

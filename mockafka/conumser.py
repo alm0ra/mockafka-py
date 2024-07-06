@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import random
 from copy import deepcopy
+from typing import Any
 
 from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.kafka_store import KafkaStore
@@ -40,7 +41,7 @@ class FakeConsumer(object):
     partitions) -> None: Incrementally unassign partitions (unsupported in mockafka).
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         """
         Initialize the FakeConsumer.
 
@@ -49,7 +50,7 @@ class FakeConsumer(object):
         - kwargs: Additional keyword arguments (unused).
         """
         self.kafka = KafkaStore()
-        self.consumer_store = {}
+        self.consumer_store: dict[str, int] = {}
         self.subscribed_topic: list = []
 
     def consume(self, num_messages=1, *args, **kwargs) -> list[Message]:
@@ -83,7 +84,7 @@ class FakeConsumer(object):
         self.consumer_store = {}
         self.subscribed_topic = []
 
-    def commit(self, message: Message = None, *args, **kwargs):
+    def commit(self, message: Message | None = None, *args, **kwargs):
         """
         Commit offsets for consumed messages.
 

@@ -61,7 +61,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
                 partition=None,
             )
 
-    async def test_produce_once(self):
+    async def test_produce_once(self) -> None:
         await self._create_mock_topic()
         await self.producer.send(
             headers={},
@@ -80,7 +80,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.assertEqual(message.error(), None)
         self.assertEqual(message.latency(), None)
 
-    async def test_send_and_wait(self):
+    async def test_send_and_wait(self) -> None:
         await self._create_mock_topic()
 
         await self.producer.start()

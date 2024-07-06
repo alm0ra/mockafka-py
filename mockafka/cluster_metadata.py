@@ -14,7 +14,7 @@ class ClusterMetadata(object):
     This class is typically not user instantiated.
     """
 
-    def __init__(self, topic: str = None):
+    def __init__(self, topic: str | None = None):
         self.kafka = KafkaStore()
         self.cluster_id = "test"
         self.controller_id = 1

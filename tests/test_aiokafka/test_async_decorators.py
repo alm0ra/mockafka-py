@@ -93,7 +93,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
     @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
     @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
     @aconsume(topics=["test_topic"])
-    async def test_consumer_decorator(self, message: Message = None):
+    async def test_consumer_decorator(self, message: Message | None = None):
         if message is None:
             return
 

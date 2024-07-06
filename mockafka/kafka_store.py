@@ -30,7 +30,7 @@ __all__ = ["KafkaStore"]
 
 
 class SingletonMeta(type):
-    _instances = {}
+    _instances: dict[type[SingletonMeta], SingletonMeta] = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances or "clean" in kwargs.keys():
