@@ -253,8 +253,11 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(self.consumer.subscribed_topic, topics)
 
     async def test_subscribe_topic_not_exist(self):
-        topics = [self.test_topic]
+        self.create_topic()
+        topics = [self.test_topic, "missing-topic"]
         self.consumer.subscribe(topics=topics)
+
+        self.assertEqual(self.consumer.subscribed_topic, [self.test_topic])
 
     async def test_lifecycle(self):
         test_topic_2 = "test_topic_2"
