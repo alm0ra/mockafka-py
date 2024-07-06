@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import pytest
 
-from mockafka import Message
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
