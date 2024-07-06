@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from functools import wraps
 
-from aiokafka.admin import NewTopic
+from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
 
 from mockafka.aiokafka import FakeAIOKafkaAdmin
 
