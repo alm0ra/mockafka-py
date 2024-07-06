@@ -50,14 +50,22 @@ class TestDecorators(TestCase):
     def test_produce_twice(self):
         # subscribe to topic and get message
         self.consumer.subscribe(topics=["test"])
-        message = self.consumer.poll()
 
-        self.assertEqual(message.value(payload=None), "test_value1")
-        self.assertEqual(message.key(), "test_key1")
-
-        message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), "test_value")
-        self.assertEqual(message.key(), "test_key")
+        # Order unknown as partition order is not predictable
+        messages = [
+            (x.key(), x.value(payload=None))
+            for x in (
+                self.consumer.poll(),
+                self.consumer.poll(),
+            )
+        ]
+        self.assertCountEqual(
+            [
+                ("test_key", "test_value"),
+                ("test_key1", "test_value1"),
+            ],
+            messages,
+        )
 
         # commit message and check
         self.consumer.commit()
