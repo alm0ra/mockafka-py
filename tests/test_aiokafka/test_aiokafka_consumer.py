@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
+from aiokafka.structs import TopicPartition  # type: ignore[import-untyped]
 
 from mockafka.aiokafka import (
     FakeAIOKafkaConsumer,
@@ -65,6 +66,21 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
+
+    async def test_partition_specific_poll_without_commit(self):
+        self.create_topic()
+        await self.produce_message()
+        self.consumer.subscribe(topics=[self.test_topic])
+
+        message = await self.consumer.getone(
+            TopicPartition(self.test_topic, 2),
+        )
+        self.assertIsNone(message)
+
+        message = await self.consumer.getone(
+            TopicPartition(self.test_topic, 0),
+        )
+        self.assertEqual(message.value(payload=None), "test")
 
     async def test_poll_with_commit(self):
         self.create_topic()

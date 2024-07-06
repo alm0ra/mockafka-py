@@ -3,12 +3,13 @@ from __future__ import annotations
 import random
 import re
 import warnings
-from copy import deepcopy
 from typing import Any
 
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
+from aiokafka.structs import TopicPartition  # type: ignore[import-untyped]
 
 from mockafka.kafka_store import KafkaStore
+from mockafka.message import Message
 
 
 class FakeAIOKafkaConsumer:
@@ -113,39 +114,41 @@ class FakeAIOKafkaConsumer:
     def _get_key(self, topic, partition) -> str:
         return f"{topic}*{partition}"
 
-    async def getone(self):
-        topics_to_consume = deepcopy(self.subscribed_topic)
-        random.shuffle(topics_to_consume)
+    async def getone(self, *partitions: TopicPartition) -> Message:
+        if partitions:
+            partitions_to_consume = list(partitions)
+        else:
+            partitions_to_consume = [
+                TopicPartition(x, y)
+                for x in self.subscribed_topic
+                for y in self.kafka.partition_list(topic=x)
+            ]
 
-        for topic in topics_to_consume:
-            partition_to_consume = deepcopy(self.kafka.partition_list(topic=topic))
-            random.shuffle(topics_to_consume)
+        random.shuffle(partitions_to_consume)
 
-            for partition in partition_to_consume:
-                first_offset = self.kafka.get_partition_first_offset(
-                    topic=topic, partition=partition
-                )
-                next_offset = self.kafka.get_partition_next_offset(
-                    topic=topic, partition=partition
-                )
-                if first_offset == next_offset:
-                    # Topic partition is empty
-                    continue
+        for topic, partition in partitions_to_consume:
+            first_offset = self.kafka.get_partition_first_offset(
+                topic=topic, partition=partition
+            )
+            next_offset = self.kafka.get_partition_next_offset(
+                topic=topic, partition=partition
+            )
+            if first_offset == next_offset:
+                # Topic partition is empty
+                continue
 
-                topic_key = self._get_key(topic, partition)
+            topic_key = self._get_key(topic, partition)
 
-                consumer_amount = self.consumer_store.setdefault(
-                    topic_key, first_offset
-                )
-                if consumer_amount == next_offset:
-                    # Topic partition is exhausted
-                    continue
+            consumer_amount = self.consumer_store.setdefault(topic_key, first_offset)
+            if consumer_amount == next_offset:
+                # Topic partition is exhausted
+                continue
 
-                self.consumer_store[topic_key] += 1
+            self.consumer_store[topic_key] += 1
 
-                return self.kafka.get_message(
-                    topic=topic, partition=partition, offset=consumer_amount
-                )
+            return self.kafka.get_message(
+                topic=topic, partition=partition, offset=consumer_amount
+            )
 
         return None
 
