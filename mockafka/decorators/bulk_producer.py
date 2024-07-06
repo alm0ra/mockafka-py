@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 from functools import wraps
+
 from mockafka import FakeProducer
+from mockafka.decorators.typing import MessageDict
 
 
-def bulk_produce(list_of_messages: list[dict[str, str]]):
+def bulk_produce(list_of_messages: list[MessageDict]):
     """
     A decorator for bulk-producing messages using a FakeProducer.
 
     Parameters:
-    - list_of_messages (list[dict[str, str]]): A list of dictionaries containing message details.
+    - list_of_messages (list[dict]): A list of dictionaries containing message details.
 
     Each dictionary should have the following optional keys:
     - 'value': The value of the message.

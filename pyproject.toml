@@ -16,6 +16,7 @@ confluent-kafka = ">= 1.9.2"
 aiokafka = ">=0.10,<0.12"
 pytest-cov = ">=4.1,<6.0"
 pytest-asyncio = "^0.23.5"
+typing-extensions = "^4.12.2"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"

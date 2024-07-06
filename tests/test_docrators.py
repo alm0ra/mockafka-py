@@ -3,10 +3,11 @@ from __future__ import annotations
 from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka, Message
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.producer import FakeProducer
+from mockafka.decorators.typing import MessageDict
 from mockafka.decorators.consumer import consume
 from unittest import TestCase
 
-sample_for_bulk_produce = [
+sample_for_bulk_produce: list[MessageDict] = [
     {
         "key": "test_key",
         "value": "test_value",
