@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from typing import Optional, Any
 
 from confluent_kafka import KafkaError  # type: ignore[import-untyped]
@@ -16,7 +17,7 @@ class Message:
         self._latency: Optional[float] = kwargs.get("latency", None)
         self._leader_epoch: Optional[int] = kwargs.get("leader_epoch", None)
         self._partition: Optional[int] = kwargs.get("partition", None)
-        self._timestamp: int = kwargs.get("timestamp", None)
+        self._timestamp: int = kwargs.get("timestamp") or int(time.time() * 1000)
 
     def offset(self, *args, **kwargs):
         return self._offset

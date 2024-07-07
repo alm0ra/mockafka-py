@@ -4,7 +4,10 @@ import itertools
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.structs import TopicPartition  # type: ignore[import-untyped]
+from aiokafka.structs import (  # type: ignore[import-untyped]
+    ConsumerRecord,
+    TopicPartition,
+)
 
 from mockafka.aiokafka import (
     FakeAIOKafkaAdmin,
@@ -12,13 +15,15 @@ from mockafka.aiokafka import (
     FakeAIOKafkaProducer,
 )
 from mockafka.kafka_store import KafkaStore
-from mockafka.message import Message
 
 
 @pytest.mark.asyncio
 class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
-    def summarise(self, messages: list[Message]) -> list[tuple[str, str]]:
-        return [(x.key(), x.value(payload=None)) for x in messages]
+    def summarise(
+        self,
+        records: list[ConsumerRecord],
+    ) -> list[tuple[str | None, str | None]]:
+        return [(x.key, x.value) for x in records]
 
     def setUp(self) -> None:
         self.kafka = KafkaStore(clean=True)
@@ -65,9 +70,9 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.consumer.subscribe(topics=[self.test_topic])
 
         message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value, b"test")
         message = await self.consumer.getone()
-        self.assertEqual(message.value(payload=None), "test1")
+        self.assertEqual(message.value, b"test1")
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
@@ -85,7 +90,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         message = await self.consumer.getone(
             TopicPartition(self.test_topic, 0),
         )
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value, b"test")
 
     async def test_poll_with_commit(self):
         self.create_topic()
@@ -94,11 +99,11 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         message = await self.consumer.getone()
         await self.consumer.commit()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value, b"test")
 
         message = await self.consumer.getone()
         await self.consumer.commit()
-        self.assertEqual(message.value(payload=None), "test1")
+        self.assertEqual(message.value, b"test1")
 
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
@@ -119,11 +124,11 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
                 TopicPartition(self.test_topic, partition=2): [
-                    ("test2", "test2"),
+                    (b"test2", b"test2"),
                 ],
             },
             messages,
@@ -146,8 +151,8 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
             },
             messages,
@@ -160,7 +165,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test2", "test2"),
+                    (b"test2", b"test2"),
                 ],
             },
             messages,
@@ -186,8 +191,8 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertCountEqual(
             {
                 target: [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
             },
             messages,
@@ -220,11 +225,11 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertCountEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
                 TopicPartition(self.test_topic, partition=2): [
-                    ("test2", "test2"),
+                    (b"test2", b"test2"),
                 ],
             },
             messages,
@@ -282,8 +287,8 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
             },
             messages,
@@ -303,8 +308,8 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(
             {
                 TopicPartition(self.test_topic, partition=0): [
-                    ("test", "test"),
-                    ("test1", "test1"),
+                    (b"test", b"test"),
+                    (b"test1", b"test1"),
                 ],
             },
             messages,

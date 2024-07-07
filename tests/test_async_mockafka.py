@@ -50,8 +50,8 @@ async def test_produce_and_consume():
     consumer.subscribe(["test_topic"])
     message = await consumer.getone()
 
-    assert message.key() == "test_key"
-    assert message.value() == "test_value"
+    assert message.key == b"test_key"
+    assert message.value == b"test_value"
 
     message = await consumer.getone()
 
@@ -67,8 +67,8 @@ async def test_produce_with_decorator():
     consumer.subscribe(["test_topic"])
     message = await consumer.getone()
 
-    assert message.key() == "test_key"
-    assert message.value() == "test_value"
+    assert message.key == b"test_key"
+    assert message.value == b"test_value"
 
 
 @pytest.mark.asyncio
@@ -79,5 +79,5 @@ async def test_produce_and_consume_with_decorator(message=None):
     if not message:
         return
 
-    assert message.key() == "test_key"
-    assert message.value() == "test_value"
+    assert message.key == b"test_key"
+    assert message.value == b"test_value"
