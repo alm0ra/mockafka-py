@@ -9,6 +9,9 @@ documentation = "https://mockafka-py.readthedocs.io/"
 description = "A mock library for confluent kafka"
 readme = "README.md"
 packages = [{ include = "mockafka" }]
+classifiers = [
+    "Typing :: Typed",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
