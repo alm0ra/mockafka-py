@@ -51,7 +51,7 @@ class FakeConsumer(object):
         """
         self.kafka = KafkaStore()
         self.consumer_store: dict[str, int] = {}
-        self.subscribed_topic: list = []
+        self.subscribed_topic: list[str] = []
 
     def consume(self, num_messages=1, *args, **kwargs) -> list[Message]:
         """
