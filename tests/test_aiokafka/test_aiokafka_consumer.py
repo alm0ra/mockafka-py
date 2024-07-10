@@ -4,6 +4,7 @@ import itertools
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
+from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
 from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
     TopicPartition,
@@ -15,7 +16,6 @@ from mockafka.aiokafka import (
     FakeAIOKafkaProducer,
 )
 from mockafka.kafka_store import KafkaStore
-from aiokafka.errors import ConsumerStoppedError
 
 
 @pytest.mark.asyncio
