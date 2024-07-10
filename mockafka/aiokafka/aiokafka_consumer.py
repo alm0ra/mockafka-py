@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+import collections
+import itertools
 import random
-from copy import deepcopy
+import re
+import warnings
+from collections.abc import Iterable, Iterator
 from typing import Any
 
+from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
+from aiokafka.structs import TopicPartition  # type: ignore[import-untyped]
+
 from mockafka.kafka_store import KafkaStore
+from mockafka.message import Message
 
 
 class FakeAIOKafkaConsumer:
@@ -32,21 +40,20 @@ class FakeAIOKafkaConsumer:
     - _get_key(): Generate consumer_store lookup key from topic/partition.
     - getone(): Get next available message from subscribed topics.
       Updates consumer_store as messages are consumed.
-    - getmany(): Currently just calls getone().
+    - getmany(): Get next available messages from subscribed topics.
+      Updates consumer_store as messages are consumed.
     """
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, *topics: str, **kwargs: Any) -> None:
         self.kafka = KafkaStore()
         self.consumer_store: dict[str, int] = {}
-        self.subscribed_topic: list = []
+        self.subscribed_topic = [x for x in topics if self.kafka.is_topic_exist(x)]
 
     async def start(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic = []
 
     async def stop(self) -> None:
         self.consumer_store = {}
-        self.subscribed_topic = []
 
     async def commit(self):
         for item in self.consumer_store:
@@ -64,7 +71,35 @@ class FakeAIOKafkaConsumer:
     async def topics(self):
         return self.subscribed_topic
 
-    def subscribe(self, topics: list[str]):
+    def subscribe(
+        self,
+        topics: list[str] | set[str] | tuple[str, ...] = (),
+        pattern: str | None = None,
+        listener: ConsumerRebalanceListener | None = None,
+    ) -> None:
+        if topics and pattern:
+            raise ValueError(
+                "Only one of `topics` and `pattern` may be provided (not both).",
+            )
+        if not topics and not pattern:
+            raise ValueError(
+                "Must provide one of `topics` and `pattern`.",
+            )
+
+        if listener:
+            warnings.warn(
+                "`listener` is not implemented.",
+                stacklevel=2,
+            )
+
+        if pattern:
+            assert not topics
+            warnings.warn(
+                "`pattern` only support topics which exist at the time of subscription.",
+                stacklevel=2,
+            )
+            topics = [x for x in self.kafka.topic_list() if re.match(pattern, x)]
+
         for topic in topics:
             if not self.kafka.is_topic_exist(topic):
                 continue
@@ -81,42 +116,72 @@ class FakeAIOKafkaConsumer:
     def _get_key(self, topic, partition) -> str:
         return f"{topic}*{partition}"
 
-    async def getone(self):
-        topics_to_consume = deepcopy(self.subscribed_topic)
-        random.shuffle(topics_to_consume)
+    def _fetch_one(self, topic: str, partition: int) -> Message | None:
+        first_offset = self.kafka.get_partition_first_offset(
+            topic=topic, partition=partition
+        )
+        next_offset = self.kafka.get_partition_next_offset(
+            topic=topic, partition=partition
+        )
+        if first_offset == next_offset:
+            # Topic partition is empty
+            return None
 
-        for topic in topics_to_consume:
-            partition_to_consume = deepcopy(self.kafka.partition_list(topic=topic))
-            random.shuffle(topics_to_consume)
+        topic_key = self._get_key(topic, partition)
 
-            for partition in partition_to_consume:
-                first_offset = self.kafka.get_partition_first_offset(
-                    topic=topic, partition=partition
-                )
-                next_offset = self.kafka.get_partition_next_offset(
-                    topic=topic, partition=partition
-                )
-                if first_offset == next_offset:
-                    # Topic partition is empty
-                    continue
+        consumer_amount = self.consumer_store.setdefault(topic_key, first_offset)
+        if consumer_amount == next_offset:
+            # Topic partition is exhausted
+            return None
 
-                topic_key = self._get_key(topic, partition)
+        self.consumer_store[topic_key] += 1
 
-                consumer_amount = self.consumer_store.setdefault(
-                    topic_key, first_offset
-                )
-                if consumer_amount == next_offset:
-                    # Topic partition is exhausted
-                    continue
+        return self.kafka.get_message(
+            topic=topic, partition=partition, offset=consumer_amount
+        )
 
-                self.consumer_store[topic_key] += 1
+    def _fetch(
+        self,
+        partitions: Iterable[TopicPartition],
+    ) -> Iterator[tuple[TopicPartition, Message]]:
+        if partitions:
+            partitions_to_consume = list(partitions)
+        else:
+            partitions_to_consume = [
+                TopicPartition(x, y)
+                for x in self.subscribed_topic
+                for y in self.kafka.partition_list(topic=x)
+            ]
 
-                return self.kafka.get_message(
-                    topic=topic, partition=partition, offset=consumer_amount
-                )
+        random.shuffle(partitions_to_consume)
+
+        for tp in partitions_to_consume:
+            while True:
+                message = self._fetch_one(tp.topic, tp.partition)
+                if message is None:
+                    # Partition has no available messages; move to next
+                    break
+
+                yield tp, message
+
+    async def getone(self, *partitions: TopicPartition) -> Message | None:
+        for _, message in self._fetch(partitions):
+            return message
 
         return None
 
-    async def getmany(self):
-        # FIXME: must impelement
-        return await self.getone()
+    async def getmany(
+        self,
+        *partitions: TopicPartition,
+        timeout_ms: int = 0,
+        max_records: int | None = None,
+    ) -> dict[TopicPartition, list[Message]]:
+        messages = self._fetch(partitions)
+        if max_records is not None:
+            messages = itertools.islice(messages, max_records)
+
+        result = collections.defaultdict(list)
+        for tp, message in messages:
+            result[tp].append(message)
+
+        return dict(result)
