@@ -6,8 +6,9 @@ import random
 import re
 import warnings
 from collections.abc import Iterable, Iterator
-from typing import Any
+from typing import Any, Optional
 
+from aiokafka.errors import ConsumerStoppedError
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
 from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
@@ -19,9 +20,9 @@ from mockafka.message import Message
 
 
 def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, bytes]:
-    topic: str | None = message.topic()
-    partition: int | None = message.partition()
-    timestamp: int | None = message.timestamp()
+    topic: Optional[str] = message.topic()
+    partition: Optional[int] = message.partition()
+    timestamp: Optional[int] = message.timestamp()
 
     if topic is None or partition is None or timestamp is None:
         fields = [
@@ -32,8 +33,8 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
         missing = ", ".join(x for x, y in fields if y is None)
         raise ValueError(f"Message is missing key components: {missing}")
 
-    key_str: str | None = message.key()
-    value_str: str | None = message.value()
+    key_str: Optional[str] = message.key()
+    value_str: Optional[str] = message.value()
 
     key = key_str.encode() if key_str is not None else None
     value = value_str.encode() if value_str is not None else None
@@ -87,14 +88,17 @@ class FakeAIOKafkaConsumer:
         self.kafka = KafkaStore()
         self.consumer_store: dict[str, int] = {}
         self.subscribed_topic = [x for x in topics if self.kafka.is_topic_exist(x)]
+        self._is_closed = True
 
     async def start(self) -> None:
         self.consumer_store = {}
+        self._is_closed = False
 
     async def stop(self) -> None:
         self.consumer_store = {}
+        self._is_closed = True
 
-    async def commit(self):
+    async def commit(self) -> None:
         for item in self.consumer_store:
             topic, partition = item.split("*")
             if (
@@ -107,15 +111,18 @@ class FakeAIOKafkaConsumer:
 
         self.consumer_store = {}
 
-    async def topics(self):
+    async def topics(self) -> list[str]:
         return self.subscribed_topic
 
     def subscribe(
         self,
         topics: list[str] | set[str] | tuple[str, ...] = (),
         pattern: str | None = None,
-        listener: ConsumerRebalanceListener | None = None,
+        listener: Optional[ConsumerRebalanceListener] = None,
     ) -> None:
+        if self._is_closed:
+            raise ConsumerStoppedError()
+
         if topics and pattern:
             raise ValueError(
                 "Only one of `topics` and `pattern` may be provided (not both).",
@@ -146,16 +153,17 @@ class FakeAIOKafkaConsumer:
             if topic not in self.subscribed_topic:
                 self.subscribed_topic.append(topic)
 
-    def subscribtion(self) -> list[str]:
+    def subscription(self) -> list[str]:
         return self.subscribed_topic
 
-    def unsubscribe(self):
+    def unsubscribe(self) -> None:
         self.subscribed_topic = []
 
     def _get_key(self, topic, partition) -> str:
         return f"{topic}*{partition}"
 
-    def _fetch_one(self, topic: str, partition: int) -> Message | None:
+    def _fetch_one(self, topic: str, partition: int) -> Optional[ConsumerRecord[bytes, bytes]]:
+
         first_offset = self.kafka.get_partition_first_offset(
             topic=topic, partition=partition
         )
@@ -184,6 +192,7 @@ class FakeAIOKafkaConsumer:
         self,
         partitions: Iterable[TopicPartition],
     ) -> Iterator[tuple[TopicPartition, ConsumerRecord[bytes, bytes]]]:
+
         if partitions:
             partitions_to_consume = list(partitions)
         else:
@@ -206,7 +215,10 @@ class FakeAIOKafkaConsumer:
 
     async def getone(
         self, *partitions: TopicPartition
-    ) -> ConsumerRecord[bytes, bytes] | None:
+    ) -> Optional[ConsumerRecord[bytes, bytes]]:
+        if self._is_closed:
+            raise ConsumerStoppedError()
+
         for _, record in self._fetch(partitions):
             return record
 
@@ -216,8 +228,11 @@ class FakeAIOKafkaConsumer:
         self,
         *partitions: TopicPartition,
         timeout_ms: int = 0,
-        max_records: int | None = None,
+        max_records: Optional[int] = None,
     ) -> dict[TopicPartition, list[ConsumerRecord[bytes, bytes]]]:
+        if self._is_closed:
+            raise ConsumerStoppedError()
+
         records = self._fetch(partitions)
         if max_records is not None:
             records = itertools.islice(records, max_records)
