@@ -59,6 +59,9 @@ fake_consumer = FakeAIOKafkaConsumer()
 # Subscribe to topics
 fake_consumer.subscribe(topics=['sample_topic1', 'sample_topic2'])
 
+# start consumer 
+await fake_consumer.start()
+
 # Get one message
 message = await fake_consumer.getone()
 ```

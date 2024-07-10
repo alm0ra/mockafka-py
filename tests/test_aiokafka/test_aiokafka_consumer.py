@@ -4,6 +4,7 @@ import itertools
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
+from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
 from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
     TopicPartition,
@@ -20,8 +21,8 @@ from mockafka.kafka_store import KafkaStore
 @pytest.mark.asyncio
 class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
     def summarise(
-        self,
-        records: list[ConsumerRecord],
+            self,
+            records: list[ConsumerRecord],
     ) -> list[tuple[str | None, str | None]]:
         return [(x.key, x.value) for x in records]
 
@@ -62,12 +63,15 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         # close consumer and check consumer store and consume return none
         await self.consumer.stop()
         self.assertEqual(self.consumer.consumer_store, {})
+
+        await self.consumer.start()
         self.assertIsNone(await self.consumer.getone())
 
     async def test_poll_without_commit(self):
         self.create_topic()
         await self.produce_message()
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         message = await self.consumer.getone()
         self.assertEqual(message.value, b"test")
@@ -81,6 +85,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         message = await self.consumer.getone(
             TopicPartition(self.test_topic, 2),
@@ -96,6 +101,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         message = await self.consumer.getone()
         await self.consumer.commit()
@@ -115,6 +121,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=2, key="test2", value="test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         # Order unknown as partition order is not predictable
         messages = {
@@ -143,7 +150,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=0, key="test2", value="test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
-
+        await self.consumer.start()
         messages = {
             tp: self.summarise(msgs)
             for tp, msgs in (await self.consumer.getmany(max_records=2)).items()
@@ -180,6 +187,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=1, key="test2", value="test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         target = TopicPartition(self.test_topic, 0)
 
@@ -207,6 +215,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=2, key="test2", value="test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
 
         # Order unknown, though we can check the counts eagerly
         messages = {
@@ -319,8 +328,18 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.kafka.create_partition(topic=self.test_topic, partitions=10)
 
         topics = [self.test_topic]
+
         self.consumer.subscribe(topics=topics)
 
         self.assertEqual(self.consumer.subscribed_topic, topics)
         self.consumer.unsubscribe()
         self.assertEqual(self.consumer.subscribed_topic, [])
+
+    async def test_consumer_is_stopped(self):
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+
+        topics = [self.test_topic]
+
+        self.consumer.subscribe(topics=topics)
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
