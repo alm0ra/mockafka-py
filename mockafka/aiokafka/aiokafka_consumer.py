@@ -9,10 +9,49 @@ from collections.abc import Iterable, Iterator
 from typing import Any
 
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
-from aiokafka.structs import TopicPartition  # type: ignore[import-untyped]
+from aiokafka.structs import (  # type: ignore[import-untyped]
+    ConsumerRecord,
+    TopicPartition,
+)
 
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
+
+
+def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, bytes]:
+    topic: str | None = message.topic()
+    partition: int | None = message.partition()
+    timestamp: int | None = message.timestamp()
+
+    if topic is None or partition is None or timestamp is None:
+        fields = [
+            ("topic", topic),
+            ("partition", partition),
+            ("timestamp", timestamp),
+        ]
+        missing = ", ".join(x for x, y in fields if y is None)
+        raise ValueError(f"Message is missing key components: {missing}")
+
+    key_str: str | None = message.key()
+    value_str: str | None = message.value()
+
+    key = key_str.encode() if key_str is not None else None
+    value = value_str.encode() if value_str is not None else None
+
+    return ConsumerRecord(
+        topic=topic,
+        partition=partition,
+        offset=offset,
+        timestamp=timestamp,
+        # https://github.com/apache/kafka/blob/932759bd70ce646ced5298a2ad8db02c0cea3643/clients/src/main/java/org/apache/kafka/common/record/TimestampType.java#L25
+        timestamp_type=0,  # CreateTime
+        key=key,
+        value=value,
+        checksum=None,  # Deprecated, we won't support it
+        serialized_key_size=len(key) if key else 0,
+        serialized_value_size=len(value) if value else 0,
+        headers=tuple((message.headers() or {}).items()),
+    )
 
 
 class FakeAIOKafkaConsumer:
@@ -136,14 +175,15 @@ class FakeAIOKafkaConsumer:
 
         self.consumer_store[topic_key] += 1
 
-        return self.kafka.get_message(
+        message = self.kafka.get_message(
             topic=topic, partition=partition, offset=consumer_amount
         )
+        return message_to_record(message, offset=consumer_amount)
 
     def _fetch(
         self,
         partitions: Iterable[TopicPartition],
-    ) -> Iterator[tuple[TopicPartition, Message]]:
+    ) -> Iterator[tuple[TopicPartition, ConsumerRecord[bytes, bytes]]]:
         if partitions:
             partitions_to_consume = list(partitions)
         else:
@@ -157,16 +197,18 @@ class FakeAIOKafkaConsumer:
 
         for tp in partitions_to_consume:
             while True:
-                message = self._fetch_one(tp.topic, tp.partition)
-                if message is None:
-                    # Partition has no available messages; move to next
+                record = self._fetch_one(tp.topic, tp.partition)
+                if record is None:
+                    # Partition has no available records; move to next
                     break
 
-                yield tp, message
+                yield tp, record
 
-    async def getone(self, *partitions: TopicPartition) -> Message | None:
-        for _, message in self._fetch(partitions):
-            return message
+    async def getone(
+        self, *partitions: TopicPartition
+    ) -> ConsumerRecord[bytes, bytes] | None:
+        for _, record in self._fetch(partitions):
+            return record
 
         return None
 
@@ -175,13 +217,13 @@ class FakeAIOKafkaConsumer:
         *partitions: TopicPartition,
         timeout_ms: int = 0,
         max_records: int | None = None,
-    ) -> dict[TopicPartition, list[Message]]:
-        messages = self._fetch(partitions)
+    ) -> dict[TopicPartition, list[ConsumerRecord[bytes, bytes]]]:
+        records = self._fetch(partitions)
         if max_records is not None:
-            messages = itertools.islice(messages, max_records)
+            records = itertools.islice(records, max_records)
 
         result = collections.defaultdict(list)
-        for tp, message in messages:
-            result[tp].append(message)
+        for tp, record in records:
+            result[tp].append(record)
 
         return dict(result)
