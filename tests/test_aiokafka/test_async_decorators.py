@@ -46,6 +46,8 @@ class TestDecorators(IsolatedAsyncioTestCase):
 
     @aproduce(topic="test", key="test_key", value="test_value", partition=4)
     async def test_produce_decorator(self):
+        await self.consumer.start()
+
         # subscribe to topic and get message
         self.consumer.subscribe(topics=["test"])
         message = await self.consumer.getone()
@@ -62,6 +64,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
     @aproduce(topic="test", key="test_key", value="test_value", partition=4)
     @aproduce(topic="test", key="test_key1", value="test_value1", partition=0)
     async def test_produce_twice(self):
+        await self.consumer.start()
         # subscribe to topic and get message
         self.consumer.subscribe(topics=["test"])
 
@@ -90,6 +93,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
     @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
     @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
     async def test_produce_with_kafka_setup_decorator(self):
+        await self.consumer.start()
         # subscribe to topic and get message
         self.consumer.subscribe(topics=["test_topic"])
 

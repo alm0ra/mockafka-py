@@ -120,8 +120,6 @@ class FakeAIOKafkaConsumer:
         pattern: str | None = None,
         listener: Optional[ConsumerRebalanceListener] = None,
     ) -> None:
-        if self._is_closed:
-            raise ConsumerStoppedError()
 
         if topics and pattern:
             raise ValueError(
