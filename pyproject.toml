@@ -9,6 +9,9 @@ documentation = "https://mockafka-py.readthedocs.io/"
 description = "A mock library for confluent kafka"
 readme = "README.md"
 packages = [{ include = "mockafka" }]
+classifiers = [
+    "Typing :: Typed",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
@@ -35,3 +38,12 @@ mkdocstrings = { extras = ["python"], version = ">=0.23,<0.25" }
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+warn_unused_ignores = true
+
+no_implicit_optional = true
+
+disallow_subclassing_any = true
+
+enable_error_code = "ignore-without-code"

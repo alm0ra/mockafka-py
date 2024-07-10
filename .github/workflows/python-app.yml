@@ -47,7 +47,7 @@ jobs:
 
       - name: Typecheck with mypy
         run: |
-          poetry run mypy mockafka tests || true
+          poetry run mypy mockafka tests
 
       - name: Test with pytest
         run: |

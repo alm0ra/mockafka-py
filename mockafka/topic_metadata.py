@@ -12,7 +12,7 @@ class TopicMetadata(object):
     # Sphinx issue where it tries to reference the same instance variable
     # on other classes which raises a warning/error.
 
-    def __init__(self, topic_name: str, partition_num: list = []):
+    def __init__(self, topic_name: str, partition_num: list[int] = []):
         self.topic = topic_name
         """Topic name"""
         self.partitions = partition_num
