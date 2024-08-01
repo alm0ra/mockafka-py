@@ -5,7 +5,7 @@ import itertools
 import random
 import re
 import warnings
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable, Iterator, Set
 from typing import Any, Optional
 
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
@@ -111,8 +111,8 @@ class FakeAIOKafkaConsumer:
 
         self.consumer_store = {}
 
-    async def topics(self) -> list[str]:
-        return self.subscribed_topic
+    async def topics(self) -> set[str]:
+        return set(self.subscribed_topic)
 
     def subscribe(
             self,
@@ -151,8 +151,11 @@ class FakeAIOKafkaConsumer:
             if topic not in self.subscribed_topic:
                 self.subscribed_topic.append(topic)
 
-    def subscription(self) -> list[str]:
-        return self.subscribed_topic
+    # AIOKafkaConsumer.subscription returns a `frozenset` most of the time but
+    # can also return an empty `set` in some cases. Reflect that in our type
+    # annotation even though we only ever return one type.
+    def subscription(self) -> Set[str]:
+        return frozenset(self.subscribed_topic)
 
     def unsubscribe(self) -> None:
         self.subscribed_topic = []
