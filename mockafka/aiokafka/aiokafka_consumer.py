@@ -112,7 +112,7 @@ class FakeAIOKafkaConsumer:
         self.consumer_store = {}
 
     async def topics(self) -> set[str]:
-        return set(self.subscribed_topic)
+        return set(self.kafka.topic_list())
 
     def subscribe(
             self,
