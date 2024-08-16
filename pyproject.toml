@@ -41,12 +41,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 warn_unused_ignores = true
-
+ignore_missing_imports = true
 no_implicit_optional = true
 
 disallow_subclassing_any = true
 
 enable_error_code = "ignore-without-code"
-
-[mypy-confluent_kafka.*]
-ignore_missing_imports = true
