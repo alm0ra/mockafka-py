@@ -47,7 +47,7 @@ class Message:
         return self._value
 
     def timestamp(self, *args, **kwargs) -> tuple[int, int]:
-        ts_info = tuple()
+        ts_info: tuple[int, int]
         if self._timestamp_type == TIMESTAMP_NOT_AVAILABLE:
             ts_info = (TIMESTAMP_NOT_AVAILABLE, 0)
         elif self._timestamp_type == TIMESTAMP_LOG_APPEND_TIME:
