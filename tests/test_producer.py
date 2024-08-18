@@ -7,7 +7,7 @@ import pytest
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
 from mockafka.kafka_store import KafkaStore, KafkaException
 from mockafka.producer import FakeProducer
-from confluent_kafka import Message  # type: ignore[import-untyped]
+from confluent_kafka import Message
 
 
 class TestFakeProducer(TestCase):

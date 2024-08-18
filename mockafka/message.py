@@ -28,22 +28,22 @@ class Message:
             time.time() * 1000
         )
 
-    def offset(self, *args, **kwargs) -> int | None:
+    def offset(self, *args, **kwargs):
         return self._offset
 
-    def latency(self, *args, **kwargs) -> float | None:
+    def latency(self, *args, **kwargs):
         return self._latency
 
-    def leader_epoch(self, *args, **kwargs) -> int | None:
+    def leader_epoch(self, *args, **kwargs):
         return self._leader_epoch
 
-    def headers(self, *args, **kwargs) -> dict | None:
+    def headers(self, *args, **kwargs):
         return self._headers
 
-    def key(self, *args, **kwargs) -> str | None:
+    def key(self, *args, **kwargs):
         return self._key
 
-    def value(self, *args, **kwargs) -> str | None:
+    def value(self, *args, **kwargs):
         return self._value
 
     def timestamp(self, *args, **kwargs) -> tuple[int, int]:
@@ -56,20 +56,20 @@ class Message:
             ts_info = (self._timestamp_type, self._timestamp)
         return ts_info
 
-    def topic(self, *args, **kwargs) -> str | None:
+    def topic(self, *args, **kwargs):
         return self._topic
 
-    def partition(self, *args, **kwargs) -> int | None:
+    def partition(self, *args, **kwargs):
         return self._partition
 
     def error(self) -> Any | None:
         return self._error
 
-    def set_headers(self, *args, **kwargs) -> None:  # real signature unknown
+    def set_headers(self, *args, **kwargs):  # real signature unknown
         pass
 
-    def set_key(self, *args, **kwargs) -> None:  # real signature unknown
+    def set_key(self, *args, **kwargs):  # real signature unknown
         pass
 
-    def set_value(self, *args, **kwargs) -> None:  # real signature unknown
+    def set_value(self, *args, **kwargs):  # real signature unknown
         pass

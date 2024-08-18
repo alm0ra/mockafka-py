@@ -4,7 +4,7 @@ import asyncio
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from aiokafka.admin import NewTopic
 
 from mockafka import Message
 from mockafka.aiokafka import (

@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.admin import NewTopic, NewPartitions  # type: ignore[import-untyped]
+from aiokafka.admin import NewTopic, NewPartitions
 
 from mockafka.aiokafka.aiokafka_admin_client import FakeAIOKafkaAdmin
 from mockafka.kafka_store import KafkaStore

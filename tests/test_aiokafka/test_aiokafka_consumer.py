@@ -4,8 +4,8 @@ import itertools
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
-from aiokafka.structs import (  # type: ignore[import-untyped]
+from aiokafka.errors import ConsumerStoppedError
+from aiokafka.structs import (
     ConsumerRecord,
     TopicPartition,
 )
@@ -21,8 +21,8 @@ from mockafka.kafka_store import KafkaStore
 @pytest.mark.asyncio
 class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
     def summarise(
-            self,
-            records: list[ConsumerRecord],
+        self,
+        records: list[ConsumerRecord],
     ) -> list[tuple[str | None, str | None]]:
         return [(x.key, x.value) for x in records]
 

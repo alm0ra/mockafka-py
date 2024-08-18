@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from functools import wraps
 
-from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from aiokafka.admin import NewTopic
 
 from mockafka.aiokafka import FakeAIOKafkaAdmin
 from mockafka.decorators.typing import TopicConfig
+
 
 def asetup_kafka(topics: list[TopicConfig], clean: bool = False):
     """

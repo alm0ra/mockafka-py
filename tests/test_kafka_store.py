@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from unittest import TestCase
 
-from parameterized import parameterized  # type: ignore[import-untyped]
+from parameterized import parameterized
 
-from mockafka.kafka_store import KafkaStore, KafkaException, Message
+from mockafka.kafka_store import KafkaException, KafkaStore, Message
 
 
 class TestKafkaStore(TestCase):

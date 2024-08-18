@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from aiokafka.admin import NewTopic
 
 from mockafka import aproduce, asetup_kafka, aconsume
 from mockafka.aiokafka import (
