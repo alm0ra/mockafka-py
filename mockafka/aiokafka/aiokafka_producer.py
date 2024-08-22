@@ -32,13 +32,13 @@ class FakeAIOKafkaProducer:
         self.kafka = KafkaStore()
 
     def _translate_header_to_internal_format(self, headers: Sequence[Tuple[str, bytes]]) -> dict:
-        _header_dict: dict = defaultdict(dict)
+        header_dict: dict[str, bytes] = defaultdict(bytes)
         if not headers:
-            return _header_dict
+            return header_dict
 
         for item in headers:
-            _header_dict[item[0]] = item[1]
-        return _header_dict
+            header_dict[item[0]] = item[1]
+        return header_dict
 
     async def _produce(self, topic, value=None, *args, **kwargs) -> None:
         # create a message and call produce kafka
