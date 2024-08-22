@@ -3,7 +3,7 @@ from __future__ import annotations
 from unittest import IsolatedAsyncioTestCase
 
 import pytest
-from aiokafka.admin import NewTopic
+from aiokafka.admin import NewTopic # type: ignore[import-untyped]
 
 from mockafka import Message
 from mockafka.aiokafka.aiokafka_admin_client import FakeAIOKafkaAdmin

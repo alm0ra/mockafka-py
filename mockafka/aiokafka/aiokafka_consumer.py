@@ -8,9 +8,9 @@ import warnings
 from collections.abc import Iterable, Iterator, Set
 from typing import Any, Optional
 
-from aiokafka.abc import ConsumerRebalanceListener
-from aiokafka.errors import ConsumerStoppedError
-from aiokafka.structs import (
+from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
+from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
+from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
     TopicPartition,
 )

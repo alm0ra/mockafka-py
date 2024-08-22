@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 from typing import Any, Optional
 
-from confluent_kafka import (
+from confluent_kafka import ( # type: ignore[import-untyped]
     TIMESTAMP_CREATE_TIME,
     TIMESTAMP_LOG_APPEND_TIME,
     TIMESTAMP_NOT_AVAILABLE,
