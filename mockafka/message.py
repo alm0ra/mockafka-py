@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import time
-from typing import Optional, Any
+from typing import Any, Optional
 
-from confluent_kafka import KafkaError  # type: ignore[import-untyped]
+from confluent_kafka import (  # type: ignore[import-untyped]
+    TIMESTAMP_CREATE_TIME,
+    TIMESTAMP_LOG_APPEND_TIME,
+    TIMESTAMP_NOT_AVAILABLE,
+    KafkaError,
+)
 
 
 class Message:
@@ -18,6 +23,10 @@ class Message:
         self._leader_epoch: Optional[int] = kwargs.get("leader_epoch", None)
         self._partition: Optional[int] = kwargs.get("partition", None)
         self._timestamp: int = kwargs.get("timestamp") or int(time.time() * 1000)
+        self._timestamp_type = kwargs.get("timestamp_type", TIMESTAMP_CREATE_TIME)
+        self._broker_receive_time = kwargs.get("broker_receive_time") or int(
+            time.time() * 1000
+        )
 
     def offset(self, *args, **kwargs):
         return self._offset
@@ -37,8 +46,15 @@ class Message:
     def value(self, *args, **kwargs):
         return self._value
 
-    def timestamp(self, *args, **kwargs):
-        return self._timestamp
+    def timestamp(self, *args, **kwargs) -> tuple[int, int]:
+        ts_info: tuple[int, int]
+        if self._timestamp_type == TIMESTAMP_NOT_AVAILABLE:
+            ts_info = (TIMESTAMP_NOT_AVAILABLE, 0)
+        elif self._timestamp_type == TIMESTAMP_LOG_APPEND_TIME:
+            ts_info = (TIMESTAMP_LOG_APPEND_TIME, self._broker_receive_time)
+        else:
+            ts_info = (self._timestamp_type, self._timestamp)
+        return ts_info
 
     def topic(self, *args, **kwargs):
         return self._topic
@@ -46,7 +62,7 @@ class Message:
     def partition(self, *args, **kwargs):
         return self._partition
 
-    def error(self):
+    def error(self) -> Any | None:
         return self._error
 
     def set_headers(self, *args, **kwargs):  # real signature unknown
