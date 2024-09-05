@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Optional
+from typing import Optional, Any
 
 from confluent_kafka import (  # type: ignore[import-untyped]
     TIMESTAMP_CREATE_TIME,
@@ -62,7 +62,7 @@ class Message:
     def partition(self, *args, **kwargs):
         return self._partition
 
-    def error(self) -> Any | None:
+    def error(self):
         return self._error
 
     def set_headers(self, *args, **kwargs):  # real signature unknown
