@@ -22,7 +22,7 @@ from mockafka.message import Message
 def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, bytes]:
     topic: Optional[str] = message.topic()
     partition: Optional[int] = message.partition()
-    timestamp: Optional[int] = message.timestamp()
+    _, timestamp = message.timestamp()
 
     if topic is None or partition is None or timestamp is None:
         fields = [

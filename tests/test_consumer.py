@@ -175,3 +175,22 @@ class TestFakeConsumer(TestCase):
     def test_incremental_unassign(self):
         # This method Does not support in mockafka
         self.consumer.incremental_unassign(partitions=None)
+
+    def test_message_timestamp_format(self):
+        self.create_topic()
+        self.produce_message()
+        self.consumer.subscribe(topics=[self.test_topic])
+        message = self.consumer.poll()
+
+        # Fetch the timestamp from the message
+        timestamp_type, timestamp = message.timestamp()
+
+        # Expected timestamp types (matching confluent_kafka Message class)
+        timestamp_create_time = 0
+        timestamp_log_append_time = 1
+        timestamp_not_available = 2
+
+        # Test that the timestamp is returned as a tuple[int, int]
+        self.assertIsInstance(timestamp, int)
+        self.assertIsInstance(timestamp_type, int)
+        self.assertIn(timestamp_type, [timestamp_create_time, timestamp_log_append_time, timestamp_not_available])
