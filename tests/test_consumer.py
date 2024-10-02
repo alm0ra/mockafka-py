@@ -194,3 +194,27 @@ class TestFakeConsumer(TestCase):
         self.assertIsInstance(timestamp, int)
         self.assertIsInstance(timestamp_type, int)
         self.assertIn(timestamp_type, [timestamp_create_time, timestamp_log_append_time, timestamp_not_available])
+
+    def test_multiple_topics(self):
+        """
+        specifically testing a bug where if you are subscribe to more than 1 topic, and produce to poll() to just
+        1 topic, at some point you will receive None for a message because of an extra random.shuffle in
+        the FakeConsumer.poll() method.
+        """
+
+        self.create_topic()
+
+        # create a second topic, but only produce to the first one
+        second_topic = 'test_topic_2'
+        self.kafka.create_partition(topic=second_topic, partitions=16)
+        # because it's a random.shuffle, hopefully we trigger bad shuffle once in 30
+        number_of_messages = 30
+        # subscribe to both topics
+        self.consumer.subscribe(topics=[self.test_topic, second_topic])
+        for i in range(number_of_messages):
+            self.producer.produce(
+                topic=self.test_topic, partition=0, key=f"test{i}", value=f"test{i}"
+            )
+
+            message = self.consumer.poll()
+            assert message is not None
