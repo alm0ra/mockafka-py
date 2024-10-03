@@ -5,7 +5,7 @@ from unittest import TestCase
 import pytest
 
 from mockafka.admin_client import FakeAdminClientImpl
-from mockafka.conumser import FakeConsumer
+from mockafka.consumer import FakeConsumer
 from mockafka.kafka_store import KafkaStore
 from mockafka.producer import FakeProducer
 
