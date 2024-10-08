@@ -36,8 +36,15 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
     key_str: Optional[str] = message.key()
     value_str: Optional[str] = message.value()
 
-    key = key_str.encode() if key_str is not None else None
-    value = value_str.encode() if value_str is not None else None
+    if not isinstance(key_str, bytes):
+        key = key_str.encode() if key_str is not None else None
+    else:
+        key = key_str
+
+    if not isinstance(value_str, bytes):
+        value = value_str.encode() if value_str is not None else None
+    else:
+        value = value_str
 
     return ConsumerRecord(
         topic=topic,
