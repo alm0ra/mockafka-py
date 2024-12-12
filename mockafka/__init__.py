@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from .admin_client import FakeAdminClientImpl
 from .producer import FakeProducer
-from .conumser import FakeConsumer
+from .consumer import FakeConsumer
 from .message import Message
 from .decorators import (
     produce,
