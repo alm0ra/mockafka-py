@@ -28,7 +28,7 @@ class PartitionMetadata(object):
         """Partition error, or None. Value is a KafkaError object."""
         
         # If default args were provided then initialize the Partition with a single replica
-        if leader == -1 and replicas is None  and isrs is None:
+        if leader == -1 and replicas is None and isrs is None:
             self.leader = 1
             self.replicas = [1]
             self.isrs = [1]
