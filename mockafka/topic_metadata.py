@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from mockafka.partition_metadata import PartitionMetadata
 
 class TopicMetadata(object):
     """
@@ -15,7 +16,7 @@ class TopicMetadata(object):
     def __init__(self, topic_name: str, partition_num: list[int] = []):
         self.topic = topic_name
         """Topic name"""
-        self.partitions = partition_num
+        self.partitions = {num: PartitionMetadata(id=num) for num in partition_num}
         """Map of partitions indexed by partition id. Value is a PartitionMetadata object."""
         self.error = None
         """Topic error, or None. Value is a KafkaError object."""

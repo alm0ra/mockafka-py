@@ -62,6 +62,19 @@ class TestFakeAdminClient(TestCase):
         self.assertEqual(len(cluster_metadata.topics["test1"]), 1)
         self.assertEqual(len(cluster_metadata.topics["test2"]), 4)
         self.assertEqual(len(cluster_metadata.topics["test3"]), 16)
+    
+    def test_list_partitions(self):
+        self.admin.create_topics(
+            topics=[
+                NewTopic(topic="test4", num_partitions=4),
+            ]
+        )
+
+        cluster_metadata = self.admin.list_topics()
+        topic_metadata = cluster_metadata.topics["test4"]
+        self.assertEqual(len(topic_metadata.partitions), 4)
+        self.assertEqual(topic_metadata.partitions[0].id, 0)
+        self.assertEqual(len(topic_metadata.partitions[0].replicas), 1)
 
     def test_describe_acls(self):
         # This method Does not support in mockafka
