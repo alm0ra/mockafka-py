@@ -4,10 +4,12 @@ from unittest import IsolatedAsyncioTestCase
 
 import pytest
 from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from aiokafka.structs import ConsumerRecord  # type: ignore[import-untyped]
 
 from mockafka import Message
 from mockafka.aiokafka.aiokafka_admin_client import FakeAIOKafkaAdmin
 from mockafka.aiokafka.aiokafka_producer import FakeAIOKafkaProducer
+from mockafka.aiokafka.aiokafka_consumer import FakeAIOKafkaConsumer
 from mockafka.kafka_store import KafkaStore, KafkaException
 
 
@@ -63,22 +65,24 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
     async def test_produce_once(self) -> None:
         await self._create_mock_topic()
+        await self.producer.start()
         await self.producer.send(
-            headers={},
+            headers=None,
             key=self.key,
             value=self.value,
             topic=self.topic,
             partition=0,
         )
-        message: Message = self.kafka.get_messages_in_partition(
-            topic=self.topic, partition=0
-        )[0]
-        self.assertEqual(message.key(), self.key)
-        self.assertEqual(message.value(payload=None), self.value)
-        self.assertEqual(message.topic(), self.topic)
-        self.assertEqual(message.headers(), {})
-        self.assertEqual(message.error(), None)
-        self.assertEqual(message.latency(), None)
+
+        consumer = FakeAIOKafkaConsumer()
+        consumer.subscribe(topics=[self.topic])
+        await consumer.start()
+        message: ConsumerRecord = await consumer.getone()
+
+        self.assertEqual(message.key, self.key.encode())
+        self.assertEqual(message.value, self.value.encode())
+        self.assertEqual(message.topic, self.topic)
+        self.assertEqual(message.headers, ())
 
     async def test_send_and_wait(self) -> None:
         await self._create_mock_topic()
