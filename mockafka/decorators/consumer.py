@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import wraps
+from inspect import signature
 from mockafka import FakeConsumer
 
 
@@ -41,6 +42,12 @@ def consume(topics: list[str], auto_commit: bool = True):
             # Call the original function without a message parameter
             result = func(*args, **kwargs)
             return result
+
+        # Remove `message` from the wrapper's signature so pytest does not
+        # expect a fixture with that name when collecting the test.
+        sig = signature(func)
+        parameters = [p for p in sig.parameters.values() if p.name != "message"]
+        wrapper.__signature__ = sig.replace(parameters=parameters)
 
         return wrapper
 
