@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import wraps
+from inspect import signature
 
 from mockafka.aiokafka import FakeAIOKafkaConsumer
 
@@ -51,6 +52,12 @@ def aconsume(topics: list[str], auto_commit: bool = True):
             # Call the original function without a message parameter
             result = await func(*args, **kwargs)
             return result
+
+        # Avoid exposing the original ``message`` parameter to pytest's
+        # introspection by removing it from the wrapper's signature.
+        sig = signature(func)
+        parameters = [p for p in sig.parameters.values() if p.name != "message"]
+        wrapper.__signature__ = sig.replace(parameters=parameters)
 
         return wrapper
 
