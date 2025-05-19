@@ -124,6 +124,22 @@ class TestKafkaStore(TestCase):
             [self.DEFAULT_MESSAGE],
         )
 
+    def test_produce_new_topic_high_partition(self):
+        """Producing to a non-existent topic should create enough partitions."""
+        message = self.DEFAULT_MESSAGE
+        # Produce to partition 1 without pre-creating the topic
+        self.kafka.produce(message=message, topic=self.TEST_TOPIC, partition=1)
+
+        self.assertTrue(
+            self.kafka.is_partition_exist_on_topic(
+                topic=self.TEST_TOPIC, partition_num=1
+            )
+        )
+        self.assertEqual(
+            self.kafka.get_messages_in_partition(topic=self.TEST_TOPIC, partition=1),
+            [message],
+        )
+
     def test_get_message(self):
         self._create_topic_partition()
 

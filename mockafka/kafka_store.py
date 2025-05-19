@@ -126,9 +126,16 @@ class KafkaStore(metaclass=SingletonMeta):
             )
 
         if not self.is_topic_exist(topic=topic):
-            if partition == 0:
-                partition = 1
-            self.create_partition(topic=topic, partitions=partition)
+            # `partition` refers to the partition index the caller wants to
+            # produce to. When creating a brand new topic we must ensure that
+            # this partition index exists, which means creating `partition + 1`
+            # partitions (since partitions are zero-indexed).  The previous
+            # behaviour incorrectly created only ``partition`` partitions which
+            # resulted in "partition does not exist" errors when producing to a
+            # non-zero partition on a new topic.
+
+            required_partitions = partition + 1 if partition >= 0 else 1
+            self.create_partition(topic=topic, partitions=required_partitions)
 
         if mock_topics[topic].get(partition, None) is None:
             raise KafkaException(

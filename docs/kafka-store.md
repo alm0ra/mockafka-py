@@ -70,7 +70,8 @@ The `KafkaStore` class represents an in-memory simulation of a Kafka store. It i
 - **Returns:** (str) Offset store key.
 
 #### `produce(self, message: Message, topic: str, partition: int)`
-- **Description:** Produces a message to a specific topic and partition.
+- **Description:** Produces a message to a specific topic and partition. If the topic does not
+  already exist, partitions are created automatically so the requested partition index is valid.
 - **Parameters:**
   - `message` (Message): The message to produce.
   - `topic` (str): The name of the topic.
