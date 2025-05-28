@@ -94,3 +94,17 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         )[0]
         self.assertEqual(message.key(), "datakey")
         self.assertEqual(message.topic(), "topic_test")
+
+    async def test_context_manager(self) -> None:
+        await self._create_mock_topic()
+
+        async with self.producer as producer:
+            self.assertEqual(self.producer, producer)
+            await self.producer.send_and_wait("topic_test", "skdfjh", key="datakey")
+
+        message: Message = self.kafka.get_messages_in_partition(
+            topic="topic_test",
+            partition=0,
+        )[0]
+        self.assertEqual(message.key(), "datakey")
+        self.assertEqual(message.topic(), "topic_test")

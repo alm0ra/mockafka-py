@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing_extensions import Self
+
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
 
@@ -74,3 +76,15 @@ class FakeAIOKafkaProducer:
             headers=headers,
             timestamp_ms=timestamp_ms,
         )
+
+    async def __aenter__(self) -> Self:
+        await self.start()
+        return self
+
+    async def __aexit__(
+        self,
+        exception_type: object,
+        exception: object,
+        traceback: object,
+    ) -> None:
+        await self.stop()

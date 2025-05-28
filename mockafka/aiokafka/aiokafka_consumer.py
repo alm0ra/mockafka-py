@@ -14,6 +14,7 @@ from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
     TopicPartition,
 )
+from typing_extensions import Self
 
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
@@ -243,3 +244,15 @@ class FakeAIOKafkaConsumer:
             result[tp].append(record)
 
         return dict(result)
+
+    async def __aenter__(self) -> Self:
+        await self.start()
+        return self
+
+    async def __aexit__(
+        self,
+        exception_type: object,
+        exception: object,
+        traceback: object,
+    ) -> None:
+        await self.stop()
