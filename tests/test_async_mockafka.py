@@ -81,3 +81,25 @@ async def test_produce_and_consume_with_decorator(message=None):
 
     assert message.key == b"test_key"
     assert message.value == b"test_value"
+
+
+@pytest.mark.asyncio
+@asetup_kafka(topics=[{"topic": "test_topic1", "partition": 2}], clean=True)
+async def test_produce_and_consume_with_headers():
+    producer = FakeAIOKafkaProducer()
+    consumer = FakeAIOKafkaConsumer()
+
+    await producer.start()
+    await consumer.start()
+    consumer.subscribe({"test_topic1"})
+
+    await producer.send(
+        topic="test_topic1",
+        headers=[('header_name', b"test"), ('header_name2', b"test")],
+    )
+    await producer.stop()
+
+    record = await consumer.getone()
+    assert record.headers == (('header_name', b"test"), ('header_name2', b"test"))
+
+    await consumer.stop()
