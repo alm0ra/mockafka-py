@@ -64,7 +64,11 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
     async def test_produce_once(self) -> None:
         await self._create_mock_topic()
         await self.producer.send(
-            headers={},
+            headers=[
+                ("header-name1", b"header-value"),
+                ("header-name2", None),
+                ("header-name1", b"duplicate!"),
+            ],
             key=self.key,
             value=self.value,
             topic=self.topic,
@@ -76,7 +80,14 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.assertEqual(message.key(), self.key)
         self.assertEqual(message.value(payload=None), self.value)
         self.assertEqual(message.topic(), self.topic)
-        self.assertEqual(message.headers(), {})
+        self.assertEqual(
+            message.headers(),
+            [
+                ("header-name1", b"header-value"),
+                ("header-name2", None),
+                ("header-name1", b"duplicate!"),
+            ],
+        )
         self.assertEqual(message.error(), None)
         self.assertEqual(message.latency(), None)
 

@@ -13,7 +13,7 @@ from confluent_kafka import (  # type: ignore[import-untyped]
 
 class Message:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self._headers: Optional[dict] = kwargs.get("headers", None)
+        self._headers: Optional[list[tuple[str, Optional[bytes]]]] = kwargs.get("headers", None)
         self._key: Optional[str] = kwargs.get("key", None)
         self._value: Optional[str] = kwargs.get("value", None)
         self._topic: Optional[str] = kwargs.get("topic", None)
@@ -37,7 +37,7 @@ class Message:
     def leader_epoch(self, *args, **kwargs):
         return self._leader_epoch
 
-    def headers(self, *args, **kwargs):
+    def headers(self) -> Optional[list[tuple[str, Optional[bytes]]]]:
         return self._headers
 
     def key(self, *args, **kwargs):

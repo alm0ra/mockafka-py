@@ -51,7 +51,7 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
         checksum=None,  # Deprecated, we won't support it
         serialized_key_size=len(key) if key else 0,
         serialized_value_size=len(value) if value else 0,
-        headers=tuple((message.headers() or {}).items()),
+        headers=message.headers(),
     )
 
 
