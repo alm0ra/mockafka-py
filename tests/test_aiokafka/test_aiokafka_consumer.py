@@ -324,6 +324,36 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             messages,
         )
 
+    async def test_context_manager(self):
+        test_topic_2 = "test_topic_2"
+        self.kafka.create_partition(topic=self.test_topic, partitions=10)
+        self.kafka.create_partition(topic=test_topic_2, partitions=10)
+
+        topics = [self.test_topic, test_topic_2]
+        self.consumer.subscribe(topics=topics)
+
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
+        async with self.consumer as consumer:
+            self.assertEqual(self.consumer, consumer)
+            await self.produce_message()
+
+            messages = {
+                tp: self.summarise(msgs)
+                for tp, msgs in (await self.consumer.getmany()).items()
+            }
+            self.assertEqual(
+                {
+                    TopicPartition(self.test_topic, partition=0): [
+                        (b"test", b"test"),
+                        (b"test1", b"test1"),
+                    ],
+                },
+                messages,
+            )
+
+        self.assertEqual(self.consumer.subscribed_topic, topics)
+
     async def test_unsubscribe(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=10)
 
