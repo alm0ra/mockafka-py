@@ -60,7 +60,10 @@ class TestFakeProducer(TestCase):
 
     def test_produce_once(self) -> None:
         self.producer.produce(
-            headers={},
+            headers={
+                "header-name1": b"header-value",
+                "header-name2": None,
+            },
             key=self.key,
             value=self.value,
             topic=self.topic,
@@ -72,7 +75,13 @@ class TestFakeProducer(TestCase):
         self.assertEqual(message.key(), self.key)
         self.assertEqual(message.value(payload=None), self.value)
         self.assertEqual(message.topic(), self.topic)
-        self.assertEqual(message.headers(), {})
+        self.assertEqual(
+            message.headers(),
+            [
+                ("header-name1", b"header-value"),
+                ("header-name2", None),
+            ],
+        )
         self.assertEqual(message.error(), None)
         self.assertEqual(message.latency(), None)
 

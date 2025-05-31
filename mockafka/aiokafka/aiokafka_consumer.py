@@ -40,6 +40,8 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
     key = key_str.encode() if key_str is not None else None
     value = value_str.encode() if value_str is not None else None
 
+    headers = message.headers()
+
     return ConsumerRecord(
         topic=topic,
         partition=partition,
@@ -52,7 +54,7 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
         checksum=None,  # Deprecated, we won't support it
         serialized_key_size=len(key) if key else 0,
         serialized_value_size=len(value) if value else 0,
-        headers=tuple((message.headers() or {}).items()),
+        headers=tuple(headers) if headers else (),
     )
 
 

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from typing_extensions import Self
 
 from mockafka.kafka_store import KafkaStore
@@ -48,7 +50,7 @@ class FakeAIOKafkaProducer:
         key=None,
         partition=0,
         timestamp_ms=None,
-        headers=None,
+        headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
     ) -> None:
         await self._produce(
             topic=topic,
