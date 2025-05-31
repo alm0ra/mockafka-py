@@ -10,6 +10,7 @@
 .idea/**/shelf
 .idea/*
 .vscode
+.DS_Store
 
 # AWS User-specific
 .idea/**/aws.xml
