@@ -44,7 +44,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
             [NewTopic(name="test", num_partitions=16, replication_factor=1)]
         )
 
-    @aproduce(topic="test", key="test_key", value="test_value", partition=4)
+    @aproduce(topic="test", key=b"test_key", value=b"test_value", partition=4)
     async def test_produce_decorator(self):
         await self.consumer.start()
 
@@ -61,8 +61,8 @@ class TestDecorators(IsolatedAsyncioTestCase):
         # check there is no message in mock kafka
         self.assertIsNone(await self.consumer.getone())
 
-    @aproduce(topic="test", key="test_key", value="test_value", partition=4)
-    @aproduce(topic="test", key="test_key1", value="test_value1", partition=0)
+    @aproduce(topic="test", key=b"test_key", value=b"test_value", partition=4)
+    @aproduce(topic="test", key=b"test_key1", value=b"test_value1", partition=0)
     async def test_produce_twice(self):
         await self.consumer.start()
         # subscribe to topic and get message
@@ -91,7 +91,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
         self.assertIsNone(await self.consumer.getone())
 
     @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
-    @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
+    @aproduce(topic="test_topic", partition=5, key=b"test_", value=b"test_value1")
     async def test_produce_with_kafka_setup_decorator(self):
         await self.consumer.start()
         # subscribe to topic and get message
@@ -102,8 +102,8 @@ class TestDecorators(IsolatedAsyncioTestCase):
         self.assertEqual(message.key, b"test_")
 
     @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}])
-    @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
-    @aproduce(topic="test_topic", partition=5, key="test_", value="test_value1")
+    @aproduce(topic="test_topic", partition=5, key=b"test_", value=b"test_value1")
+    @aproduce(topic="test_topic", partition=5, key=b"test_", value=b"test_value1")
     @aconsume(topics=["test_topic"])
     async def test_consumer_decorator(self, message: Message | None = None):
         if message is None:
