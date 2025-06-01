@@ -14,8 +14,8 @@ from confluent_kafka import (  # type: ignore[import-untyped]
 class Message:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._headers: Optional[list[tuple[str, Optional[bytes]]]] = kwargs.get("headers", None)
-        self._key: Optional[str] = kwargs.get("key", None)
-        self._value: Optional[str] = kwargs.get("value", None)
+        self._key: Optional[bytes] = kwargs.get("key", None)
+        self._value: Optional[bytes] = kwargs.get("value", None)
         self._topic: Optional[str] = kwargs.get("topic", None)
         self._offset: Optional[int] = kwargs.get("offset", None)
         self._error: Optional[KafkaError] = kwargs.get("error", None)
@@ -40,10 +40,10 @@ class Message:
     def headers(self) -> Optional[list[tuple[str, Optional[bytes]]]]:
         return self._headers
 
-    def key(self, *args, **kwargs):
+    def key(self, *args, **kwargs) -> Optional[bytes]:
         return self._key
 
-    def value(self, *args, **kwargs):
+    def value(self, *args, **kwargs) -> Optional[bytes]:
         return self._value
 
     def timestamp(self, *args, **kwargs) -> tuple[int, int]:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import uuid
 from random import randint, choice
 from typing import Any
@@ -26,7 +27,7 @@ class MockConsumer:
         while cnt <= msg_cnt:
             message = self._consumer.poll(timeout=1.0)
             if message is not None:
-                messages.append(message.value())
+                messages.append(json.loads(message.value().decode()))
                 cnt = cnt + 1
 
             self._consumer.commit(message)
@@ -50,7 +51,7 @@ class MockProducer:
     def produce(self, topic: str, key: str, message: dict):
         self._producer.produce(
             key=key + str(uuid.uuid4()),
-            value=message,
+            value=json.dumps(message).encode(),
             topic=topic,
             partition=randint(0, 1),
         )
