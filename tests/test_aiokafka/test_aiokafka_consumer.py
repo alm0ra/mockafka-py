@@ -42,10 +42,10 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def produce_message(self):
         await self.producer.send(
-            topic=self.test_topic, partition=0, key="test", value="test"
+            topic=self.test_topic, partition=0, key=b"test", value=b"test"
         )
         await self.producer.send(
-            topic=self.test_topic, partition=0, key="test1", value="test1"
+            topic=self.test_topic, partition=0, key=b"test1", value=b"test1"
         )
 
     async def test_consume(self):
@@ -118,7 +118,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         await self.producer.send(
-            topic=self.test_topic, partition=2, key="test2", value="test2"
+            topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
@@ -147,7 +147,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         await self.producer.send(
-            topic=self.test_topic, partition=0, key="test2", value="test2"
+            topic=self.test_topic, partition=0, key=b"test2", value=b"test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
@@ -184,7 +184,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         await self.producer.send(
-            topic=self.test_topic, partition=1, key="test2", value="test2"
+            topic=self.test_topic, partition=1, key=b"test2", value=b"test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
@@ -212,7 +212,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.create_topic()
         await self.produce_message()
         await self.producer.send(
-            topic=self.test_topic, partition=2, key="test2", value="test2"
+            topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()

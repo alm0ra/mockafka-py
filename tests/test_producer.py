@@ -72,8 +72,8 @@ class TestFakeProducer(TestCase):
         message: Message = self.kafka.get_messages_in_partition(
             topic=self.topic, partition=0
         )[0]
-        self.assertEqual(message.key(), self.key)
-        self.assertEqual(message.value(payload=None), self.value)
+        self.assertEqual(message.key(), self.key.encode())
+        self.assertEqual(message.value(payload=None), self.value.encode())
         self.assertEqual(message.topic(), self.topic)
         self.assertEqual(
             message.headers(),
