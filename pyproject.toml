@@ -26,7 +26,6 @@ pytest = ">=7.2,<9.0"
 pytest-cov = ">=4,<6"
 pytest-asyncio = "^0.23.5"
 mypy = "^1.5.1"
-tox = "^4.11.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.4.2"
