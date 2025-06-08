@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from mockafka import FakeProducer, FakeConsumer, FakeAdminClientImpl
-from mockafka.admin_client import NewTopic
 from random import randint
+
+from mockafka import FakeAdminClientImpl, FakeConsumer, FakeProducer
+from mockafka.admin_client import NewTopic
 
 admin = FakeAdminClientImpl()
 producer = FakeProducer()

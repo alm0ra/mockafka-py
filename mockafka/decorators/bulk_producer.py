@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from functools import wraps
 
-from mockafka import FakeProducer
 from mockafka.decorators.typing import MessageDict
+from mockafka.producer import FakeProducer
 
 
 def bulk_produce(list_of_messages: list[MessageDict]):

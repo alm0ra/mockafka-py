@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from aiokafka.admin import NewTopic, NewPartitions  # type: ignore[import-untyped]
+from aiokafka.admin import NewPartitions, NewTopic  # type: ignore[import-untyped]
 
 from mockafka.kafka_store import KafkaStore
 

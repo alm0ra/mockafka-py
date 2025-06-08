@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from functools import wraps
-from mockafka import FakeProducer
+
+from mockafka.producer import FakeProducer
 
 
 def produce(**decorator_args):

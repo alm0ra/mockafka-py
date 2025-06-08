@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from confluent_kafka.cimpl import NewTopic, NewPartitions  # type: ignore[import-untyped]
+from confluent_kafka.cimpl import (  # type: ignore[import-untyped]
+    NewPartitions,
+    NewTopic,
+)
 
 from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.kafka_store import KafkaStore

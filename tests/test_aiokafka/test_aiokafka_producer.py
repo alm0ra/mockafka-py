@@ -8,7 +8,7 @@ from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
 from mockafka import Message
 from mockafka.aiokafka.aiokafka_admin_client import FakeAIOKafkaAdmin
 from mockafka.aiokafka.aiokafka_producer import FakeAIOKafkaProducer
-from mockafka.kafka_store import KafkaStore, KafkaException
+from mockafka.kafka_store import KafkaException, KafkaStore
 
 
 @pytest.mark.asyncio

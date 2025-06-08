@@ -32,9 +32,9 @@ class FakeAIOKafkaProducer:
     def __init__(self, *args, **kwargs) -> None:
         self.kafka = KafkaStore()
 
-    async def _produce(self, topic, value=None, *args, **kwargs) -> None:
+    async def _produce(self, topic, value=None, **kwargs) -> None:
         # create a message and call produce kafka
-        message = Message(value=value, topic=topic, *args, **kwargs)
+        message = Message(value=value, topic=topic, **kwargs)
         self.kafka.produce(message=message, topic=topic, partition=kwargs["partition"])
 
     async def start(self) -> None:
