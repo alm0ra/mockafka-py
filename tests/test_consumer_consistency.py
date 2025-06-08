@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 import uuid
-from random import randint, choice
+from random import choice, randint
 from typing import Any
 
 import pytest
 
-from mockafka import FakeConsumer
-from mockafka import FakeProducer, FakeAdminClientImpl
+from mockafka import FakeAdminClientImpl, FakeConsumer, FakeProducer
 from mockafka.admin_client import NewTopic
-
 
 KAFKA_TOPIC_AUDITS = "test_1"
 KAFKA_TOPIC_RAW_DOCS = "test_2"

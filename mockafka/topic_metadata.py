@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from mockafka.partition_metadata import PartitionMetadata
 
+
 class TopicMetadata(object):
     """
     Provides information about a Kafka topic.

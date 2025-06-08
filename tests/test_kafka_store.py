@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from parameterized import parameterized  # type: ignore[import-untyped]
 
-from mockafka.kafka_store import KafkaStore, KafkaException, Message
+from mockafka.kafka_store import KafkaException, KafkaStore, Message
 
 
 class TestKafkaStore(TestCase):

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from functools import wraps
-from mockafka import FakeConsumer
+
+from mockafka.consumer import FakeConsumer
 
 
 def consume(topics: list[str], auto_commit: bool = True):
