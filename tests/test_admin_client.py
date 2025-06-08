@@ -63,7 +63,7 @@ class TestFakeAdminClient(TestCase):
         self.assertEqual(len(cluster_metadata.topics["test1"]), 1)
         self.assertEqual(len(cluster_metadata.topics["test2"]), 4)
         self.assertEqual(len(cluster_metadata.topics["test3"]), 16)
-    
+
     def test_list_partitions(self):
         self.admin.create_topics(
             topics=[

@@ -145,7 +145,7 @@ class TestKafkaStore(TestCase):
     @parameterized.expand(range(10, 20))
     def test_get_messages_in_partition(self, count):
         self._create_topic_partition()
-        for i in range(count):
+        for _ in range(count):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
             )
@@ -187,7 +187,7 @@ class TestKafkaStore(TestCase):
     @parameterized.expand(range(10, 20))
     def test_number_of_message_in_topic(self, count):
         self._create_topic_partition()
-        for i in range(count):
+        for _ in range(count):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
             )
@@ -205,7 +205,7 @@ class TestKafkaStore(TestCase):
     @parameterized.expand(range(10, 20))
     def test_clear_topic_messages(self, count):
         self._create_topic_partition()
-        for i in range(count):
+        for _ in range(count):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
             )
@@ -225,7 +225,7 @@ class TestKafkaStore(TestCase):
     @parameterized.expand(range(10, 20))
     def test_clear_partition_messages(self, count):
         self._create_topic_partition()
-        for i in range(count):
+        for _ in range(count):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=1
             )
@@ -271,7 +271,7 @@ class TestKafkaStore(TestCase):
             self.kafka.get_partition_next_offset(topic=self.TEST_TOPIC, partition=0), 0
         )
 
-        for i in range(self.DEFAULT_PARTITION):
+        for _ in range(self.DEFAULT_PARTITION):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
             )
@@ -306,7 +306,7 @@ class TestKafkaStore(TestCase):
     def test_reset_offset(self, count):
         self._create_topic_partition()
 
-        for i in range(count):
+        for _ in range(count):
             self.kafka.produce(
                 message=self.DEFAULT_MESSAGE, topic=self.TEST_TOPIC, partition=0
             )

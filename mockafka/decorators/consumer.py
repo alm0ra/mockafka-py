@@ -37,7 +37,7 @@ def consume(topics: list[str], auto_commit: bool = True):
                     break
 
                 # Call the original function with the consumed message
-                func(message=message, *args, **kwargs)
+                func(message=message, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
 
             # Call the original function without a message parameter
             result = func(*args, **kwargs)

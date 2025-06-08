@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Collection
+
 from mockafka.partition_metadata import PartitionMetadata
 
 
@@ -14,7 +16,7 @@ class TopicMetadata(object):
     # Sphinx issue where it tries to reference the same instance variable
     # on other classes which raises a warning/error.
 
-    def __init__(self, topic_name: str, partition_num: list[int] = []):
+    def __init__(self, topic_name: str, partition_num: Collection[int] = ()):
         self.topic = topic_name
         """Topic name"""
         self.partitions = {num: PartitionMetadata(id=num) for num in partition_num}

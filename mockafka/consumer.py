@@ -66,7 +66,7 @@ class FakeConsumer(object):
         - Message or None: Consumed message or None if no message is available.
         """
         consumed_messages = []
-        for count in range(num_messages):
+        for _ in range(num_messages):
             message = self.poll()
             if message:
                 consumed_messages.append(message)
