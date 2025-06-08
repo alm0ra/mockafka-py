@@ -63,7 +63,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
     async def test_produce_once(self) -> None:
         await self._create_mock_topic()
-        await self.producer.send(
+        future = await self.producer.send(
             headers=[
                 ("header-name1", b"header-value"),
                 ("header-name2", None),
@@ -74,6 +74,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
             topic=self.topic,
             partition=0,
         )
+        await future
         message: Message = self.kafka.get_messages_in_partition(
             topic=self.topic, partition=0
         )[0]

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Optional
 
 from typing_extensions import Self
 
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
+from aiokafka.util import create_future  # type: ignore[import-untyped]
 
 
 class FakeAIOKafkaProducer:
@@ -51,7 +53,7 @@ class FakeAIOKafkaProducer:
         partition=0,
         timestamp_ms=None,
         headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
-    ) -> None:
+    ) -> asyncio.Future[None]:
         await self._produce(
             topic=topic,
             value=value,
@@ -60,6 +62,9 @@ class FakeAIOKafkaProducer:
             headers=headers,
             timestamp_ms=timestamp_ms,
         )
+        future = create_future()
+        future.set_result(None)
+        return future
 
     async def send_and_wait(
         self,
@@ -70,7 +75,7 @@ class FakeAIOKafkaProducer:
         timestamp_ms=None,
         headers=None,
     ) -> None:
-        await self._produce(
+        future = await self.send(
             topic=topic,
             value=value,
             key=key,
@@ -78,6 +83,7 @@ class FakeAIOKafkaProducer:
             headers=headers,
             timestamp_ms=timestamp_ms,
         )
+        return await future
 
     async def __aenter__(self) -> Self:
         await self.start()
