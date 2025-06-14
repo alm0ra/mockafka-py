@@ -74,9 +74,9 @@ class TestFakeConsumer(TestCase):
         self.consumer.subscribe(topics=[self.test_topic])
 
         message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value(payload=None), b"test")
         message = self.consumer.poll()
-        self.assertEqual(message.value(payload=None), "test1")
+        self.assertEqual(message.value(payload=None), b"test1")
 
         self.assertIsNone(self.consumer.poll())
         self.assertIsNone(self.consumer.poll())
@@ -88,11 +88,11 @@ class TestFakeConsumer(TestCase):
 
         message = self.consumer.poll()
         self.consumer.commit()
-        self.assertEqual(message.value(payload=None), "test")
+        self.assertEqual(message.value(payload=None), b"test")
 
         message = self.consumer.poll()
         self.consumer.commit()
-        self.assertEqual(message.value(payload=None), "test1")
+        self.assertEqual(message.value(payload=None), b"test1")
 
         self.assertIsNone(self.consumer.poll())
         self.assertIsNone(self.consumer.poll())

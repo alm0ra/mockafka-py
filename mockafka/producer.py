@@ -2,11 +2,23 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
+from typing_extensions import LiteralString
+
 from mockafka.cluster_metadata import ClusterMetadata
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
 
 __all__ = ["FakeProducer"]
+
+
+def _serialise(obj: object, name: LiteralString) -> Optional[bytes]:
+    if obj is None or isinstance(obj, bytes):
+        return obj
+    if isinstance(obj, str):
+        return obj.encode()
+
+    # Match apparent behaviour of `confluent_kafka.Producer`
+    raise ValueError(f"{name} must be str, bytes or None, not {type(obj)!r}")
 
 
 class FakeProducer(object):
@@ -16,8 +28,8 @@ class FakeProducer(object):
     def produce(
         self,
         topic,
-        value=None,
-        key=None,
+        value: Union[str, bytes, None] = None,
+        key: Union[str, bytes, None] = None,
         partition=None,
         callback=None,
         on_delivery=None,
@@ -36,8 +48,8 @@ class FakeProducer(object):
         # create a message and call produce kafka
         message = Message(
             topic=topic,
-            value=value,
-            key=key,
+            value=_serialise(value, "value"),
+            key=_serialise(key, "key"),
             partition=partition,
             callback=callback,
             on_delivery=on_delivery,

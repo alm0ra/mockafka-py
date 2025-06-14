@@ -2,10 +2,18 @@ from __future__ import annotations
 
 from typing import Optional
 
-from typing_extensions import Self
+from typing_extensions import Self, LiteralString
 
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
+
+
+def _check_type(obj: object, name: LiteralString) -> None:
+    if not (
+        obj is None or isinstance(obj, bytes)
+    ):
+        # Match apparent behaviour of `aiokafka.AIOKafkaProducer`
+        raise ValueError(f"{name} must be bytes or None, not {type(obj)}")
 
 
 class FakeAIOKafkaProducer:
@@ -32,10 +40,28 @@ class FakeAIOKafkaProducer:
     def __init__(self, *args, **kwargs) -> None:
         self.kafka = KafkaStore()
 
-    async def _produce(self, topic, value=None, *args, **kwargs) -> None:
+    async def _produce(
+        self,
+        topic: str,
+        value: Optional[bytes],
+        key: Optional[bytes],
+        partition: int,
+        timestamp_ms: Optional[int],
+        headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
+    ) -> None:
+        _check_type(value, "value")
+        _check_type(key, "key")
+
         # create a message and call produce kafka
-        message = Message(value=value, topic=topic, *args, **kwargs)
-        self.kafka.produce(message=message, topic=topic, partition=kwargs["partition"])
+        message = Message(
+            topic=topic,
+            value=value,
+            key=key,
+            partition=partition,
+            timestamp_ms=timestamp_ms,
+            headers=headers,
+        )
+        self.kafka.produce(message=message, topic=topic, partition=partition)
 
     async def start(self) -> None:
         pass
@@ -46,8 +72,8 @@ class FakeAIOKafkaProducer:
     async def send(
         self,
         topic,
-        value=None,
-        key=None,
+        value: Optional[bytes] = None,
+        key: Optional[bytes] = None,
         partition=0,
         timestamp_ms=None,
         headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
@@ -64,8 +90,8 @@ class FakeAIOKafkaProducer:
     async def send_and_wait(
         self,
         topic,
-        value=None,
-        key=None,
+        value: Optional[bytes] = None,
+        key: Optional[bytes] = None,
         partition=0,
         timestamp_ms=None,
         headers=None,
