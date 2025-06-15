@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Optional, Any
+from typing import Any, Optional
 
 from confluent_kafka import (  # type: ignore[import-untyped]
     TIMESTAMP_CREATE_TIME,

@@ -7,6 +7,7 @@ from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
 from mockafka.aiokafka import FakeAIOKafkaAdmin
 from mockafka.decorators.typing import TopicConfig
 
+
 def asetup_kafka(topics: list[TopicConfig], clean: bool = False):
     """
     asetup_kafka is a decorator for setting up mock Kafka topics using a FakeAIOKafkaAdminClient.

@@ -3,11 +3,11 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
+from confluent_kafka import Message  # type: ignore[import-untyped]
 
 from mockafka.admin_client import FakeAdminClientImpl, NewTopic
-from mockafka.kafka_store import KafkaStore, KafkaException
+from mockafka.kafka_store import KafkaException, KafkaStore
 from mockafka.producer import FakeProducer
-from confluent_kafka import Message  # type: ignore[import-untyped]
 
 
 class TestFakeProducer(TestCase):

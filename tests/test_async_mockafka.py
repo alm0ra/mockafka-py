@@ -3,11 +3,11 @@ from __future__ import annotations
 import pytest
 from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
 
-from mockafka import aproduce, asetup_kafka, aconsume
+from mockafka import aconsume, aproduce, asetup_kafka
 from mockafka.aiokafka import (
+    FakeAIOKafkaAdmin,
     FakeAIOKafkaConsumer,
     FakeAIOKafkaProducer,
-    FakeAIOKafkaAdmin,
 )
 
 

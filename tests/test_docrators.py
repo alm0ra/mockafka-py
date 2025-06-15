@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from mockafka import FakeConsumer, produce, bulk_produce, setup_kafka, Message
-from mockafka.admin_client import FakeAdminClientImpl, NewTopic
-from mockafka.producer import FakeProducer
-from mockafka.decorators.typing import MessageDict
-from mockafka.decorators.consumer import consume
 from unittest import TestCase
+
+from mockafka import FakeConsumer, Message, bulk_produce, produce, setup_kafka
+from mockafka.admin_client import FakeAdminClientImpl, NewTopic
+from mockafka.decorators.consumer import consume
+from mockafka.decorators.typing import MessageDict
+from mockafka.producer import FakeProducer
 
 sample_for_bulk_produce: list[MessageDict] = [
     {
@@ -125,7 +126,7 @@ class TestDecorators(TestCase):
         This test verifies that @consume decorator works with function parameters
         that don't have default values, which used to cause pytest to treat 'message'
         as a fixture and fail with 'fixture message not found'.
-        
+
         This reproduces the exact issue from the bug report.
         """
         if message is None:
@@ -214,18 +215,18 @@ class TestDecorators(TestCase):
         This test creates a decorated function and inspects its signature.
         """
         import inspect
-        
+
         @consume(topics=["test_topic"])
         def test_function_for_signature(message):
             pass
-        
+
         # Get the signature of the decorated function
         sig = inspect.signature(test_function_for_signature)
-        
+
         # Verify that the message parameter exists
         message_param = sig.parameters.get('message')
         self.assertIsNotNone(message_param)
-        
+
         # The test should pass if the default is not empty (even if it's None)
         # This prevents pytest from treating 'message' as a fixture
         self.assertNotEqual(message_param.default, inspect.Parameter.empty)

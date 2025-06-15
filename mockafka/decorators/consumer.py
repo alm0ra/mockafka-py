@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import inspect
 from functools import wraps
-from mockafka import FakeConsumer
+
+from mockafka.consumer import FakeConsumer
 
 
 def consume(topics: list[str], auto_commit: bool = True):
@@ -24,7 +25,7 @@ def consume(topics: list[str], auto_commit: bool = True):
     def decorator(func):
         # Get the function signature
         sig = inspect.signature(func)
-        
+
         # Create a new signature with default values for message parameters
         new_params = []
         for param_name, param in sig.parameters.items():
@@ -34,9 +35,9 @@ def consume(topics: list[str], auto_commit: bool = True):
                 new_params.append(new_param)
             else:
                 new_params.append(param)
-        
+
         new_sig = sig.replace(parameters=new_params)
-        
+
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Create a FakeConsumer instance and subscribe to specified topics
@@ -52,10 +53,10 @@ def consume(topics: list[str], auto_commit: bool = True):
                     break
 
                 # Call the original function with the consumed message
-                func(message=message, *args, **kwargs)
+                func(message=message, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
 
             # Call the original function without a message parameter
-            result = func(message=None, *args, **kwargs)
+            result = func(message=None, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
             return result
 
         # Apply the new signature to the wrapper
