@@ -56,7 +56,7 @@ def consume(topics: list[str], auto_commit: bool = True):
                 func(message=message, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
 
             # Call the original function without a message parameter
-            result = func(message=None, *args, **kwargs)
+            result = func(message=None, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
             return result
 
         # Apply the new signature to the wrapper
