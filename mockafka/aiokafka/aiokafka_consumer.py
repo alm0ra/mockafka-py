@@ -34,11 +34,8 @@ def message_to_record(message: Message, offset: int) -> ConsumerRecord[bytes, by
         missing = ", ".join(x for x, y in fields if y is None)
         raise ValueError(f"Message is missing key components: {missing}")
 
-    key_str: Optional[str] = message.key()
-    value_str: Optional[str] = message.value()
-
-    key = key_str.encode() if key_str is not None else None
-    value = value_str.encode() if value_str is not None else None
+    key: Optional[bytes] = message.key()
+    value: Optional[bytes] = message.value()
 
     headers = message.headers()
 

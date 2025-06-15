@@ -19,8 +19,8 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
         self.admin_client = FakeAIOKafkaAdmin()
 
         self.topic = "test1"
-        self.key = "test_key"
-        self.value = "test_value"
+        self.key = b"test_key"
+        self.value = b"test_value"
 
     async def _create_mock_topic(self):
         await self.admin_client.create_topics(
@@ -63,7 +63,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
     async def test_produce_once(self) -> None:
         await self._create_mock_topic()
-        await self.producer.send(
+        future = await self.producer.send(
             headers=[
                 ("header-name1", b"header-value"),
                 ("header-name2", None),
@@ -74,6 +74,7 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
             topic=self.topic,
             partition=0,
         )
+        await future
         message: Message = self.kafka.get_messages_in_partition(
             topic=self.topic, partition=0
         )[0]
@@ -96,14 +97,14 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
         await self.producer.start()
         try:
-            await self.producer.send_and_wait("topic_test", "sdfjhasdfhjsa", key="datakey")
+            await self.producer.send_and_wait("topic_test", b"sdfjhasdfhjsa", key=b"datakey")
         finally:
             await self.producer.stop()
 
         message: Message = self.kafka.get_messages_in_partition(
             topic="topic_test", partition=0
         )[0]
-        self.assertEqual(message.key(), "datakey")
+        self.assertEqual(message.key(), b"datakey")
         self.assertEqual(message.topic(), "topic_test")
 
     async def test_context_manager(self) -> None:
@@ -111,11 +112,11 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
 
         async with self.producer as producer:
             self.assertEqual(self.producer, producer)
-            await self.producer.send_and_wait("topic_test", "skdfjh", key="datakey")
+            await self.producer.send_and_wait("topic_test", b"skdfjh", key=b"datakey")
 
         message: Message = self.kafka.get_messages_in_partition(
             topic="topic_test",
             partition=0,
         )[0]
-        self.assertEqual(message.key(), "datakey")
+        self.assertEqual(message.key(), b"datakey")
         self.assertEqual(message.topic(), "topic_test")

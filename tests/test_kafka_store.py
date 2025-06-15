@@ -12,8 +12,8 @@ class TestKafkaStore(TestCase):
     DEFAULT_PARTITION = 16
     DEFAULT_MESSAGE = Message(
         headers=None,
-        key="test_key",
-        value='{"test_value": "ok"}',
+        key=b"test_key",
+        value=b'{"test_value": "ok"}',
         topic=TEST_TOPIC,
         offset=None,
         error=None,

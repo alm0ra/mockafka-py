@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from functools import wraps
 
 from mockafka.consumer import FakeConsumer
@@ -22,6 +23,21 @@ def consume(topics: list[str], auto_commit: bool = True):
     """
 
     def decorator(func):
+        # Get the function signature
+        sig = inspect.signature(func)
+        
+        # Create a new signature with default values for message parameters
+        new_params = []
+        for param_name, param in sig.parameters.items():
+            if param_name == 'message' and param.default == inspect.Parameter.empty:
+                # Add default value to prevent pytest from treating it as a fixture
+                new_param = param.replace(default=None)
+                new_params.append(new_param)
+            else:
+                new_params.append(param)
+        
+        new_sig = sig.replace(parameters=new_params)
+        
         @wraps(func)
         def wrapper(*args, **kwargs):
             # Create a FakeConsumer instance and subscribe to specified topics
@@ -40,9 +56,11 @@ def consume(topics: list[str], auto_commit: bool = True):
                 func(message=message, *args, **kwargs)  # noqa: B026  # TODO: fix unpacking
 
             # Call the original function without a message parameter
-            result = func(*args, **kwargs)
+            result = func(message=None, *args, **kwargs)
             return result
 
+        # Apply the new signature to the wrapper
+        wrapper.__signature__ = new_sig
         return wrapper
 
     return decorator

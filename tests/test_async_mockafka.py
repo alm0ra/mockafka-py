@@ -38,8 +38,8 @@ async def test_produce_and_consume():
     await producer.start()
     await producer.send(
         headers={},
-        key="test_key",
-        value="test_value",
+        key=b"test_key",
+        value=b"test_value",
         topic="test_topic",
         partition=0,
     )
@@ -60,7 +60,7 @@ async def test_produce_and_consume():
 
 @pytest.mark.asyncio
 @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}], clean=True)
-@aproduce(topic="test_topic", value="test_value", key="test_key", partition=0)
+@aproduce(topic="test_topic", value=b"test_value", key=b"test_key", partition=0)
 async def test_produce_with_decorator():
     consumer = FakeAIOKafkaConsumer()
     await consumer.start()
@@ -73,7 +73,7 @@ async def test_produce_with_decorator():
 
 @pytest.mark.asyncio
 @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}], clean=True)
-@aproduce(topic="test_topic", value="test_value", key="test_key", partition=0)
+@aproduce(topic="test_topic", value=b"test_value", key=b"test_key", partition=0)
 @aconsume(topics=["test_topic"])
 async def test_produce_and_consume_with_decorator(message=None):
     if not message:
