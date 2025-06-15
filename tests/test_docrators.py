@@ -117,7 +117,7 @@ class TestDecorators(TestCase):
     # NEW TEST CASES FOR PYTEST FIXTURE ISSUE FIX
 
     @setup_kafka(topics=[{"topic": "pytest_fix_test", "partition": 16}])
-    @produce(topic="pytest_fix_test", key="fix_key", value="fix_value", partition=3)
+    @produce(topic="pytest_fix_test", key=b"fix_key", value=b"fix_value", partition=3)
     @consume(topics=["pytest_fix_test"])
     def test_consume_decorator_without_default_parameter(self, message):
         """
@@ -132,12 +132,12 @@ class TestDecorators(TestCase):
             return
 
         # Verify the message was consumed correctly
-        self.assertEqual(message.key(), "fix_key")
-        self.assertEqual(message.value(payload=None), "fix_value")
+        self.assertEqual(message.key(), b"fix_key")
+        self.assertEqual(message.value(payload=None), b"fix_value")
         self.assertEqual(message.partition(), 3)
 
     @setup_kafka(topics=[{"topic": "pytest_fix_test2", "partition": 16}])
-    @produce(topic="pytest_fix_test2", key="fix_key2", value="fix_value2", partition=7)
+    @produce(topic="pytest_fix_test2", key=b"fix_key2", value=b"fix_value2", partition=7)
     @consume(topics=["pytest_fix_test2"])
     def test_consume_decorator_with_explicit_default(self, message=None):
         """
@@ -149,14 +149,14 @@ class TestDecorators(TestCase):
             return
 
         # Verify the message was consumed correctly
-        self.assertEqual(message.key(), "fix_key2")
-        self.assertEqual(message.value(payload=None), "fix_value2")
+        self.assertEqual(message.key(), b"fix_key2")
+        self.assertEqual(message.value(payload=None), b"fix_value2")
         self.assertEqual(message.partition(), 7)
 
     @setup_kafka(topics=[{"topic": "multiple_messages_test", "partition": 16}])
-    @produce(topic="multiple_messages_test", key="msg1_key", value="msg1_value", partition=1)
-    @produce(topic="multiple_messages_test", key="msg2_key", value="msg2_value", partition=2)
-    @produce(topic="multiple_messages_test", key="msg3_key", value="msg3_value", partition=3)
+    @produce(topic="multiple_messages_test", key=b"msg1_key", value=b"msg1_value", partition=1)
+    @produce(topic="multiple_messages_test", key=b"msg2_key", value=b"msg2_value", partition=2)
+    @produce(topic="multiple_messages_test", key=b"msg3_key", value=b"msg3_value", partition=3)
     @consume(topics=["multiple_messages_test"])
     def test_consume_decorator_multiple_messages_no_default(self, message):
         """
@@ -168,8 +168,8 @@ class TestDecorators(TestCase):
             return
 
         # Verify we receive one of the expected messages
-        expected_keys = ["msg1_key", "msg2_key", "msg3_key"]
-        expected_values = ["msg1_value", "msg2_value", "msg3_value"]
+        expected_keys = [b"msg1_key", b"msg2_key", b"msg3_key"]
+        expected_values = [b"msg1_value", b"msg2_value", b"msg3_value"]
         expected_partitions = [1, 2, 3]
 
         self.assertIn(message.key(), expected_keys)
@@ -177,7 +177,7 @@ class TestDecorators(TestCase):
         self.assertIn(message.partition(), expected_partitions)
 
     @setup_kafka(topics=[{"topic": "edge_case_test", "partition": 16}])
-    @produce(topic="edge_case_test", key="edge_key", value="edge_value", partition=0)
+    @produce(topic="edge_case_test", key=b"edge_key", value=b"edge_value", partition=0)
     @consume(topics=["edge_case_test"])
     def test_consume_decorator_edge_case_partition_zero(self, message):
         """
@@ -188,12 +188,12 @@ class TestDecorators(TestCase):
         if message is None:
             return
 
-        self.assertEqual(message.key(), "edge_key")
-        self.assertEqual(message.value(payload=None), "edge_value")
+        self.assertEqual(message.key(), b"edge_key")
+        self.assertEqual(message.value(payload=None), b"edge_value")
         self.assertEqual(message.partition(), 0)
 
     @setup_kafka(topics=[{"topic": "signature_test", "partition": 16}])
-    @produce(topic="signature_test", key="sig_key", value="sig_value", partition=5)
+    @produce(topic="signature_test", key=b"sig_key", value=b"sig_value", partition=5)
     @consume(topics=["signature_test"])
     def test_consume_decorator_function_signature_modification(self, message):
         """
@@ -204,8 +204,8 @@ class TestDecorators(TestCase):
         if message is None:
             return
 
-        self.assertEqual(message.key(), "sig_key")
-        self.assertEqual(message.value(payload=None), "sig_value")
+        self.assertEqual(message.key(), b"sig_key")
+        self.assertEqual(message.value(payload=None), b"sig_value")
         self.assertEqual(message.partition(), 5)
 
     def test_signature_modification_verification(self):
