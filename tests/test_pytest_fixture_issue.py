@@ -33,7 +33,7 @@ class TestPytestFixtureIssueFix(TestCase):
         """
 
         @setup_kafka(topics=[{"topic": "bug_report_test", "partition": 16}])
-        @produce(topic='bug_report_test', key='test_key', value='test_value', partition=4)
+        @produce(topic='bug_report_test', key=b'test_key', value=b'test_value', partition=4)
         @consume(topics=['bug_report_test'])
         def test_produce_and_consume_decorator(message):
             """
@@ -45,8 +45,8 @@ class TestPytestFixtureIssueFix(TestCase):
                 return
 
             # Verify the message content
-            self.assertEqual(message.key(), 'test_key')
-            self.assertEqual(message.value(payload=None), 'test_value')
+            self.assertEqual(message.key(), b'test_key')
+            self.assertEqual(message.value(payload=None), b'test_value')
             self.assertEqual(message.partition(), 4)
 
         # This should not raise any pytest fixture errors
@@ -140,14 +140,14 @@ class TestPytestFixtureIssueFix(TestCase):
         """
 
         @setup_kafka(topics=[{"topic": "compat_test", "partition": 16}])
-        @produce(topic="compat_test", key="compat_key", value="compat_value", partition=1)
+        @produce(topic="compat_test", key=b"compat_key", value=b"compat_value", partition=1)
         @consume(topics=["compat_test"])
         def test_existing_pattern(message: Message | None = None):
             if message is None:
                 return
 
-            self.assertEqual(message.key(), "compat_key")
-            self.assertEqual(message.value(payload=None), "compat_value")
+            self.assertEqual(message.key(), b"compat_key")
+            self.assertEqual(message.value(payload=None), b"compat_value")
             self.assertEqual(message.partition(), 1)
 
         # This should work without any issues
@@ -176,8 +176,8 @@ class TestPytestFixtureIssueFix(TestCase):
         """
 
         @setup_kafka(topics=[{"topic": "complex_test", "partition": 16}])
-        @produce(topic="complex_test", key="key1", value="value1", partition=1)
-        @produce(topic="complex_test", key="key2", value="value2", partition=2)
+        @produce(topic="complex_test", key=b"key1", value=b"value1", partition=1)
+        @produce(topic="complex_test", key=b"key2", value=b"value2", partition=2)
         @consume(topics=["complex_test"])
         def test_complex_scenario(message):
             if message is None:
@@ -185,8 +185,8 @@ class TestPytestFixtureIssueFix(TestCase):
 
             # Should receive one of the two messages
             expected_data = [
-                ("key1", "value1", 1),
-                ("key2", "value2", 2)
+                (b"key1", b"value1", 1),
+                (b"key2", b"value2", 2)
             ]
 
             actual_data = (message.key(), message.value(payload=None), message.partition())
