@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 from typing import Optional
 
-from typing_extensions import Self, LiteralString
+from aiokafka.util import create_future  # type: ignore[import-untyped]
+from typing_extensions import LiteralString, Self
 
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
-from aiokafka.util import create_future  # type: ignore[import-untyped]
 
 
 def _check_type(obj: object, name: LiteralString) -> None:

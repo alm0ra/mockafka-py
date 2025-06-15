@@ -13,7 +13,7 @@ from __future__ import annotations
 import inspect
 from unittest import TestCase
 
-from mockafka import produce, consume, setup_kafka, Message
+from mockafka import Message, consume, produce, setup_kafka
 
 
 class TestPytestFixtureIssueFix(TestCase):
