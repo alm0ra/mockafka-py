@@ -45,8 +45,8 @@ class TestPytestFixtureIssueFix(TestCase):
                 return
 
             # Verify the message content
-            self.assertEqual(message.key(), 'test_key')
-            self.assertEqual(message.value(payload=None), 'test_value')
+            self.assertEqual(message.key(), b'test_key')
+            self.assertEqual(message.value(payload=None), b'test_value')
             self.assertEqual(message.partition(), 4)
 
         # This should not raise any pytest fixture errors
@@ -146,8 +146,8 @@ class TestPytestFixtureIssueFix(TestCase):
             if message is None:
                 return
             
-            self.assertEqual(message.key(), "compat_key")
-            self.assertEqual(message.value(payload=None), "compat_value")
+            self.assertEqual(message.key(), b"compat_key")
+            self.assertEqual(message.value(payload=None), b"compat_value")
             self.assertEqual(message.partition(), 1)
         
         # This should work without any issues
@@ -185,8 +185,8 @@ class TestPytestFixtureIssueFix(TestCase):
             
             # Should receive one of the two messages
             expected_data = [
-                ("key1", "value1", 1),
-                ("key2", "value2", 2)
+                (b"key1", b"value1", 1),
+                (b"key2", b"value2", 2)
             ]
             
             actual_data = (message.key(), message.value(payload=None), message.partition())

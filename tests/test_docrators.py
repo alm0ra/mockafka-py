@@ -132,8 +132,8 @@ class TestDecorators(TestCase):
             return
 
         # Verify the message was consumed correctly
-        self.assertEqual(message.key(), "fix_key")
-        self.assertEqual(message.value(payload=None), "fix_value")
+        self.assertEqual(message.key(), b"fix_key")
+        self.assertEqual(message.value(payload=None), b"fix_value")
         self.assertEqual(message.partition(), 3)
 
     @setup_kafka(topics=[{"topic": "pytest_fix_test2", "partition": 16}])
@@ -149,8 +149,8 @@ class TestDecorators(TestCase):
             return
 
         # Verify the message was consumed correctly
-        self.assertEqual(message.key(), "fix_key2")
-        self.assertEqual(message.value(payload=None), "fix_value2")
+        self.assertEqual(message.key(), b"fix_key2")
+        self.assertEqual(message.value(payload=None), b"fix_value2")
         self.assertEqual(message.partition(), 7)
 
     @setup_kafka(topics=[{"topic": "multiple_messages_test", "partition": 16}])
@@ -168,8 +168,8 @@ class TestDecorators(TestCase):
             return
 
         # Verify we receive one of the expected messages
-        expected_keys = ["msg1_key", "msg2_key", "msg3_key"]
-        expected_values = ["msg1_value", "msg2_value", "msg3_value"]
+        expected_keys = [b"msg1_key", b"msg2_key", b"msg3_key"]
+        expected_values = [b"msg1_value", b"msg2_value", b"msg3_value"]
         expected_partitions = [1, 2, 3]
 
         self.assertIn(message.key(), expected_keys)
@@ -188,8 +188,8 @@ class TestDecorators(TestCase):
         if message is None:
             return
 
-        self.assertEqual(message.key(), "edge_key")
-        self.assertEqual(message.value(payload=None), "edge_value")
+        self.assertEqual(message.key(), b"edge_key")
+        self.assertEqual(message.value(payload=None), b"edge_value")
         self.assertEqual(message.partition(), 0)
 
     @setup_kafka(topics=[{"topic": "signature_test", "partition": 16}])
@@ -204,8 +204,8 @@ class TestDecorators(TestCase):
         if message is None:
             return
 
-        self.assertEqual(message.key(), "sig_key")
-        self.assertEqual(message.value(payload=None), "sig_value")
+        self.assertEqual(message.key(), b"sig_key")
+        self.assertEqual(message.value(payload=None), b"sig_value")
         self.assertEqual(message.partition(), 5)
 
     def test_signature_modification_verification(self):
