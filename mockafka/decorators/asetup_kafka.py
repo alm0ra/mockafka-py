@@ -1,14 +1,25 @@
 from __future__ import annotations
 
 from functools import wraps
+from typing import Awaitable, Callable, TypeVar
 
 from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from typing_extensions import ParamSpec
 
 from mockafka.aiokafka import FakeAIOKafkaAdmin
 from mockafka.decorators.typing import TopicConfig
 
+P = ParamSpec('P')
+R = TypeVar('R')
 
-def asetup_kafka(topics: list[TopicConfig], clean: bool = False):
+
+def asetup_kafka(
+    topics: list[TopicConfig],
+    clean: bool = False,
+) -> Callable[
+    [Callable[P, Awaitable[R]]],
+    Callable[P, Awaitable[R]],
+]:
     """
     asetup_kafka is a decorator for setting up mock Kafka topics using a FakeAIOKafkaAdminClient.
 
@@ -32,9 +43,9 @@ def asetup_kafka(topics: list[TopicConfig], clean: bool = False):
 
     """
 
-    def decorator(func):
+    def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             # Create a FakeAdminClient instance with the specified clean option
             fake_admin = FakeAIOKafkaAdmin(clean=clean)
 
