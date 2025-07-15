@@ -44,15 +44,21 @@ class FakeAdminClientImpl:
         """
         self.kafka = KafkaStore(clean=clean)
 
-    def create_partitions(self, partitions: list[NewPartitions]):
+    def create_partitions(self, partitions: list[NewPartitions]) -> dict[str, NewPartitions]:
         """
         Create partitions in the in-memory Kafka store.
 
         Parameters:
-        - partitions (List[NewPartitions]): List of partition objects to be created.
+        - partitions (List[NewPartitions]): List of partition objects to be created.    
+
+        Returns:
+        - dict[str, NewPartitions]: Dictionary of created partitions.
         """
+        result = {}
         for partition in partitions:
             self.create_partition(partition)
+            result[partition.topic] = partition
+        return result
 
     def create_partition(self, partition: NewPartitions):
         """
