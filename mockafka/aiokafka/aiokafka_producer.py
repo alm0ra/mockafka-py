@@ -73,11 +73,11 @@ class FakeAIOKafkaProducer:
 
     async def send(
         self,
-        topic,
+        topic: str,
         value: Optional[bytes] = None,
         key: Optional[bytes] = None,
-        partition=0,
-        timestamp_ms=None,
+        partition: int = 0,
+        timestamp_ms: Optional[int] = None,
         headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
     ) -> asyncio.Future[None]:
         await self._produce(
@@ -94,11 +94,11 @@ class FakeAIOKafkaProducer:
 
     async def send_and_wait(
         self,
-        topic,
+        topic: str,
         value: Optional[bytes] = None,
         key: Optional[bytes] = None,
-        partition=0,
-        timestamp_ms=None,
+        partition: int = 0,
+        timestamp_ms: Optional[int] = None,
         headers=None,
     ) -> None:
         future = await self.send(

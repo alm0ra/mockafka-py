@@ -1,11 +1,27 @@
 from __future__ import annotations
 
 from functools import wraps
+from typing import Awaitable, Callable, Optional, TypeVar
+
+from typing_extensions import ParamSpec
 
 from mockafka.aiokafka import FakeAIOKafkaProducer
 
+P = ParamSpec('P')
+R = TypeVar('R')
 
-def aproduce(**decorator_args):
+
+def aproduce(
+    *,
+    topic: str,
+    value: Optional[bytes] = None,
+    key: Optional[bytes] = None,
+    partition: int = 0,
+    headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
+) -> Callable[
+    [Callable[P, Awaitable[R]]],
+    Callable[P, Awaitable[R]],
+]:
     """
     aproduce is a decorator for simulating message production using a FakeAIOKafkaProducer.
 
@@ -32,16 +48,9 @@ def aproduce(**decorator_args):
 
     """
 
-    def decorator(func):
+    def decorator(func: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
         @wraps(func)
-        async def wrapper(*args, **kwargs):
-            # Extract parameters from the decorator_args
-            topic = decorator_args.get("topic", None)
-            value = decorator_args.get("value", None)
-            key = decorator_args.get("key", None)
-            headers = decorator_args.get("headers", None)
-            partition = decorator_args.get("partition", None)
-
+        async def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             # Create a FakeProducer instance and produce the message
             fake_producer = FakeAIOKafkaProducer()
             await fake_producer.send(
