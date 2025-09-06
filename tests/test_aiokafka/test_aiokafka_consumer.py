@@ -40,7 +40,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
     def create_topic(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=16)
 
-    async def produce_message(self):
+    async def produce_two_messages(self):
         await self.producer.send(
             topic=self.test_topic, partition=0, key=b"test", value=b"test"
         )
@@ -69,7 +69,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -83,7 +83,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_partition_specific_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -99,7 +99,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_poll_with_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -116,7 +116,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
@@ -145,7 +145,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_with_limit_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=0, key=b"test2", value=b"test2"
         )
@@ -182,7 +182,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_specific_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=1, key=b"test2", value=b"test2"
         )
@@ -210,7 +210,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_with_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
@@ -287,7 +287,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         self.assertEqual(self.consumer.subscribed_topic, topics)
 
-        await self.produce_message()
+        await self.produce_two_messages()
 
         messages = {
             tp: self.summarise(msgs)
@@ -336,7 +336,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         async with self.consumer as consumer:
             self.assertEqual(self.consumer, consumer)
-            await self.produce_message()
+            await self.produce_two_messages()
 
             messages = {
                 tp: self.summarise(msgs)
