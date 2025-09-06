@@ -5,13 +5,15 @@ import itertools
 import random
 import re
 import warnings
-from collections.abc import Iterable, Iterator, Set
+from collections.abc import Iterable, Iterator, Set, Mapping
 from typing import Any, Optional
 
 from aiokafka.abc import ConsumerRebalanceListener  # type: ignore[import-untyped]
 from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
+from aiokafka.util import commit_structure_validate  # type: ignore[import-untyped]
 from aiokafka.structs import (  # type: ignore[import-untyped]
     ConsumerRecord,
+    OffsetAndMetadata,
     TopicPartition,
 )
 from typing_extensions import Self
@@ -97,8 +99,19 @@ class FakeAIOKafkaConsumer:
         self.consumer_store = {}
         self._is_closed = True
 
-    async def commit(self):
-        for (topic, partition), offset in self.consumer_store.items():
+    async def commit(
+        self,
+        offsets: dict[TopicPartition, int | tuple[int, str] | OffsetAndMetadata] | None = None,
+    ):
+        validated = commit_structure_validate(offsets or self.consumer_store)
+        simple_offsets: dict[TopicPartition, int]
+        simple_offsets = {
+            tp: offset
+            for tp, (offset, _) in validated.items()
+        }
+
+        for tp, offset in simple_offsets.items():
+            topic, partition = tp
             if (
                     self.kafka.get_partition_first_offset(topic, partition)
                     <= offset
@@ -107,7 +120,13 @@ class FakeAIOKafkaConsumer:
                     topic=topic, partition=partition, value=offset
                 )
 
-        self.consumer_store = {}
+            # If committing to the same level as read, then we don't need to
+            # store our offset as it should now match Kafka's own tracking.
+            #
+            # Otherwise keep our own tracking as it suggests we've read ahead of
+            # what we're committing.
+            if offset == self.consumer_store[tp]:
+                self.consumer_store.pop(tp)
 
     async def topics(self) -> set[str]:
         return set(self.kafka.topic_list())
