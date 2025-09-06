@@ -39,9 +39,6 @@ The `FakeAIOKafkaConsumer` class is a mock implementation of aiokafka's AIOKafka
 #### `unsubscribe(self)`
 - **Description:** Resets subscribed topics.
 
-#### `_get_key(self, topic, partition) -> str`
-- **Description:** Generates `consumer_store` lookup key from topic/partition.
-
 #### `getone(self)`
 - **Description:** Gets the next available message from subscribed topics. Updates `consumer_store` as messages are consumed.
 
