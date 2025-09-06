@@ -48,9 +48,6 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=0, key=b"test1", value=b"test1"
         )
 
-    async def test_consume(self):
-        await self.test_poll_with_commit()
-
     async def test_start(self):
         # check consumer store is empty
         await self.consumer.start()
