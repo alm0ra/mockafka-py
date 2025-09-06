@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import itertools
 from unittest import IsolatedAsyncioTestCase
 
@@ -16,6 +17,13 @@ from mockafka.aiokafka import (
     FakeAIOKafkaProducer,
 )
 from mockafka.kafka_store import KafkaStore
+
+if sys.version_info < (3, 10):
+    def aiter(async_iterable):  # noqa: A001
+        return async_iterable.__aiter__()
+
+    async def anext(async_iterable):  # noqa: A001
+        return await async_iterable.__anext__()
 
 
 @pytest.mark.asyncio
