@@ -51,6 +51,40 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
     async def test_consume(self):
         await self.test_poll_with_commit()
 
+    async def test_async_iterator(self):
+        self.create_topic()
+        await self.produce_two_messages()
+        self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
+
+        iterator = aiter(self.consumer)
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test")
+
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test1")
+
+        # Technically at this point aiokafka's consumer would block
+        # indefinitely, however since that's not useful in tests we instead stop
+        # iterating.
+        with pytest.raises(StopAsyncIteration):
+            await anext(iterator)
+
+    async def test_async_iterator_closed_early(self):
+        self.create_topic()
+        await self.produce_two_messages()
+        self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
+
+        iterator = aiter(self.consumer)
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test")
+
+        await self.consumer.stop()
+
+        with pytest.raises(StopAsyncIteration):
+            await anext(iterator)
+
     async def test_start(self):
         # check consumer store is empty
         await self.consumer.start()
