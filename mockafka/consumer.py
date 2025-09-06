@@ -20,25 +20,29 @@ class FakeConsumer(object):
     - consumer_store (dict): Dictionary to store consumer offsets for each topic-partition.
     - subscribed_topic (list): List of topics subscribed by the consumer.
 
-    Methods: - consume(num_messages=1, *args, **kwargs): Consume messages from subscribed topics. - close(*args,
-    **kwargs): Close the consumer and reset state. - commit(message: Message = None, *args, **kwargs): Commit offsets
-    for consumed messages. - list_topics(topic=None, *args, **kwargs): List topics (returns ClusterMetadata). - poll(
-    timeout=None): Poll for messages from subscribed topics. - _get_key(topic, partition) -> str: Generate a unique
-    key for a topic-partition pair. - subscribe(topics, on_assign=None, *args, **kwargs): Subscribe to one or more
-    topics. - unsubscribe(*args, **kwargs): Unsubscribe from one or more topics. - assign(partitions): Assign
-    partitions to the consumer (unsupported in mockafka). - unassign(*args, **kwargs): Unassign partitions (
-    unsupported in mockafka). - assignment(*args, **kwargs) -> list: Get assigned partitions (unsupported in
-    mockafka). - committed(partitions, timeout=None) -> list: Get committed offsets (unsupported in mockafka). -
-    get_watermark_offsets(partition, timeout=None, *args, **kwargs) -> tuple: Get watermark offsets (unsupported in
-    mockafka). - offsets_for_times(partitions, timeout=None) -> list: Get offsets for given times (unsupported in
-    mockafka). - pause(partitions) -> None: Pause consumption from specified partitions (unsupported in mockafka). -
-    position(partitions) -> list: Get the current position of the consumer in specified partitions (unsupported in
-    mockafka). - resume(partitions) -> None: Resume consumption from specified partitions (unsupported in mockafka).
-    - seek(partition) -> None: Seek to a specific offset in a partition (unsupported in mockafka). - store_offsets(
-    message=None, *args, **kwargs) -> None: Store offsets for consumed messages (unsupported in mockafka). -
-    consumer_group_metadata() -> None: Get consumer group metadata (unsupported in mockafka). - incremental_assign(
-    partitions) -> None: Incrementally assign partitions (unsupported in mockafka). - incremental_unassign(
-    partitions) -> None: Incrementally unassign partitions (unsupported in mockafka).
+    Methods:
+     - consume(num_messages=1, *args, **kwargs): Consume messages from subscribed topics.
+     - close(*args, **kwargs): Close the consumer and reset state.
+     - commit(message: Message = None, *args, **kwargs): Commit offsets for consumed messages.
+     - list_topics(topic=None, *args, **kwargs): List topics (returns ClusterMetadata).
+     - poll(timeout=None): Poll for messages from subscribed topics.
+     - _get_key(topic, partition) -> str: Generate a unique key for a topic-partition pair.
+     - subscribe(topics, on_assign=None, *args, **kwargs): Subscribe to one or more topics.
+     - unsubscribe(*args, **kwargs): Unsubscribe from one or more topics.
+     - assign(partitions): Assign partitions to the consumer (unsupported in mockafka).
+     - unassign(*args, **kwargs): Unassign partitions (unsupported in mockafka).
+     - assignment(*args, **kwargs) -> list: Get assigned partitions (unsupported in mockafka).
+     - committed(partitions, timeout=None) -> list: Get committed offsets (unsupported in mockafka).
+     - get_watermark_offsets(partition, timeout=None, *args, **kwargs) -> tuple: Get watermark offsets (unsupported in mockafka).
+     - offsets_for_times(partitions, timeout=None) -> list: Get offsets for given times (unsupported in mockafka).
+     - pause(partitions) -> None: Pause consumption from specified partitions (unsupported in mockafka).
+     - position(partitions) -> list: Get the current position of the consumer in specified partitions (unsupported in mockafka).
+     - resume(partitions) -> None: Resume consumption from specified partitions (unsupported in mockafka).
+     - seek(partition) -> None: Seek to a specific offset in a partition (unsupported in mockafka).
+     - store_offsets(message=None, *args, **kwargs) -> None: Store offsets for consumed messages (unsupported in mockafka).
+     - consumer_group_metadata() -> None: Get consumer group metadata (unsupported in mockafka).
+     - incremental_assign(partitions) -> None: Incrementally assign partitions (unsupported in mockafka).
+     - incremental_unassign(partitions) -> None: Incrementally unassign partitions (unsupported in mockafka).
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
