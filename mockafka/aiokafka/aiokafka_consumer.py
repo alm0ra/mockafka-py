@@ -77,7 +77,6 @@ class FakeAIOKafkaConsumer:
     - subscribe(): Subscribe to topics by name.
     - subscription(): Get subscribed topics.
     - unsubscribe(): Reset subscribed topics.
-    - _get_key(): Generate consumer_store lookup key from topic/partition.
     - getone(): Get next available message from subscribed topics.
       Updates consumer_store as messages are consumed.
     - getmany(): Get next available messages from subscribed topics.
@@ -86,7 +85,7 @@ class FakeAIOKafkaConsumer:
 
     def __init__(self, *topics: str, **kwargs: Any) -> None:
         self.kafka = KafkaStore()
-        self.consumer_store: dict[str, int] = {}
+        self.consumer_store: dict[TopicPartition, int] = {}
         self.subscribed_topic = [x for x in topics if self.kafka.is_topic_exist(x)]
         self._is_closed = True
 
@@ -99,14 +98,13 @@ class FakeAIOKafkaConsumer:
         self._is_closed = True
 
     async def commit(self):
-        for item in self.consumer_store:
-            topic, partition = item.split("*")
+        for (topic, partition), offset in self.consumer_store.items():
             if (
                     self.kafka.get_partition_first_offset(topic, partition)
-                    <= self.consumer_store[item]
+                    <= offset
             ):
                 self.kafka.set_first_offset(
-                    topic=topic, partition=partition, value=self.consumer_store[item]
+                    topic=topic, partition=partition, value=offset
                 )
 
         self.consumer_store = {}
@@ -160,9 +158,6 @@ class FakeAIOKafkaConsumer:
     def unsubscribe(self) -> None:
         self.subscribed_topic = []
 
-    def _get_key(self, topic: str, partition: int) -> str:
-        return f"{topic}*{partition}"
-
     def _fetch_one(self, topic: str, partition: int) -> Optional[ConsumerRecord[bytes, bytes]]:
 
         first_offset = self.kafka.get_partition_first_offset(
@@ -175,7 +170,7 @@ class FakeAIOKafkaConsumer:
             # Topic partition is empty
             return None
 
-        topic_key = self._get_key(topic, partition)
+        topic_key = TopicPartition(topic, partition)
 
         consumer_amount = self.consumer_store.setdefault(topic_key, first_offset)
         if consumer_amount == next_offset:
