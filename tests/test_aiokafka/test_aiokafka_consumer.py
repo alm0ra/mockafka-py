@@ -120,6 +120,15 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
 
+        await self.consumer.stop()
+
+        # We didn't commit, so we should see the same messages again
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test")
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test1")
+
     async def test_partition_specific_poll_without_commit(self):
         self.create_topic()
         await self.produce_two_messages()
@@ -136,6 +145,16 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         )
         self.assertEqual(message.value, b"test")
 
+        await self.consumer.stop()
+
+        # We didn't commit, so we should see the same results again
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone(TopicPartition(self.test_topic, 0))
+            self.assertEqual(message.value, b"test")
+
+            message = await new_consumer.getone(TopicPartition(self.test_topic, 2))
+            self.assertIsNone(message)
+
     async def test_poll_with_commit(self):
         self.create_topic()
         await self.produce_two_messages()
@@ -146,11 +165,14 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         await self.consumer.commit()
         self.assertEqual(message.value, b"test")
 
-        message = await self.consumer.getone()
-        await self.consumer.commit()
-        self.assertEqual(message.value, b"test1")
+        # We committed, so a new consumer should see the next message in the topic
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test1")
+            await new_consumer.commit()
 
-        self.assertIsNone(await self.consumer.getone())
+        # Back to the original consumer should see empty now that both messages
+        # are consumed
         self.assertIsNone(await self.consumer.getone())
 
     async def test_getmany_without_commit(self):
