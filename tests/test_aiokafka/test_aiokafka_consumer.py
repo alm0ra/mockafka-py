@@ -415,3 +415,6 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.consumer.subscribe(topics=topics)
         with self.assertRaises(ConsumerStoppedError):
             await self.consumer.getone()
+
+        with self.assertRaises(ConsumerStoppedError):
+            aiter(self.consumer)
