@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 import itertools
 from unittest import IsolatedAsyncioTestCase
 
@@ -16,6 +17,13 @@ from mockafka.aiokafka import (
     FakeAIOKafkaProducer,
 )
 from mockafka.kafka_store import KafkaStore
+
+if sys.version_info < (3, 10):
+    def aiter(async_iterable):  # noqa: A001
+        return async_iterable.__aiter__()
+
+    async def anext(async_iterable):  # noqa: A001
+        return await async_iterable.__anext__()
 
 
 @pytest.mark.asyncio
@@ -40,7 +48,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
     def create_topic(self):
         self.kafka.create_partition(topic=self.test_topic, partitions=16)
 
-    async def produce_message(self):
+    async def produce_two_messages(self):
         await self.producer.send(
             topic=self.test_topic, partition=0, key=b"test", value=b"test"
         )
@@ -50,6 +58,40 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_consume(self):
         await self.test_poll_with_commit()
+
+    async def test_async_iterator(self):
+        self.create_topic()
+        await self.produce_two_messages()
+        self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
+
+        iterator = aiter(self.consumer)
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test")
+
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test1")
+
+        # Technically at this point aiokafka's consumer would block
+        # indefinitely, however since that's not useful in tests we instead stop
+        # iterating.
+        with pytest.raises(StopAsyncIteration):
+            await anext(iterator)
+
+    async def test_async_iterator_closed_early(self):
+        self.create_topic()
+        await self.produce_two_messages()
+        self.consumer.subscribe(topics=[self.test_topic])
+        await self.consumer.start()
+
+        iterator = aiter(self.consumer)
+        message = await anext(iterator)
+        self.assertEqual(message.value, b"test")
+
+        await self.consumer.stop()
+
+        with pytest.raises(StopAsyncIteration):
+            await anext(iterator)
 
     async def test_start(self):
         # check consumer store is empty
@@ -69,7 +111,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -83,7 +125,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_partition_specific_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -99,7 +141,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_poll_with_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
@@ -116,7 +158,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
@@ -145,7 +187,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_with_limit_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=0, key=b"test2", value=b"test2"
         )
@@ -182,7 +224,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_specific_poll_without_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=1, key=b"test2", value=b"test2"
         )
@@ -210,7 +252,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
     async def test_getmany_with_commit(self):
         self.create_topic()
-        await self.produce_message()
+        await self.produce_two_messages()
         await self.producer.send(
             topic=self.test_topic, partition=2, key=b"test2", value=b"test2"
         )
@@ -287,7 +329,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         self.assertEqual(self.consumer.subscribed_topic, topics)
 
-        await self.produce_message()
+        await self.produce_two_messages()
 
         messages = {
             tp: self.summarise(msgs)
@@ -336,7 +378,7 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
 
         async with self.consumer as consumer:
             self.assertEqual(self.consumer, consumer)
-            await self.produce_message()
+            await self.produce_two_messages()
 
             messages = {
                 tp: self.summarise(msgs)
@@ -373,3 +415,6 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.consumer.subscribe(topics=topics)
         with self.assertRaises(ConsumerStoppedError):
             await self.consumer.getone()
+
+        with self.assertRaises(ConsumerStoppedError):
+            aiter(self.consumer)
