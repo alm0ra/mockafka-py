@@ -48,6 +48,8 @@ profile = "black"
 float_to_top = true
 
 [tool.mypy]
+files = ["mockafka", "tests"]
+
 warn_unused_ignores = true
 
 no_implicit_optional = true
