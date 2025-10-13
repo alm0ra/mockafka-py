@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --all-extras
 
       - name: Lint with flake8
         run: |
@@ -52,6 +52,20 @@ jobs:
       - name: Test with pytest
         run: |
           poetry run pytest --cov=./ --cov-report=xml
+
+      - name: Test confluent_kafka only
+        run: |
+          poetry sync --extras confluent-kafka
+          poetry run pytest -m "not asyncio"
+
+      - name: Test aiokafka only
+        run: |
+          poetry sync --extras aiokafka
+          poetry run pytest -m asyncio
+
+      - name: Sync packages for cache
+        run: |
+          poetry sync --all-extras
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from confluent_kafka import KafkaError  # type: ignore[import-untyped]
+from .exceptions import KafkaError
 
 
 class PartitionMetadata(object):

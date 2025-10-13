@@ -1,22 +1,27 @@
-[tool.poetry]
+[project]
 name = "mockafka-py"
 version = "0.2.2"
-authors = ["alm0ra <ali.mrd318@gmail.com>"]
+authors = [{ name = "alm0ra", email = "ali.mrd318@gmail.com>" }]
+description = "A mock library for confluent kafka"
+readme = "README.md"
+
+requires-python = ">=3.8,<4.0"
+
+dynamic = ["classifiers"]
+
+[project.urls]
 repository = "https://github.com/alm0ra/mockafka-py"
 documentation = "https://mockafka-py.readthedocs.io/"
 
+[project.optional-dependencies]
+confluent-kafka = ["confluent-kafka >= 1.9.2"]
+aiokafka = ["aiokafka >= 0.10, <0.13"]
 
-description = "A mock library for confluent kafka"
-readme = "README.md"
+[tool.poetry]
 packages = [{ include = "mockafka" }]
-classifiers = [
-    "Typing :: Typed",
-]
+classifiers = ["Typing :: Typed"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<4.0"
-confluent-kafka = ">= 1.9.2"
-aiokafka = ">=0.10,<0.13"
 typing-extensions = "^4.12.2"
 
 [tool.poetry.group.dev.dependencies]

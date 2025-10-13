@@ -3,12 +3,13 @@ from __future__ import annotations
 import time
 from typing import Any, Optional
 
-from confluent_kafka import (  # type: ignore[import-untyped]
+from mockafka.constants import (
     TIMESTAMP_CREATE_TIME,
     TIMESTAMP_LOG_APPEND_TIME,
     TIMESTAMP_NOT_AVAILABLE,
-    KafkaError,
 )
+
+from mockafka.exceptions import KafkaError
 
 
 class Message:
