@@ -19,6 +19,7 @@ offset_store = {
 from __future__ import annotations
 
 from copy import deepcopy
+from typing import Any
 
 from confluent_kafka import KafkaException  # type: ignore[import-untyped]
 
@@ -32,9 +33,9 @@ __all__ = ["KafkaStore"]
 
 
 class SingletonMeta(type):
-    _instances: dict[type[SingletonMeta], SingletonMeta] = {}
+    _instances: dict[SingletonMeta, Any] = {}
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
         if cls not in cls._instances or "clean" in kwargs.keys():
             instance = super().__call__(*args, **kwargs)
             cls._instances[cls] = instance
@@ -49,7 +50,7 @@ class KafkaStore(metaclass=SingletonMeta):
     FIRST_OFFSET = "first_offset"
     NEXT_OFFSET = "next_offset"
 
-    def __init__(self, clean: bool = False):
+    def __init__(self, clean: bool = False) -> None:
         if clean:
             mock_topics.clear()
             offset_store.clear()
@@ -70,13 +71,13 @@ class KafkaStore(metaclass=SingletonMeta):
         return len(mock_topics[topic].keys())
 
     @staticmethod
-    def create_topic(topic: str):
+    def create_topic(topic: str) -> None:
         if mock_topics.get(topic, None) is not None:
             raise KafkaException(f"{topic} exist is fake kafka")
 
         mock_topics[topic] = {}
 
-    def create_partition(self, topic: str, partitions: int):
+    def create_partition(self, topic: str, partitions: int) -> None:
         if not self.is_topic_exist(topic=topic):
             self.create_topic(topic=topic)
 
@@ -92,7 +93,7 @@ class KafkaStore(metaclass=SingletonMeta):
         else:
             raise KafkaException("can not decrease partition of topic")
 
-    def remove_topic(self, topic: str):
+    def remove_topic(self, topic: str) -> None:
         if not self.is_topic_exist(topic=topic):
             return
 
@@ -103,7 +104,7 @@ class KafkaStore(metaclass=SingletonMeta):
             if topic in offset_key:
                 offset_store.pop(offset_key)
 
-    def set_first_offset(self, topic: str, partition: int, value: int):
+    def set_first_offset(self, topic: str, partition: int, value: int) -> None:
         offset_store_key = self.get_offset_store_key(topic=topic, partition=partition)
         first_offset = self.get_partition_first_offset(topic=topic, partition=partition)
         next_offset = self.get_partition_next_offset(topic=topic, partition=partition)
@@ -111,14 +112,14 @@ class KafkaStore(metaclass=SingletonMeta):
         if first_offset < value <= next_offset:
             offset_store[offset_store_key][self.FIRST_OFFSET] = value
 
-    def _add_next_offset(self, topic: str, partition: int):
+    def _add_next_offset(self, topic: str, partition: int) -> None:
         offset_store_key = self.get_offset_store_key(topic=topic, partition=partition)
         offset_store[offset_store_key][self.NEXT_OFFSET] += 1
 
-    def get_offset_store_key(self, topic: str, partition: int):
+    def get_offset_store_key(self, topic: str, partition: int) -> str:
         return f"{topic}*{partition}"
 
-    def produce(self, message: Message, topic: str, partition: int):
+    def produce(self, message: Message, topic: str, partition: int) -> None:
         if not topic:
             return
 
@@ -174,15 +175,15 @@ class KafkaStore(metaclass=SingletonMeta):
 
         return count_of_messages
 
-    def clear_topic_messages(self, topic: str):
+    def clear_topic_messages(self, topic: str) -> None:
         for partition in self.partition_list(topic=topic):
             self.clear_partition_messages(topic=topic, partition=partition)
 
     @staticmethod
-    def clear_partition_messages(topic: str, partition: int):
+    def clear_partition_messages(topic: str, partition: int) -> None:
         mock_topics[topic][partition] = []
 
-    def reset_offset(self, topic: str, strategy: str = "latest"):
+    def reset_offset(self, topic: str, strategy: str = "latest") -> None:
         for partition in self.partition_list(topic=topic):
             key = self.get_offset_store_key(topic, partition)
 
@@ -195,6 +196,6 @@ class KafkaStore(metaclass=SingletonMeta):
                 offset_store[key][self.FIRST_OFFSET] = 0
 
     @staticmethod
-    def fresh():
+    def fresh() -> None:
         mock_topics.clear()
         offset_store.clear()

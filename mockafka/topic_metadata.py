@@ -16,7 +16,7 @@ class TopicMetadata(object):
     # Sphinx issue where it tries to reference the same instance variable
     # on other classes which raises a warning/error.
 
-    def __init__(self, topic_name: str, partition_num: Collection[int] = ()):
+    def __init__(self, topic_name: str, partition_num: Collection[int] = ()) -> None:
         self.topic = topic_name
         """Topic name"""
         self.partitions = {num: PartitionMetadata(id=num) for num in partition_num}
@@ -24,8 +24,8 @@ class TopicMetadata(object):
         self.error = None
         """Topic error, or None. Value is a KafkaError object."""
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.topic
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.partitions)

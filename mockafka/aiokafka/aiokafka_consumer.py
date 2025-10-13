@@ -160,7 +160,7 @@ class FakeAIOKafkaConsumer:
     def unsubscribe(self) -> None:
         self.subscribed_topic = []
 
-    def _get_key(self, topic, partition) -> str:
+    def _get_key(self, topic: str, partition: int) -> str:
         return f"{topic}*{partition}"
 
     def _fetch_one(self, topic: str, partition: int) -> Optional[ConsumerRecord[bytes, bytes]]:

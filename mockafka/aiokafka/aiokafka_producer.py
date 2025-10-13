@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Optional
+from typing import Any, Optional
 
 from aiokafka.util import create_future  # type: ignore[import-untyped]
 from typing_extensions import LiteralString, Self
@@ -39,7 +39,7 @@ class FakeAIOKafkaProducer:
     - send_and_wait(): Call send().
     """
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.kafka = KafkaStore()
 
     async def _produce(
@@ -88,7 +88,7 @@ class FakeAIOKafkaProducer:
             headers=headers,
             timestamp_ms=timestamp_ms,
         )
-        future = create_future()
+        future: asyncio.Future[None] = create_future()
         future.set_result(None)
         return future
 
@@ -99,7 +99,7 @@ class FakeAIOKafkaProducer:
         key: Optional[bytes] = None,
         partition: int = 0,
         timestamp_ms: Optional[int] = None,
-        headers=None,
+        headers: Optional[list[tuple[str, Optional[bytes]]]] = None,
     ) -> None:
         future = await self.send(
             topic=topic,

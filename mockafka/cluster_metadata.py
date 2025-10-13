@@ -36,10 +36,10 @@ class ClusterMetadata(object):
         self.orig_broker_id = -1
         self.orig_broker_name = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "ClusterMetadata({})".format(self.cluster_id)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.cluster_id)
 
 
