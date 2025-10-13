@@ -4,9 +4,10 @@
 name = "aiokafka"
 version = "0.11.0"
 description = "Kafka integration with asyncio"
-optional = false
+optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"aiokafka\""
 files = [
     {file = "aiokafka-0.11.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:926f93fb6a39891fd4364494432b479c0602f9cac708778d4a262a2c2e20d3b4"},
     {file = "aiokafka-0.11.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:38e1917e706c1158d5e1f612d1fc1b40f706dc46c534e73ab4de8ae2868a31be"},
@@ -57,9 +58,10 @@ zstd = ["cramjam"]
 name = "async-timeout"
 version = "4.0.3"
 description = "Timeout context manager for asyncio programs"
-optional = false
+optional = true
 python-versions = ">=3.7"
 groups = ["main"]
+markers = "extra == \"aiokafka\""
 files = [
     {file = "async-timeout-4.0.3.tar.gz", hash = "sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f"},
     {file = "async_timeout-4.0.3-py3-none-any.whl", hash = "sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028"},
@@ -263,9 +265,10 @@ markers = {dev = "sys_platform == \"win32\""}
 name = "confluent-kafka"
 version = "2.15.1"
 description = "Confluent's Python client for Apache Kafka"
-optional = false
+optional = true
 python-versions = ">=3.8"
 groups = ["main"]
+markers = "extra == \"confluent-kafka\""
 files = [
     {file = "confluent_kafka-2.15.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:328be3d445b17bc8df7a22d810f0d44f3ef97e9ec157ad73282f17acf2c86c12"},
     {file = "confluent_kafka-2.15.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:6bb7cdd82df28d2027dfb38d52ad6f3e362c1e9a9694514a736714c5eeff2a6c"},
@@ -602,7 +605,7 @@ version = "7.0.1"
 description = "Read metadata from Python packages"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev", "docs"]
+groups = ["docs"]
 markers = "python_version == \"3.9\""
 files = [
     {file = "importlib_metadata-7.0.1-py3-none-any.whl", hash = "sha256:4805911c3a4ec7c3966410053e9ec6a1fecd629117df5adee56dfc9432a1081e"},
@@ -816,7 +819,7 @@ version = "3.8.1"
 description = "Python implementation of John Gruber's Markdown."
 optional = false
 python-versions = ">=3.9"
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
     {file = "markdown-3.8.1-py3-none-any.whl", hash = "sha256:46cc0c0f1e5211ab2e9d453582f0b28a1bfaf058a9f7d5c50386b99b588d8811"},
     {file = "markdown-3.8.1.tar.gz", hash = "sha256:a2e2f01cead4828ee74ecca9623045f62216aef2212a7685d6eb9163f590b8c1"},
@@ -1163,6 +1166,7 @@ files = [
     {file = "packaging-26.3-py3-none-any.whl", hash = "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"},
     {file = "packaging-26.3.tar.gz", hash = "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79"},
 ]
+markers = {main = "extra == \"aiokafka\""}
 
 [[package]]
 name = "paginate"
@@ -1508,7 +1512,7 @@ files = [
     {file = "typing_extensions-4.13.2-py3-none-any.whl", hash = "sha256:a439e7c04b49fec3e5d3e2beaa21755cadbbdc391694e28ccdd36ca4a1408f8c"},
     {file = "typing_extensions-4.13.2.tar.gz", hash = "sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef"},
 ]
-markers = {docs = "python_version == \"3.9\""}
+markers = {main = "extra == \"confluent-kafka\" and python_version < \"3.11\" or extra == \"aiokafka\"", docs = "python_version == \"3.9\""}
 
 [[package]]
 name = "urllib3"
@@ -1576,7 +1580,7 @@ version = "3.20.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.8"
-groups = ["dev", "docs"]
+groups = ["docs"]
 markers = "python_version == \"3.9\""
 files = [
     {file = "zipp-3.20.2-py3-none-any.whl", hash = "sha256:a817ac80d6cf4b23bf7f2828b7cabf326f15a001bea8b1f9b49631780ba28350"},
@@ -1591,7 +1595,11 @@ enabler = ["pytest-enabler (>=2.2)"]
 test = ["big-O", "importlib-resources ; python_version < \"3.9\"", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy"]
 
+[extras]
+aiokafka = ["aiokafka"]
+confluent-kafka = ["confluent-kafka"]
+
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "eacf87a605e3133836efa18106570f81d69c03715032f0e22c0a81d4ebea63a9"
+content-hash = "c130fdcf97de5b26a7154ce213c3f30e5e0685cc34241466e7fe35c16202bdb8"
