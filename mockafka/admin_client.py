@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from confluent_kafka.cimpl import (  # type: ignore[import-untyped]
     NewPartitions,
     NewTopic,
@@ -35,7 +37,7 @@ class FakeAdminClientImpl:
     store (not implemented).
     """
 
-    def __init__(self, clean: bool = False, *args, **kwargs):
+    def __init__(self, clean: bool = False, *args: Any, **kwargs) -> None:
         """
         Initialize the FakeAdminClientImpl.
 
@@ -49,7 +51,7 @@ class FakeAdminClientImpl:
         Create partitions in the in-memory Kafka store.
 
         Parameters:
-        - partitions (List[NewPartitions]): List of partition objects to be created.    
+        - partitions (List[NewPartitions]): List of partition objects to be created.
 
         Returns:
         - dict[str, NewPartitions]: Dictionary of created partitions.
@@ -60,7 +62,7 @@ class FakeAdminClientImpl:
             result[partition.topic] = partition
         return result
 
-    def create_partition(self, partition: NewPartitions):
+    def create_partition(self, partition: NewPartitions) -> None:
         """
         Create a single partition in the in-memory Kafka store.
 
@@ -71,7 +73,7 @@ class FakeAdminClientImpl:
             topic=partition.topic, partitions=partition.new_total_count
         )
 
-    def create_topics(self, topics: list[NewTopic]):
+    def create_topics(self, topics: list[NewTopic]) -> None:
         """
         Create topics in the in-memory Kafka store.
 
@@ -81,7 +83,7 @@ class FakeAdminClientImpl:
         for topic in topics:
             self.create_topic(topic=topic)
 
-    def create_topic(self, topic: NewTopic):
+    def create_topic(self, topic: NewTopic) -> None:
         """
         Create a single topic in the in-memory Kafka store.
 
@@ -106,7 +108,7 @@ class FakeAdminClientImpl:
         for topic in topics:
             self.delete_topic(topic=topic)
 
-    def delete_topic(self, topic: NewTopic):
+    def delete_topic(self, topic: NewTopic) -> None:
         """
         Delete a single topic from the in-memory Kafka store.
 
