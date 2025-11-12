@@ -244,6 +244,24 @@ class FakeAIOKafkaConsumer:
 
         return dict(result)
 
+    def __aiter__(self):
+        if self._is_closed:
+            raise ConsumerStoppedError()
+        return self
+
+    async def __anext__(self) -> ConsumerRecord[bytes, bytes]:
+        while True:
+            try:
+                result = await self.getone()
+                if result is None:
+                    # Follow the lead of `getone`, though note that we should
+                    # address this as part of any fix to
+                    # https://github.com/alm0ra/mockafka-py/issues/117
+                    raise StopAsyncIteration
+                return result
+            except ConsumerStoppedError:
+                raise StopAsyncIteration from None
+
     async def __aenter__(self) -> Self:
         await self.start()
         return self
