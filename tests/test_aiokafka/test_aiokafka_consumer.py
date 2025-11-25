@@ -56,9 +56,6 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
             topic=self.test_topic, partition=0, key=b"test1", value=b"test1"
         )
 
-    async def test_consume(self):
-        await self.test_poll_with_commit()
-
     async def test_async_iterator(self):
         self.create_topic()
         await self.produce_two_messages()
@@ -123,6 +120,15 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertIsNone(await self.consumer.getone())
         self.assertIsNone(await self.consumer.getone())
 
+        await self.consumer.stop()
+
+        # We didn't commit, so we should see the same messages again
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test")
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test1")
+
     async def test_partition_specific_poll_without_commit(self):
         self.create_topic()
         await self.produce_two_messages()
@@ -139,6 +145,16 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         )
         self.assertEqual(message.value, b"test")
 
+        await self.consumer.stop()
+
+        # We didn't commit, so we should see the same results again
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone(TopicPartition(self.test_topic, 0))
+            self.assertEqual(message.value, b"test")
+
+            message = await new_consumer.getone(TopicPartition(self.test_topic, 2))
+            self.assertIsNone(message)
+
     async def test_poll_with_commit(self):
         self.create_topic()
         await self.produce_two_messages()
@@ -149,12 +165,87 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         await self.consumer.commit()
         self.assertEqual(message.value, b"test")
 
-        message = await self.consumer.getone()
-        await self.consumer.commit()
-        self.assertEqual(message.value, b"test1")
+        # We committed, so a new consumer should see the next message in the topic
+        async with FakeAIOKafkaConsumer(self.test_topic) as new_consumer:
+            message = await new_consumer.getone()
+            self.assertEqual(message.value, b"test1")
+            await new_consumer.commit()
 
+        # Back to the original consumer should see empty now that both messages
+        # are consumed
         self.assertIsNone(await self.consumer.getone())
-        self.assertIsNone(await self.consumer.getone())
+
+    async def test_partition_specific_poll_with_commit(self):
+        topic_a = "topic-a"
+        topic_b = "topic-b"
+
+        self.kafka.create_partition(topic=topic_a, partitions=2)
+        self.kafka.create_partition(topic=topic_b, partitions=2)
+
+        await self.producer.send(
+            topic=topic_a, partition=0, key=b"a0.0", value=b"a0.0"
+        )
+        await self.producer.send(
+            topic=topic_a, partition=0, key=b"a0.1", value=b"a0.1"
+        )
+        await self.producer.send(
+            topic=topic_a, partition=1, key=b"a1.0", value=b"a1.0"
+        )
+        await self.producer.send(
+            topic=topic_b, partition=0, key=b"b0.0", value=b"b0.0"
+        )
+        await self.producer.send(
+            topic=topic_b, partition=0, key=b"b0.1", value=b"b0.1"
+        )
+
+        self.consumer.subscribe(topics=[topic_a, topic_b])
+        await self.consumer.start()
+
+        await self.consumer.getmany(
+            TopicPartition(topic_a, 0),
+            TopicPartition(topic_a, 1),
+        )
+        await self.consumer.getone(
+            TopicPartition(topic_b, 0),
+        )
+
+        # Only commit the first messages from each partition on topic a -- this
+        # leaves one message non-committed on the 0th partition and shouldn't
+        # affect either our logical or committed position on topic b.
+        await self.consumer.commit({
+            TopicPartition(topic_a, 0): 1,
+            TopicPartition(topic_a, 1): 1,
+        })
+
+        result = await self.consumer.getmany()
+        simple_result = {
+            tp: [x.value for x in msgs]
+            for tp, msgs in result.items()
+        }
+
+        assert simple_result == {
+            # Topic A is fully consumed, even though not fully committed, so no
+            # further results here.
+
+            # One more message on topic B partition 0
+            TopicPartition(topic_b, 0): [b"b0.1"],
+        }, "Wrong result after commit"
+
+        # We didn't commit, so we should see the same results again
+        async with FakeAIOKafkaConsumer(topic_a, topic_b) as new_consumer:
+            new_result = await new_consumer.getmany()
+            simple_new_result = {
+                tp: [x.value for x in msgs]
+                for tp, msgs in new_result.items()
+            }
+
+            assert simple_new_result == {
+                # Topic A partition 1 wasn't fully committed -- the remaining
+                # message should be here.
+                TopicPartition(topic_a, 0): [b"a0.1"],
+                # Topic B wasn't committed -- all messages appear
+                TopicPartition(topic_b, 0): [b"b0.0", b"b0.1"],
+            }, "Wrong result from fresh consumer"
 
     async def test_getmany_without_commit(self):
         self.create_topic()
