@@ -16,7 +16,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
 confluent-kafka = ">= 1.9.2"
-aiokafka = ">=0.10,<0.13"
+aiokafka = ">=0.10,<0.14"
 typing-extensions = "^4.12.2"
 
 [tool.poetry.group.dev.dependencies]
