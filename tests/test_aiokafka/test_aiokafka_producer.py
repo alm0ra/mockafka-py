@@ -51,15 +51,19 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
                 partition=17,
             )
 
-    async def test_produce_fail_for_none_partition(self):
-        with pytest.raises(KafkaException):
-            await self.producer.send(
-                headers={},
-                key=self.key,
-                value=self.value,
-                topic=self.topic,
-                partition=None,
-            )
+    async def test_produce_without_partition(self):
+        await self._create_mock_topic()
+        # Producing without a partition should auto-assign one (like real Kafka)
+        await self.producer.send(
+            headers={},
+            key=self.key,
+            value=self.value,
+            topic=self.topic,
+            partition=None,
+        )
+        self.assertEqual(
+            self.kafka.number_of_message_in_topic(topic=self.topic), 1
+        )
 
     async def test_produce_once(self) -> None:
         await self._create_mock_topic()

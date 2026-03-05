@@ -107,7 +107,8 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.assertEqual(self.consumer.consumer_store, {})
 
         await self.consumer.start()
-        self.assertIsNone(await self.consumer.getone())
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
 
     async def test_poll_without_commit(self):
         self.create_topic()
@@ -120,8 +121,10 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         message = await self.consumer.getone()
         self.assertEqual(message.value, b"test1")
 
-        self.assertIsNone(await self.consumer.getone())
-        self.assertIsNone(await self.consumer.getone())
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
 
     async def test_partition_specific_poll_without_commit(self):
         self.create_topic()
@@ -129,10 +132,10 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         self.consumer.subscribe(topics=[self.test_topic])
         await self.consumer.start()
 
-        message = await self.consumer.getone(
-            TopicPartition(self.test_topic, 2),
-        )
-        self.assertIsNone(message)
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone(
+                TopicPartition(self.test_topic, 2),
+            )
 
         message = await self.consumer.getone(
             TopicPartition(self.test_topic, 0),
@@ -153,8 +156,10 @@ class TestAIOKAFKAFakeConsumer(IsolatedAsyncioTestCase):
         await self.consumer.commit()
         self.assertEqual(message.value, b"test1")
 
-        self.assertIsNone(await self.consumer.getone())
-        self.assertIsNone(await self.consumer.getone())
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
+        with self.assertRaises(ConsumerStoppedError):
+            await self.consumer.getone()
 
     async def test_getmany_without_commit(self):
         self.create_topic()

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
+from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
 
 from mockafka import aconsume, aproduce, asetup_kafka
 from mockafka.aiokafka import (
@@ -53,9 +54,8 @@ async def test_produce_and_consume():
     assert message.key == b"test_key"
     assert message.value == b"test_value"
 
-    message = await consumer.getone()
-
-    assert message is None
+    with pytest.raises(ConsumerStoppedError):
+        await consumer.getone()
 
 
 @pytest.mark.asyncio

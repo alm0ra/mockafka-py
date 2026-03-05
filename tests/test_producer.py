@@ -48,15 +48,18 @@ class TestFakeProducer(TestCase):
                 partition=17,
             )
 
-    def test_produce_fail_for_none_partition(self):
-        with pytest.raises(KafkaException):
-            self.producer.produce(
-                headers={},
-                key=self.key,
-                value=self.value,
-                topic=self.topic,
-                partition=None,
-            )
+    def test_produce_without_partition(self):
+        # Producing without a partition should auto-assign one (like real Kafka)
+        self.producer.produce(
+            headers={},
+            key=self.key,
+            value=self.value,
+            topic=self.topic,
+            partition=None,
+        )
+        self.assertEqual(
+            self.kafka.number_of_message_in_topic(topic=self.topic), 1
+        )
 
     def test_produce_once(self) -> None:
         self.producer.produce(

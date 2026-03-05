@@ -98,7 +98,23 @@ class FakeAIOKafkaConsumer:
         self.consumer_store = {}
         self._is_closed = True
 
-    async def commit(self):
+    async def commit(self, offsets: Optional[dict[TopicPartition, int]] = None):
+        if offsets is not None:
+            for tp, offset in offsets.items():
+                topic = tp.topic
+                partition = tp.partition
+                # Extract the offset value: support both raw ints and
+                # OffsetAndMetadata-like objects (which have an .offset attr).
+                offset_val = getattr(offset, "offset", offset)
+                if (
+                        self.kafka.get_partition_first_offset(topic, partition)
+                        <= offset_val
+                ):
+                    self.kafka.set_first_offset(
+                        topic=topic, partition=partition, value=offset_val
+                    )
+            return
+
         for item in self.consumer_store:
             topic, partition = item.split("*")
             if (
@@ -216,14 +232,19 @@ class FakeAIOKafkaConsumer:
 
     async def getone(
             self, *partitions: TopicPartition
-    ) -> Optional[ConsumerRecord[bytes, bytes]]:
+    ) -> ConsumerRecord[bytes, bytes]:
         if self._is_closed:
             raise ConsumerStoppedError()
 
         for _, record in self._fetch(partitions):
             return record
 
-        return None
+        raise ConsumerStoppedError(
+            "No messages available. The real aiokafka consumer would block "
+            "indefinitely here, but mockafka raises this error instead to "
+            "prevent tests from hanging. Ensure messages have been produced "
+            "before consuming."
+        )
 
     async def getmany(
             self,
@@ -250,17 +271,10 @@ class FakeAIOKafkaConsumer:
         return self
 
     async def __anext__(self) -> ConsumerRecord[bytes, bytes]:
-        while True:
-            try:
-                result = await self.getone()
-                if result is None:
-                    # Follow the lead of `getone`, though note that we should
-                    # address this as part of any fix to
-                    # https://github.com/alm0ra/mockafka-py/issues/117
-                    raise StopAsyncIteration
-                return result
-            except ConsumerStoppedError:
-                raise StopAsyncIteration from None
+        try:
+            return await self.getone()
+        except ConsumerStoppedError:
+            raise StopAsyncIteration from None
 
     async def __aenter__(self) -> Self:
         await self.start()

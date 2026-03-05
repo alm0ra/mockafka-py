@@ -18,6 +18,7 @@ offset_store = {
 
 from __future__ import annotations
 
+import random
 from copy import deepcopy
 from typing import Any
 
@@ -119,14 +120,17 @@ class KafkaStore(metaclass=SingletonMeta):
     def get_offset_store_key(self, topic: str, partition: int) -> str:
         return f"{topic}*{partition}"
 
-    def produce(self, message: Message, topic: str, partition: int) -> None:
+    def produce(self, message: Message, topic: str, partition: int | None = None) -> None:
         if not topic:
             return
 
         if partition is None:
-            raise KafkaException(
-                "you must assign partition when you want to produce message"
-            )
+            if self.is_topic_exist(topic=topic) and self.partition_list(topic=topic):
+                partition = random.choice(self.partition_list(topic=topic))
+            else:
+                # Auto-create topic with 1 partition and use partition 0
+                self.create_partition(topic=topic, partitions=1)
+                partition = 0
 
         if not self.is_topic_exist(topic=topic):
             if partition == 0:
