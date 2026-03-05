@@ -11,6 +11,7 @@ from .decorators import (
     produce,
     setup_kafka,
 )
+from .exceptions import MockafkaNoMessagesError
 from .message import Message
 from .producer import FakeProducer
 
@@ -19,6 +20,7 @@ __all__ = [
     "FakeConsumer",
     "FakeAdminClientImpl",
     "Message",
+    "MockafkaNoMessagesError",
     "produce",
     "bulk_produce",
     "setup_kafka",

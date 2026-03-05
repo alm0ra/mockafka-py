@@ -28,15 +28,17 @@ class TestFakeProducer(TestCase):
         self.key = "test_key"
         self.value = "test_value"
 
-    def test_produce_failed_topic_not_exist(self):
-        with pytest.raises(KafkaException):
-            self.producer.produce(
-                headers={},
-                key=self.key,
-                value=self.value,
-                topic="alaki",
-                partition=0,
-            )
+    def test_produce_auto_creates_topic(self):
+        # Producing to a non-existent topic should auto-create it
+        self.producer.produce(
+            headers={},
+            key=self.key,
+            value=self.value,
+            topic="alaki",
+            partition=0,
+        )
+        self.assertTrue(self.kafka.is_topic_exist("alaki"))
+        self.assertEqual(self.kafka.number_of_message_in_topic("alaki"), 1)
 
     def test_produce_on_partition_not_exist(self):
         with pytest.raises(KafkaException):

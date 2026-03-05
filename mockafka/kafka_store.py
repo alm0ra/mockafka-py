@@ -133,9 +133,8 @@ class KafkaStore(metaclass=SingletonMeta):
                 partition = 0
 
         if not self.is_topic_exist(topic=topic):
-            if partition == 0:
-                partition = 1
-            self.create_partition(topic=topic, partitions=partition)
+            # Create enough partitions to include the requested one
+            self.create_partition(topic=topic, partitions=partition + 1)
 
         if mock_topics[topic].get(partition, None) is None:
             raise KafkaException(

@@ -5,9 +5,8 @@ from unittest import IsolatedAsyncioTestCase
 
 import pytest
 from aiokafka.admin import NewTopic  # type: ignore[import-untyped]
-from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
-
 from mockafka import Message
+from mockafka.exceptions import MockafkaNoMessagesError
 from mockafka.aiokafka import (
     FakeAIOKafkaAdmin,
     FakeAIOKafkaConsumer,
@@ -60,7 +59,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
         await self.consumer.commit()
 
         # check there is no message in mock kafka
-        with self.assertRaises(ConsumerStoppedError):
+        with self.assertRaises(MockafkaNoMessagesError):
             await self.consumer.getone()
 
     @aproduce(topic="test", key=b"test_key", value=b"test_value", partition=4)
@@ -90,7 +89,7 @@ class TestDecorators(IsolatedAsyncioTestCase):
         await self.consumer.commit()
 
         # check there is no message in mock kafka
-        with self.assertRaises(ConsumerStoppedError):
+        with self.assertRaises(MockafkaNoMessagesError):
             await self.consumer.getone()
 
     @asetup_kafka(topics=[{"topic": "test_topic", "partition": 16}])

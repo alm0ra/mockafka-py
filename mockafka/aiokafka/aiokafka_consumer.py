@@ -16,6 +16,7 @@ from aiokafka.structs import (  # type: ignore[import-untyped]
 )
 from typing_extensions import Self
 
+from mockafka.exceptions import MockafkaNoMessagesError
 from mockafka.kafka_store import KafkaStore
 from mockafka.message import Message
 
@@ -98,14 +99,21 @@ class FakeAIOKafkaConsumer:
         self.consumer_store = {}
         self._is_closed = True
 
-    async def commit(self, offsets: Optional[dict[TopicPartition, int]] = None):
+    async def commit(self, offsets: Optional[dict[TopicPartition, Any]] = None):
         if offsets is not None:
             for tp, offset in offsets.items():
                 topic = tp.topic
                 partition = tp.partition
-                # Extract the offset value: support both raw ints and
-                # OffsetAndMetadata-like objects (which have an .offset attr).
-                offset_val = getattr(offset, "offset", offset)
+                # aiokafka supports three formats:
+                #   {tp: int}                  - raw offset
+                #   {tp: (int, metadata_str)}  - tuple of (offset, metadata)
+                #   {tp: OffsetAndMetadata}    - object with .offset attr
+                if isinstance(offset, tuple):
+                    offset_val = offset[0]
+                elif isinstance(offset, int):
+                    offset_val = offset
+                else:
+                    offset_val = offset.offset
                 if (
                         self.kafka.get_partition_first_offset(topic, partition)
                         <= offset_val
@@ -239,12 +247,7 @@ class FakeAIOKafkaConsumer:
         for _, record in self._fetch(partitions):
             return record
 
-        raise ConsumerStoppedError(
-            "No messages available. The real aiokafka consumer would block "
-            "indefinitely here, but mockafka raises this error instead to "
-            "prevent tests from hanging. Ensure messages have been produced "
-            "before consuming."
-        )
+        raise MockafkaNoMessagesError()
 
     async def getmany(
             self,
@@ -273,7 +276,7 @@ class FakeAIOKafkaConsumer:
     async def __anext__(self) -> ConsumerRecord[bytes, bytes]:
         try:
             return await self.getone()
-        except ConsumerStoppedError:
+        except (ConsumerStoppedError, MockafkaNoMessagesError):
             raise StopAsyncIteration from None
 
     async def __aenter__(self) -> Self:

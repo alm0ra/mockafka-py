@@ -31,17 +31,21 @@ class TestFakeProducer(IsolatedAsyncioTestCase):
             ]
         )
 
-    async def test_produce_failed_topic_not_exist(self):
-        with pytest.raises(KafkaException):
-            await self.producer.send(
-                headers={},
-                key=self.key,
-                value=self.value,
-                topic="alaki",
-                partition=0,
-            )
+    async def test_produce_auto_creates_topic(self):
+        # Producing to a non-existent topic should auto-create it
+        await self.producer.send(
+            headers={},
+            key=self.key,
+            value=self.value,
+            topic="alaki",
+            partition=0,
+        )
+        self.assertTrue(self.kafka.is_topic_exist("alaki"))
+        self.assertEqual(self.kafka.number_of_message_in_topic("alaki"), 1)
 
     async def test_produce_on_partition_not_exist(self):
+        # Create topic with 4 partitions, then try partition 17
+        await self._create_mock_topic()
         with pytest.raises(KafkaException):
             await self.producer.send(
                 headers={},

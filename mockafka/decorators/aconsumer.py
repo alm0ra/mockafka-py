@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from functools import wraps
 
-from aiokafka.errors import ConsumerStoppedError  # type: ignore[import-untyped]
-
 from mockafka.aiokafka import FakeAIOKafkaConsumer
+from mockafka.exceptions import MockafkaNoMessagesError
 
 
 def aconsume(topics: list[str], auto_commit: bool = True):
@@ -43,7 +42,7 @@ def aconsume(topics: list[str], auto_commit: bool = True):
             while True:
                 try:
                     message = await fake_consumer.getone()
-                except ConsumerStoppedError:
+                except MockafkaNoMessagesError:
                     break
 
                 # Call the original function with the consumed message
