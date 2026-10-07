@@ -1,25 +1,204 @@
 name: publish docs
+
 on:
   push:
     branches:
       - main
+  pull_request:
+
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  deploy:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+          cache: 'poetry'
+
+      - run: poetry install --only docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Build
+        run: |
+          mkdocs build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./site
+
+  changes:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    outputs:
+      build-system: ${{ steps.filter.outputs.build-system }}
+    steps:
+      - name: Check if build system changed
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            build-system:
+              - .github/**/*
+              - pyproject.toml
+              - poetry.lock
+              - mkdocs.yml
+
+  build-main:
+    needs:
+      - changes
+    if: needs.changes.outputs.build-system == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
         with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v6
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
         with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install mkdocs
-      - run: pip install mkdocs-material
-      - run: mkdocs gh-deploy --force
+          python-version: '3.x'
+          cache: 'poetry'
+
+      - run: poetry install --only docs
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Build
+        run: |
+          mkdocs build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          name: build-from-main
+          path: ./site
+
+  diff:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - build-main
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download artifact from this branch's build
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+
+      - name: Unpack local build
+        run: |
+          mkdir local
+          pushd local
+          tar --extract --file ../artifact.tar
+          popd
+          mv artifact.tar local.tar
+
+      - name: Download artifact from main branch build
+        uses: actions/download-artifact@v8
+        with:
+          name: build-from-main
+
+      - name: Unpack main build
+        run: |
+          mkdir main
+          pushd main
+          tar --extract --file ../artifact.tar
+          popd
+          mv artifact.tar main.tar
+
+      # The compression of the sitemap appears to be non-deterministic, so diffs
+      # aren't useful. There is a non-compressed version also present, so we're
+      # not losing anything by dropping the compressed one.
+      - name: Drop compressed sitemap
+        run: |
+          pushd main
+          [ -f sitemap.xml ] && rm sitemap.xml.gz
+          popd
+          pushd local
+          [ -f sitemap.xml ] && rm sitemap.xml.gz
+          popd
+
+      - name: Diff
+        id: diff
+        run: |
+          set +e
+          diff -ru main local > ./result.diff
+          result=$?
+          set -euo pipefail
+
+          delimiter="gha-delim-$RANDOM-$RANDOM-gha-delim"
+          {
+            echo "diff<<${delimiter}"
+            cat ./result.diff
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
+
+          cat ./result.diff
+
+          if [[ $result -ne 0 ]]
+          then
+            echo has-changes=true >> "$GITHUB_OUTPUT"
+          else
+            echo has-changes=false >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build comment
+        id: build-comment
+        if: always()
+        run: |
+          {
+            if [[ "${{ steps.diff.outputs.has-changes }}" = "true" ]]
+            then
+              echo "🔀 Build diff:"
+              echo '```diff'
+              cat ./result.diff
+              echo '```'
+            else
+              echo "Build has no changes."
+            fi
+          } > ./comment.md
+
+      - name: Post diff to PR
+        uses: thollander/actions-comment-pull-request@v2
+        if: always()
+        with:
+          comment_tag: build-diff
+          filePath: ./comment.md
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    needs:
+      - build
+
+    if: github.event == 'push' && github.ref_name == 'main'
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
