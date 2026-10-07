@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from confluent_kafka.cimpl import (  # type: ignore[import-untyped]
+from confluent_kafka.cimpl import (
     NewPartitions,
     NewTopic,
 )
