@@ -21,7 +21,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from confluent_kafka import KafkaException  # type: ignore[import-untyped]
+from confluent_kafka import KafkaException
 
 from .message import Message
 
