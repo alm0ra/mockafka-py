@@ -114,12 +114,12 @@ class FakeConsumer(object):
             for item in self.consumer_store:
                 topic, partition = item.split("*")
                 if (
-                    self.kafka.get_partition_first_offset(topic, partition)
+                    self.kafka.get_partition_first_offset(topic, int(partition))
                     <= self.consumer_store[item]
                 ):
                     self.kafka.set_first_offset(
                         topic=topic,
-                        partition=partition,
+                        partition=int(partition),
                         value=self.consumer_store[item],
                     )
 
